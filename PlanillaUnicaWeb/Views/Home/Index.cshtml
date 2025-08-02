@@ -1,0 +1,89 @@
+﻿@using PlanillaUnicaWeb.Models
+
+<script>
+    $(document).ready(function () {
+
+        setTimeout(function () {
+            $(".content").fadeOut(1500);
+        }, 3000);
+
+    });
+</script>
+
+<style>
+    .text-header {
+        width: 100%;
+        margin-bottom: 30px;
+    }
+</style>
+
+<div class="container-fluid px-0">
+    <div class="card shadow">
+
+        @if (!(Session["user_Name"] == null))
+        {
+            <div class="card-body">
+                <h4>Bienvenido <strong>@Session["user_Name"] @Session["user_Apellido"] !</strong></h4>
+                <p>Use el menú de navegación para mas opciones.</p> <!--AQUI MOSTRAMOS LA GRILLA DE SOLICITUDES PENDIENTES DEL USUARIO-->
+            </div>
+
+            <div class="card-body">
+                <hr />
+            </div>
+        }
+        else
+        {
+            using (Html.BeginForm("SignIn", "Account", null, FormMethod.Post, null))
+            {
+                <div class="card-body">
+                    <div class="jumbotron bg-white shadow col-md-4 offset-md-4 mt-3 py-6">
+                        <div class="row">
+                            <div class="form-login col-lg-12">
+                                <div class=" text-center">
+                                    <img src="~/img/planilla-unica-soloverde-new.png" class="text-header" />
+                                    <p class="text-muted">Bienvenido!</p>
+                                </div>
+                                <form class="mt-5" action="#">
+                                    <div class="mb-4 col-lg-10 mx-auto">
+                                        <label for="email" class="form-label fw-semibold">Email:</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="email"
+                                               name="email"
+                                               aria-describedby="emailHelp"
+                                               placeholder="nombre@cimaurbano.cl" />
+                                    </div>
+                                    <div class="mb-4 col-lg-10 mx-auto">
+                                        <label for="password" class="form-label fw-semibold">Contraseña:</label>
+                                        <input type="password"
+                                               class="form-control"
+                                               id="password"
+                                               name="password"
+                                               placeholder="Tú contraseña" />
+                                    </div>
+                                    <div class="d-grid col-lg-10 mx-auto">
+                                        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+                                    </div>
+                                    <!--
+                                    <div class="d-grid col-lg-10 mx-auto p-3">
+                                        <input type="button" class="btn btn-info btn-block" value="¿Olvidaste tu clave?" onclick="location.href='@Url.Action("Olvido", "CambioClave")'" />
+                                    </div>
+                                    -->
+                                    @if (TempData["Mensaje"] != null)
+                                    {
+                                        <div class="content col-lg-10 mx-auto alert alert-danger">
+                                            <button type="button" class="close" data-dismiss="toast" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            @TempData["Mensaje"].ToString()
+                                        </div>
+                                    }
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</div>

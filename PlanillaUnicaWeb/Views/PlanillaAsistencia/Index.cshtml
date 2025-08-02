@@ -1,0 +1,170 @@
+﻿@model IEnumerable<Object>
+@{
+    List<PlanillaUnicaWeb.Models.Gen_Empresa> lstEmpresa = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.Gen_Empresa>;
+    List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCosto = Model.ToList()[1] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
+    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
+    PlanillaUnicaWeb.Models.FiltroPlanilla filtroPlanilla = Model.ToArray()[3] as PlanillaUnicaWeb.Models.FiltroPlanilla;
+
+
+    string classAlerta = string.Empty;
+
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@{ Html.EnableClientValidation(true);
+    Html.EnableUnobtrusiveJavaScript(true); }
+
+<script>
+
+    $(document).ready(function (e) {
+
+
+        $('#tablaPlanilla').DataTable(
+            {
+                "language": {
+                    "lengthMenu": "Motrar _MENU_ registros por página",
+                    "zeroRecords": "Sin información",
+                    "search": "Buscar:",
+                    "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
+                    "infoEmpty": "Sin información disponible",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            }
+        );
+
+        setTimeout(function () {
+            $(".content").fadeOut(1500);
+        }, 3000);
+
+    });
+
+</script>
+
+
+<div class="card shadow">
+    <div class="card-body">
+        @using (Html.BeginForm("Cargar", "Acceso", null, FormMethod.Post, null))
+        {
+            <div class="row mx-auto">
+                <div class="col-md-12 mx-auto">
+                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Planilla Asistencia</h4>
+                </div>
+            </div>
+            <div class="row mx-auto">
+                <div class="col-md-12 mt-3 mx-auto">
+                    <div class="row">
+                        <div class="col-md-2 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroPlanilla.Genemp_Id,
+                             new SelectList(lstEmpresa, "Genemp_Id", "Genemp_Descripcion"),
+                             "-- Selecciona Empresa --", new { @class = "form-control", id = "empresaDropdown", data_placeholder = "Selecciona Empresa" })
+                        </div>
+                        <div class="col-md-3 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroPlanilla.Gencencos_Id,
+                                             new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
+                                             "-- Seleccione Centro de Costo --",
+                                             new { @class = "form-control", id = "centroCostoDropdown" })
+                            @Html.ValidationMessageFor(x => filtroPlanilla.Gencencos_Id, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-2 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroPlanilla.Periodo,
+                                            new SelectList(lstAno, "Ano", "Ano"),
+                                            "-- Selecciona Periodo --",
+                                            new { @class = "form-control", id = "periodoDropdown", data_placeholder = "Selecciona Periodo" })
+                        </div>
+                        <div class="col-md-2 mt-3 auto">
+
+                        </div>
+                        <div class="col-md-3 mt-3 auto">
+                            <input type="submit" class="btn btn-primary float-left px-4" value="Buscar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <br />
+
+        <div class="row mx-auto">
+            <div class="col mx-auto">
+                <table id="tablaPlanilla" class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th></th>
+                            <th>RUT</th>
+                            <th>Apellidos y Nombres</th>
+                            <th>Cargo Liquidación</th>
+                            <th>cargo Genérico</th>
+                            <th>JEAS</th>
+                            <th>REF1</th>
+                            <th>REF2</th>
+                            <th>Cargo Genérico</th>
+                            <th>JEAS</th>
+                            <th>REF1</th>
+                            <th>REF2</th>
+                            <th>RUT</th>
+                            <th>Fecha Ingreso</th>
+                            <th>Fecha Término</th>
+                            <th>Nro. de Contrato</th>
+                            <th>Temporal</th>
+                            <th>Lu</th>
+                            <th>Ma</th>
+                            <th>Mi</th>
+                            <th>Ju</th>
+                            <th>Vi</th>
+                            <th>Sá</th>
+                            <th>Do</th>
+                            <th>Días</th>
+                            <th>HE50</th>
+                            <th>HE100</th>
+                            <th>Atraso</th>
+                            <th>Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<script>
+
+    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCosto));
+
+    $(document).ready(function () {
+        // Cuando se seleccione una empresa para cargar los centros de costo asociados
+        $('#empresaDropdown').change(function () {
+            var empresaId = $(this).val(); // Obtener el ID de la empresa
+
+            // Limpiar el dropdown de centros de costo
+            $('#centroCostoDropdown').empty();
+            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opción por defecto
+
+            // Si hay una empresa seleccionada
+            if (empresaId) {
+                // Filtrar los centros de costo que pertenecen a la empresa seleccionada
+                var filteredCentrosCosto = centrosCostoList.filter(function (item) {
+                    return item.Genemp_Id == empresaId; // Comparar con la empresa seleccionada
+                });
+
+                // Llenar el dropdown con las centros de costo filtrados
+                $.each(filteredCentrosCosto, function (index, item) {
+                    $('#centroCostoDropdown').append($('<option>').val(item.Gencencos_Id).text(item.Gencencos_Codigo + ' - ' + item.Gencencos_Descripcion));
+                });
+            }
+        });
+    });
+</script>

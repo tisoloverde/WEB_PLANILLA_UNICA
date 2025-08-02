@@ -1,0 +1,2588 @@
+﻿@model IEnumerable<Object>
+@{ List<PlanillaUnicaWeb.Models.ColaboradorLista> lstColaborador = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.ColaboradorLista>;
+
+    PlanillaUnicaWeb.Models.Rh_Colaborador colaboradorEdit = Model.ToList()[1] as PlanillaUnicaWeb.Models.Rh_Colaborador;
+    PlanillaUnicaWeb.Models.Rh_Colaborador colaboradorNew = Model.ToList()[2] as PlanillaUnicaWeb.Models.Rh_Colaborador;
+    PlanillaUnicaWeb.Models.Rh_Colaborador colaboradorFicha = Model.ToList()[3] as PlanillaUnicaWeb.Models.Rh_Colaborador;
+
+    List<PlanillaUnicaWeb.Models.Gen_Banco> lstBanco = Model.ToList()[4] as List<PlanillaUnicaWeb.Models.Gen_Banco>;
+    List<PlanillaUnicaWeb.Models.Gen_Pais> lstPais = Model.ToList()[5] as List<PlanillaUnicaWeb.Models.Gen_Pais>;
+    List<PlanillaUnicaWeb.Models.Rh_Licencia_Conducir> lstLicenciaConducir = Model.ToList()[6] as List<PlanillaUnicaWeb.Models.Rh_Licencia_Conducir>;
+    List<PlanillaUnicaWeb.Models.Rh_Nivel_Estudio> lstNivelEstudio = Model.ToList()[7] as List<PlanillaUnicaWeb.Models.Rh_Nivel_Estudio>;
+    List<PlanillaUnicaWeb.Models.Rh_Estado_Civil> lstEstadoCivil = Model.ToList()[8] as List<PlanillaUnicaWeb.Models.Rh_Estado_Civil>;
+    List<PlanillaUnicaWeb.Models.Rh_Vinculo_Contacto> lstVinculoContacto = Model.ToList()[9] as List<PlanillaUnicaWeb.Models.Rh_Vinculo_Contacto>;
+    List<PlanillaUnicaWeb.Models.Gen_Region> lstRegion = Model.ToList()[10] as List<PlanillaUnicaWeb.Models.Gen_Region>;
+    List<PlanillaUnicaWeb.Models.Gen_Provincia> lstProvincia = Model.ToList()[11] as List<PlanillaUnicaWeb.Models.Gen_Provincia>;
+    List<PlanillaUnicaWeb.Models.Gen_Comuna> lstComuna = Model.ToList()[12] as List<PlanillaUnicaWeb.Models.Gen_Comuna>;
+    List<PlanillaUnicaWeb.Models.Gen_Genero> lstGenero = Model.ToList()[13] as List<PlanillaUnicaWeb.Models.Gen_Genero>;
+
+    string classAlerta = string.Empty;
+
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@{ Html.EnableClientValidation(true);
+    Html.EnableUnobtrusiveJavaScript(true); }
+
+<style>
+
+    .divmodal {
+        height: 50em;
+        line-height: 1em;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        width: 100%;
+    }
+
+    h5 {
+        margin-bottom: 0px;
+    }
+
+    .selected {
+        background-color: #f0f0f0; /* Color de fondo para la fila seleccionada */
+    }
+</style>
+
+<script>
+
+    $(document).ready(function (e) {
+
+        $('#tablaColaboradores').DataTable(
+            {
+                "language": {
+                    "lengthMenu": "Motrar _MENU_ registros por página",
+                    "zeroRecords": "Sin información",
+                    "search": "Buscar:",
+                    "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
+                    "infoEmpty": "Sin información disponible",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                layout: {
+                    topStart: {
+                        buttons: ['excel', 'csv']
+                    }
+                }
+            }
+        );
+
+        // Evento para seleccionar una fila
+        $('#tablaColaboradores tbody').on('click', 'tr', function () {
+            // Remover la clase 'selected' de todas las filas
+            $('tr.selected').removeClass('selected');
+
+            // Agregar la clase 'selected' a la fila clickeada
+            $(this).addClass('selected');
+
+            // Obtener los datos de la fila seleccionada
+            var valorOculto = $(this).find(".hidden-value").val();
+            $("#seleccionId").val(valorOculto);
+        });
+
+        $("#btnVerFicha").click(function () {
+            $("#verFicha").modal('show');
+        });
+
+        $("#btnEditarColaborador").click(function () {
+            $("#editarColaborador").modal('show');
+        });
+
+        $("#btnCambioJefatura").click(function () {
+            $("#cambioJefatura").modal('show');
+        });
+
+        $('#verFicha').on('show.bs.modal', function (e) {
+            //var id = $(e.relatedTarget).data().id;
+            var id = $("#seleccionId").val();
+            var comunaColaborador = @Html.Raw(Json.Encode(lstComuna));
+            var provinciaColaborador = @Html.Raw(Json.Encode(lstProvincia));
+            var regionColaborador = @Html.Raw(Json.Encode(lstRegion));
+            //buscamos al colaborador por ID a la BD
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("BuscaColaboradorPorId", "ListaPersonal")',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: { colaboradorId : id },
+                success: function (response) {
+                    //Datos de vuelta
+                    $(e.currentTarget).find('#colaboradorFicha_Rut_Compuesto').val(response.data.Rhcol_Rut + '-' + response.data.Rhcol_Dv);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Email_Corporativo').val(response.data.Rhcol_Email_Corporativo);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Nombre').val(response.data.Rhcol_Nombre);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Apel_Pater').val(response.data.Rhcol_Apel_Pater);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Apel_Mater').val(response.data.Rhcol_Apel_Mater);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Direccion').val(response.data.Rhcol_Direccion);
+                    //Seteo y rescate de region colaborador
+                    for (var x in regionColaborador) {
+                        if (regionColaborador[x].Genreg_Id == response.data.Genreg_Id) {
+                            $(e.currentTarget).find('#colaboradorFicha_Genreg_Id').val(regionColaborador[x].Genreg_Id);
+                        }
+                    }
+                    //Seteo y rescate de provincia colaborador
+                    document.getElementById("colaboradorFicha_Genpro_Id").innerHTML = "";
+                    for (var z in provinciaColaborador) {
+                        if (provinciaColaborador[z].Genreg_Id == response.data.Genreg_Id) {
+                            document.getElementById("colaboradorFicha_Genpro_Id").innerHTML += "<option value='" + provinciaColaborador[z].Genpro_Id + "'>" + provinciaColaborador[z].Genpro_Descripcion + "</option>";
+                        }
+                    }
+                    $("#colaboradorFicha_Genpro_Id").val(response.data.Genpro_Id);
+                    //Seteo y rescate de comuna colaborador
+                    document.getElementById("colaboradorFicha_Gencom_Id").innerHTML = "";
+                    for (var z in comunaColaborador) {
+                        if (comunaColaborador[z].Genpro_Id == response.data.Genpro_Id) {
+                            document.getElementById("colaboradorFicha_Gencom_Id").innerHTML += "<option value='" + comunaColaborador[z].Gencom_Id + "'>" + comunaColaborador[z].Gencom_Descripcion + "</option>";
+                        }
+                    }
+                    $("#colaboradorFicha_Gencom_Id").val(response.data.Gencom_Id);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Fono_1').val(response.data.Rhcol_Fono_1);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Fecha_Nacimiento').val(response.data.Rhcol_Fecha_Nacimiento);
+                    $("#colaboradorFicha_Genpai_Id").val(response.data.Genpai_Id);
+                    $("#colaboradorFicha_Rhcol_Sexo").val(response.data.Rhcol_Sexo);
+                    //**Pertenece a pueblo originario ¿?
+                    //**Pueblo originario nombre
+                    //**Habla español
+                    $("#colaboradorFicha_Rhnivest_Id").val(response.data.Rhnivest_Id);
+                    var checkFichaLee = document.getElementById("colaboradorFicha_Rhcol_Lee");
+                    if (response.data.Rhcol_Lee == 'S') {
+                        checkFichaLee.checked = true;
+                    }
+                    var checkFichaEscribe = document.getElementById("colaboradorFicha_Rhcol_Escribe");
+                    if (response.data.Rhcol_Escribe == 'S') {
+                        checkFichaEscribe.checked = true;
+                    }
+                    var checkFichaLicencia = document.getElementById("switchFichaLicenciaConducir");
+                    if (response.data.Rhliccon_Id == 14) {
+                        checkFichaLicencia.checked = false;
+                    }
+                    else {
+                        checkFichaLicencia.checked = true;
+                    }
+                    $("#colaboradorFicha_Rhliccon_Id").val(response.data.Rhliccon_Id);
+                    //**Fecha vencimiento licencia de conducir
+                    $("#colaboradorFicha_Rhestciv_Id").val(response.data.Rhestciv_Id);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Nombre_Contac_Emergencia').val(response.data.Rhcol_Nombre_Contac_Emergencia);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Fono_Contac_Emergencia').val(response.data.Rhcol_Nombre_Contac_Emergencia);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Talla_Polera').val(response.data.Rhcol_Talla_Polera);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Talla_Guante').val(response.data.Rhcol_Talla_Guante);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Talla_Pantalon').val(response.data.Rhcol_Talla_Pantalon);
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Talla_Calzado').val(response.data.Rhcol_Talla_Calzado);
+                    //**Talla casco
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Talla_Otros').val(response.data.Rhcol_Talla_Otros);
+                    //**Tiene familiar trabajando en la empresa ¿?
+                    //**Nombre familiar trabaja empresa
+                    //**Cargo
+                    //**Trabajo anteriormente en la empresa ¿?
+                    //**
+                    //**
+
+                    //Fonasa/Isapre
+                    //Lista fonasa - isapre
+                    //Afiliado
+                    //Lista AFP
+                    //INP
+
+                    $("#colaboradorFicha_Genban_Id").val(response.data.Genban_Id);
+                    //**Tipo Cuenta
+                    $(e.currentTarget).find('#colaboradorFicha_Rhcol_Cuenta_Banco').val(response.data.Rhcol_Cuenta_Banco);
+
+                },
+                error: function (xhr, status, error) {
+                    // Maneja los errores
+                }
+            });
+        });
+
+        $('#editarColaborador').on('show.bs.modal', function (e) {
+            //var id = $(e.relatedTarget).data().id;
+
+            var id = $("#seleccionId").val();
+
+            var comunaColaborador = @Html.Raw(Json.Encode(lstComuna));
+            var provinciaColaborador = @Html.Raw(Json.Encode(lstProvincia));
+            var regionColaborador = @Html.Raw(Json.Encode(lstRegion));
+            //buscamos al colaborador por ID a la BD
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("BuscaColaboradorPorId", "ListaPersonal")',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: { colaboradorId : id },
+                success: function (response) {
+                    //Datos de vuelta
+                    $(e.currentTarget).find('#colaboradorEdit_Rut_Compuesto').val(response.data.Rhcol_Rut + '-' + response.data.Rhcol_Dv);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Email_Corporativo').val(response.data.Rhcol_Email_Corporativo);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Nombre').val(response.data.Rhcol_Nombre);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Apel_Pater').val(response.data.Rhcol_Apel_Pater);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Apel_Mater').val(response.data.Rhcol_Apel_Mater);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Direccion').val(response.data.Rhcol_Direccion);
+                    //Seteo y rescate de region colaborador
+                    for (var x in regionColaborador) {
+                        if (regionColaborador[x].Genreg_Id == response.data.Genreg_Id) {
+                            $(e.currentTarget).find('#colaboradorEdit_Genreg_Id').val(regionColaborador[x].Genreg_Id);
+                        }
+                    }
+                    //Seteo y rescate de provincia colaborador
+                    document.getElementById("colaboradorEdit_Genpro_Id").innerHTML = "";
+                    for (var z in provinciaColaborador) {
+                        if (provinciaColaborador[z].Genreg_Id == response.data.Genreg_Id) {
+                            document.getElementById("colaboradorEdit_Genpro_Id").innerHTML += "<option value='" + provinciaColaborador[z].Genpro_Id + "'>" + provinciaColaborador[z].Genpro_Descripcion + "</option>";
+                        }
+                    }
+                    $("#colaboradorEdit_Genpro_Id").val(response.data.Genpro_Id);
+                    //Seteo y rescate de comuna colaborador
+                    document.getElementById("colaboradorEdit_Gencom_Id").innerHTML = "";
+                    for (var z in comunaColaborador) {
+                        if (comunaColaborador[z].Genpro_Id == response.data.Genpro_Id) {
+                            document.getElementById("colaboradorEdit_Gencom_Id").innerHTML += "<option value='" + comunaColaborador[z].Gencom_Id + "'>" + comunaColaborador[z].Gencom_Descripcion + "</option>";
+                        }
+                    }
+                    $("#colaboradorEdit_Gencom_Id").val(response.data.Gencom_Id);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Fono_1').val(response.data.Rhcol_Fono_1);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Fecha_Nacimiento').val(response.data.Rhcol_Fecha_Nacimiento);
+                    $("#colaboradorEdit_Genpai_Id").val(response.data.Genpai_Id);
+                    $("#colaboradorEdit_Rhcol_Sexo").val(response.data.Rhcol_Sexo);
+                    //**Pertenece a pueblo originario ¿?
+                    //**Pueblo originario nombre
+                    //**Habla español
+                    $("#colaboradorEdit_Rhnivest_Id").val(response.data.Rhnivest_Id);
+                    var checkEditLee = document.getElementById("colaboradorEdit_Rhcol_Lee");
+                    if (response.data.Rhcol_Lee == 'S') {
+                        checkEditLee.checked = true;
+                    }
+                    var checkEditEscribe = document.getElementById("colaboradorEdit_Rhcol_Escribe");
+                    if (response.data.Rhcol_Escribe == 'S') {
+                        checkEditEscribe.checked = true;
+                    }
+                    var checkLicencia = document.getElementById("switchEditLicenciaConducir");
+                    if (response.data.Rhliccon_Id == 14) {
+                        checkLicencia.checked = false;
+                    }
+                    else {
+                        checkLicencia.checked = true;
+                    }
+                    $("#colaboradorEdit_Rhliccon_Id").val(response.data.Rhliccon_Id);
+                    //**Fecha vencimiento licencia de conducir
+                    $("#colaboradorEdit_Rhestciv_Id").val(response.data.Rhestciv_Id);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Nombre_Contac_Emergencia').val(response.data.Rhcol_Nombre_Contac_Emergencia);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Fono_Contac_Emergencia').val(response.data.Rhcol_Nombre_Contac_Emergencia);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Talla_Polera').val(response.data.Rhcol_Talla_Polera);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Talla_Guante').val(response.data.Rhcol_Talla_Guante);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Talla_Pantalon').val(response.data.Rhcol_Talla_Pantalon);
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Talla_Calzado').val(response.data.Rhcol_Talla_Calzado);
+                    //**Talla casco
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Talla_Otros').val(response.data.Rhcol_Talla_Otros);
+                    //**Tiene familiar trabajando en la empresa ¿?
+                    //**Nombre familiar trabaja empresa
+                    //**Cargo
+                    //**Trabajo anteriormente en la empresa ¿?
+                    //**
+                    //**
+
+                    //Fonasa/Isapre
+                    //Lista fonasa - isapre
+                    //Afiliado
+                    //Lista AFP
+                    //INP
+
+                    $("#colaboradorEdit_Genban_Id").val(response.data.Genban_Id);
+                    //**Tipo Cuenta
+                    $(e.currentTarget).find('#colaboradorEdit_Rhcol_Cuenta_Banco').val(response.data.Rhcol_Cuenta_Banco);
+
+                },
+                error: function (xhr, status, error) {
+                    // Maneja los errores
+                }
+            });
+        });
+
+        //EDIT Cuando seleccionamos objeto de regiones (debemos filtar provincias y limpiar comunas)
+        $('#colaboradorEdit_Genreg_Id').change(function () {
+            var regionId = $(this).val(); // Obtener el ID de la familia seleccionada
+            var provinciasColaboradorList = @Html.Raw(Json.Encode(lstProvincia));
+            // Limpiar el dropdown de Provincias y comunas
+            $('#colaboradorEdit_Genpro_Id').empty();
+            $('#colaboradorEdit_Genpro_Id').append($('<option>').val('').text('-- Seleccione Provincia --')); // Opción por defecto
+            $('#colaboradorEdit_Gencom_Id').empty();
+            $('#colaboradorEdit_Gencom_Id').append($('<option>').val('').text('-- Seleccione Comuna --')); // Opción por defecto
+            // Si hay una region seleccionada
+            if (regionId) {
+                // Filtrar las provincias que pertenecen a la region seleccionada
+                var filteredProvincias = provinciasColaboradorList.filter(function (item) {
+                    return item.Genreg_Id == regionId; // Comparar con la region seleccionada
+                });
+
+                // Llenar el dropdown con las provincias filtradas
+                $.each(filteredProvincias, function (index, item) {
+                    $('#colaboradorEdit_Genpro_Id').append($('<option>').val(item.Genpro_Id).text(item.Genpro_Descripcion));
+                });
+            }
+        });
+
+        //EDIT Cuando seleccionamos objeto de provincias (debemos filtar comunas)
+        $('#colaboradorEdit_Genpro_Id').change(function () {
+            var provinciaId = $(this).val(); // Obtener el ID de la familia seleccionada
+            var comunasColaboradorList = @Html.Raw(Json.Encode(lstComuna));
+            // Limpiar el dropdown de comunas
+            $('#colaboradorEdit_Gencom_Id').empty();
+            $('#colaboradorEdit_Gencom_Id').append($('<option>').val('').text('-- Seleccione Comuna --')); // Opción por defecto
+            // Si hay una provincia seleccionada
+            if (provinciaId) {
+                // Filtrar las comunas que pertenecen a la provincia seleccionada
+                var filteredComunas = comunasColaboradorList.filter(function (item) {
+                    return item.Genpro_Id == provinciaId; // Comparar con la provincia seleccionada
+                });
+
+                // Llenar el dropdown con las comunas filtradas
+                $.each(filteredComunas, function (index, item) {
+                    $('#colaboradorEdit_Gencom_Id').append($('<option>').val(item.Gencom_Id).text(item.Gencom_Descripcion));
+                });
+            }
+        });
+
+        //NEW Cuando seleccionamos objeto de regiones (debemos filtar provincias y limpiar comunas)
+        $('#colaboradorNew_Genreg_Id').change(function () {
+            var regionId = $(this).val(); // Obtener el ID de la familia seleccionada
+            var provinciasColaboradorList = @Html.Raw(Json.Encode(lstProvincia));
+            // Limpiar el dropdown de Provincias y comunas
+            $('#colaboradorNew_Genpro_Id').empty();
+            $('#colaboradorNew_Genpro_Id').append($('<option>').val('').text('-- Seleccione Provincia --')); // Opción por defecto
+            $('#colaboradorNew_Gencom_Id').empty();
+            $('#colaboradorNew_Gencom_Id').append($('<option>').val('').text('-- Seleccione Comuna --')); // Opción por defecto
+            // Si hay una region seleccionada
+            if (regionId) {
+                // Filtrar las provincias que pertenecen a la region seleccionada
+                var filteredProvincias = provinciasColaboradorList.filter(function (item) {
+                    return item.Genreg_Id == regionId; // Comparar con la region seleccionada
+                });
+
+                // Llenar el dropdown con las provincias filtradas
+                $.each(filteredProvincias, function (index, item) {
+                    $('#colaboradorNew_Genpro_Id').append($('<option>').val(item.Genpro_Id).text(item.Genpro_Descripcion));
+                });
+            }
+        });
+
+        //NEW Cuando seleccionamos objeto de provincias (debemos filtar comunas)
+        $('#colaboradorNew_Genpro_Id').change(function () {
+            var provinciaId = $(this).val(); // Obtener el ID de la familia seleccionada
+            var comunasColaboradorList = @Html.Raw(Json.Encode(lstComuna));
+            // Limpiar el dropdown de comunas
+            $('#colaboradorNew_Gencom_Id').empty();
+            $('#colaboradorNew_Gencom_Id').append($('<option>').val('').text('-- Seleccione Comuna --')); // Opción por defecto
+            // Si hay una provincia seleccionada
+            if (provinciaId) {
+                // Filtrar las comunas que pertenecen a la provincia seleccionada
+                var filteredComunas = comunasColaboradorList.filter(function (item) {
+                    return item.Genpro_Id == provinciaId; // Comparar con la provincia seleccionada
+                });
+
+                // Llenar el dropdown con las comunas filtradas
+                $.each(filteredComunas, function (index, item) {
+                    $('#colaboradorNew_Gencom_Id').append($('<option>').val(item.Gencom_Id).text(item.Gencom_Descripcion));
+                });
+            }
+        });
+
+        setTimeout(function () {
+            $(".content").fadeOut(1500);
+        }, 3000);
+
+    });
+
+</script>
+
+@if (TempData["Estado"] != null)
+{
+    if (TempData["Estado"].ToString().Equals("ERROR"))
+    {
+        <script>
+                Swal.fire({
+                icon: "error",
+                title: "Error",
+                html: "@TempData["Mensaje"].ToString()",
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#e60012',
+                })
+        </script>
+    }
+    else
+    {
+        <script>
+                Swal.fire({
+                icon: "success",
+                title: "Aviso",
+                text: "@TempData["Mensaje"].ToString()",
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#e60012',
+                })
+        </script>
+    }
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12 mx-auto">
+                <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Lista Personal</h4>
+            </div>
+            <div class="row mx-auto">
+                <div class="col-md-12 mt-3 mx-auto">
+                    <button class="btn btn-primary float-right" data-toggle="modal"
+                            data-target="#ingresarColaborador">
+                        <i class="bi bi-plus-lg mr-1"></i> Agregar
+                        Colaborador
+                    </button>
+                </div>
+            </div>
+            <div class="row mx-auto">
+                <div class="col-12 mx-auto">
+                    <input type="hidden" id="seleccionId" value="">
+                    <table id="tablaColaboradores" style="white-space: nowrap;" class="table table-bordered table-hover table-responsive">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Selección</th>
+                                <th>RUT</th>
+                                <th>Empresa</th>
+                                <th>Nombres</th>
+                                <th>Apellidos</th>
+                                <th>Cargo</th>
+                                <th>Email</th>
+                                <th>Fecha Ingreso</th>
+                                <th>A.F.P.</th>
+                                <th>Salud</th>
+                                <th>Teléfono</th>
+                                <th>Comuna</th>
+                                <th>Región</th>
+                                <th>Sucursal</th>
+                                <th>Cód. Ceco</th>
+                                <th>Ceco</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var colaborador in lstColaborador)
+                            {
+                                <tr>
+                                    <input type="hidden" class="hidden-value" value="@colaborador.Rhcol_Id">
+                                    <th style="white-space: nowrap;">
+                                        <input type="checkbox" />
+                                        @*<a href="#" id="modificaJefatura" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#modificarJefatura">
+                                                <button type="button" class="btn btn-warning bi bi-arrow-down-up rounded-circle btn-sm" title="Modificar Jefatura" style="width: 30px; height: 30px; padding: 0;">
+                                                </button>
+                                            </a>
+                                            <a href="#" id="editaColaborador" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#editarColaborador">
+                                                <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Colaborador" style="width: 30px; height: 30px; padding: 0;">
+                                                </button>
+                                            </a>
+                                            <a href="#" id="verFichaColaborador" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#verFicha">
+                                                <button type="button" class="btn btn-info bi bi-person-square rounded-circle btn-sm" title="Ficha" style="width: 30px; height: 30px; padding: 0;">
+                                                </button>
+                                            </a>*@
+                                    </th>
+                                    <td style="text-align: right;">@colaborador.Rhcol_Rut-@colaborador.Rhcol_Dv</td>
+                                    <td style="text-align: center;"></td>
+                                    <td style="text-align: left;">@colaborador.Rhcol_Nombre</td>
+                                    <td style="text-align: left;">@colaborador.Rhcol_Apel_Pater @colaborador.Rhcol_Apel_Mater</td>
+                                    <td style="text-align: center;"></td>
+                                    <td style="text-align: left;">@colaborador.Rhcol_Email_Corporativo</td>
+
+                                    <td style="text-align: center;">@colaborador.Rhcol_Fecha_Creacion</td>
+                                    <td style="text-align: left;">@colaborador.Rhafp_Descripcion</td>
+                                    <td style="text-align: left;">@colaborador.Rhsal_Descripcion</td>
+                                    <td style="text-align: left;">@colaborador.Rhcol_Fono_1</td>
+                                    <td style="text-align: left;">@colaborador.Gencom_Descripcion</td>
+                                    <td style="text-align: left;">@colaborador.Genreg_Descripcion</td>
+                                    <td style="text-align: left;"></td>
+                                    <td style="text-align: left;"></td>
+                                    <td style="text-align: left;"></td>
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 mx-auto">
+                    <div class="row">
+                        <div class="col-2">
+                            <button type="button" id="btnCambioJefatura" class="btn btn-primary">
+                                <i class="btn btn-warning bi bi-arrow-down-up rounded-circle btn-sm"></i> Modificar Jefatura
+                            </button>
+                        </div>
+                        <div class="col-2">
+                            <button type="button" id="btnEditarColaborador" class="btn btn-primary">
+                                <i class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm"></i> Editar Colaborador
+                            </button>
+                        </div>
+                        <div class="col-2">
+                            <button type="button" id="btnVerFicha" class="btn btn-primary">
+                                <i class="btn btn-info bi bi-person-square rounded-circle btn-sm"></i> Ver Ficha
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- VER FICHA COLABORADOR -->
+<div class="modal fade" id="verFicha" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModal3Label">Ficha Personal</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="divmodal">
+                        <form>
+                            <div class="card">
+                                <h5 style="background-color: darkgrey; color: white;">&nbsp;1. ANTECEDENTES PERSONALES</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <label>RUT:</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <label>¿Provisorio?</label>
+                                        </div>
+                                        <div class="col-7">
+                                            <label>Email:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rut_Compuesto, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rut_Compuesto, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchFichaHablaEspanol" disabled="disabled" >
+                                            </div>
+                                        </div>
+                                        <div class="col-7 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Email_Corporativo, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Email_Corporativo, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Nombres:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Apellido Paterno:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Apellido Materno:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Nombre, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Nombre, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Apel_Pater, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Apel_Pater, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Apel_Mater, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Apel_Mater, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Domicilio:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Direccion, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Direccion, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Región:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Provincia:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Comuna:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Genreg_Id,
+                                             new SelectList(lstRegion, "genreg_Id", "genreg_Descripcion"),
+                                             "-- Seleccione Region --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Genreg_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Genpro_Id,
+                                             new SelectList(lstProvincia, "genpro_Id", "genpro_Descripcion"),
+                                             "-- Seleccione Provincia --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Genpro_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Gencom_Id,
+                                             new SelectList(lstComuna, "gencom_Id", "gencom_Descripcion"),
+                                             "-- Seleccione Comuna --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Gencom_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Fono:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Fecha Nacimiento:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Nacionalidad:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Sexo:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Fono_1, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Fono_1, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(model => colaboradorFicha.Rhcol_Fecha_Nacimiento, new { @type = "date", @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(model => colaboradorFicha.Rhcol_Fecha_Nacimiento, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Genpai_Id,
+                                             new SelectList(lstPais, "genpai_Id", "genpai_Descripcion"),
+                                             "-- Seleccione Nacionalidad --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Genpai_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Rhcol_Sexo,
+                                               new SelectList(lstGenero, "Gensex_Id", "Gensex_Descripcion"),
+                                               "-- Seleccione Sexo --",
+                                               new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Rhcol_Sexo, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>¿Pertenece a pueblo originario?</label>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <label>¿Habla español?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 mx-auto">
+                                            <input type="text" id="txtPuebloOriginarioFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-6 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchHablaEspanolFicha" disabled="disabled">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <label>Nivel de Estudios:</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>¿Lee?</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>¿Escribe?</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>¿Licencia conducir?</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label></label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>Fecha de vencimiento:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Rhnivest_Id,
+                                             new SelectList(lstNivelEstudio, "rhnivest_Id", "rhnivest_Descripcion"),
+                                             "-- Seleccione Nivel Estudio --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Rhnivest_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                @Html.CheckBoxFor(x => colaboradorFicha.Rhcol_Lee, new { @class = "form-check-input", @disabled = "disabled", id = "colaboradorFicha_Rhcol_Lee" })
+                                            </div>
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                @Html.CheckBoxFor(x => colaboradorFicha.Rhcol_Escribe, new { @class = "form-check-input", @disabled = "disabled", id = "colaboradorFicha_Rhcol_Escribe" })
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchFichaLicenciaConducir" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Rhliccon_Id,
+                                                new SelectList(lstLicenciaConducir, "rhliccon_Id", "rhliccon_Descripcion"),
+                                                "-- Seleccione Lic. --",
+                                                new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Rhliccon_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <input type="text" id="txtFichaFechaVencLicConducir" class="form-control" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Estado civil:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Contacto de emergencia:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Fono:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Rhestciv_Id,
+                                             new SelectList(lstEstadoCivil, "rhestciv_Id", "rhestciv_Descripcion"),
+                                             "-- Seleccione Estado Civil --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Rhestciv_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Nombre_Contac_Emergencia, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Nombre_Contac_Emergencia, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Fono_Contac_Emergencia, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Fono_Contac_Emergencia, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Tallas uniforme:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            Camisa
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Talla_Polera, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Polera, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Guantes
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Talla_Guante, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Guante, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Pantalón
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Talla_Pantalon, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Pantalon, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Zapatos
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Talla_Calzado, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Calzado, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            &nbsp;
+                                            <input type="text" id="txtFichaTallaEspecifica" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            Casco
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Talla_Legionario, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Legionario, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Otros
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Talla_Otros, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Otros, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mt-2">
+
+                                        </div>
+                                        <div class="col-2 mt-2">
+
+                                        </div>
+                                        <div class="col-4 mt-2">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>¿Tiene familiares trabajando en la empresa?</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo de parentesco</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtNombreFamiliarTrabajaEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtCargoFamiliarTrabajaEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Rhvincon_Id,
+                                             new SelectList(lstVinculoContacto, "rhvincon_Id", "rhvincon_Descripcion"),
+                                             "-- Seleccione Parentesco --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Rhvincon_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtTipoParentescoFamiliarTrabajaEmpresaEspecifiqueFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>¿Trabajó anteriormente en la empresa?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtCargoTrabajoAnteriorEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtRazonFinRelacionLaboralAnteriorEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-6 mx-auto">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ANTECEDENTES PREVISIONALES-->
+                                <h5 style="background-color: darkgrey; color: white;">&nbsp;2. ANTECEDENTES PREVISIONALES</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>Afiliado a previsión:</label>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <label>Afiliado a salud:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> Fonasa
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> Isapre
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> AFP
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> INP
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <input type="text" id="txtPrevisionFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <input type="text" id="txtSaludFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--FORMA DE PAGO-->
+                                <h5 style="background-color: darkgrey; color: white;">&nbsp;3. FORMA DE PAGO</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Banco</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo de cuenta</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Número de cuenta</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorFicha.Genban_Id,
+                                             new SelectList(lstBanco, "genban_Id", "genban_Descripcion"),
+                                             "-- Seleccione Banco --",
+                                             new { @class = "form-control", @disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => colaboradorFicha.Genban_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <select class="form-control" id="selectFichaTipoCuentaBanco" disabled></select>
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Cuenta_Banco, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Cuenta_Banco, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--DOCUMENTOS DE PRESENTACIÓN OBLIGATORIOS, PREVIO A LA CONTRATACIÓN-->
+                                <h5 style="background-color: darkgrey; color: white;">&nbsp;4. DOCUMENTOS DE PRESENTACIÓN OBLIGATORIOS, PREVIO A LA CONTRATACIÓN</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Certificados</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Estudios
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Antecedentes
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;De Excención
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Residencia
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Pensión
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Discapacidad
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;AFP
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;FONASA
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Isapre
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Seguro Covid 19
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;CONADI
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Curso OS 10
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Curso Supervisor
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Certificado Vacunas
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-8 mt-2">
+                                            <label>Otros</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>¿Cuenta con clave única?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Cédula de Identidad
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Licencia de Conducir
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Currículum
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Hoja de vida
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ANTECEDENTES LABORALES-->
+                                <h5 style="background-color: darkgrey; color: white;">&nbsp;ANTECEDENTES LABORALES (De uso interno de la empresa)</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Fecha ingreso empresa</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo contrato</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Cargo a desempeñar</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Duración inicial contrato</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabFechaIngresoEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabTipoContratoFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabCargoDesempenarFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabDuracionInicialContratoFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Cargo genérico</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>JEAS</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF1</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF2</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabCargoGenericoFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabJeasFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabRef1Ficha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabRef2Ficha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Plaza/Sector</label>
+                                        </div>
+                                        <div class="col-9 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabPlazaSector" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-9 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ADICIONAL-->
+                                <h5 style="background-color: darkgrey; color: white;">&nbsp;ADICIONAL</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Sucursal</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Empresa</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Centro de costo</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosSucursalFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosCentroCostoFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label class="col-form-label">(*) obligatorio</label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- EDITAR COLABORADOR -->
+<div class="modal fade" id="editarColaborador" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModal3Label">Editar Personal</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="divmodal">
+                        <form>
+                            <div class="card">
+                                <h5 style="background-color: #7EB908; color: white; ">&nbsp;1. ANTECEDENTES PERSONALES</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <label>RUT:</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <label>¿Provisorio?</label>
+                                        </div>
+                                        <div class="col-7">
+                                            <label>Email:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rut_Compuesto, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rut_Compuesto, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditHablaEspanol">
+                                            </div>
+                                        </div>
+                                        <div class="col-7 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Email_Corporativo, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Email_Corporativo, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Nombres:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Apellido Paterno:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Apellido Materno:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Nombre, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Nombre, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Apel_Pater, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Apel_Pater, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Apel_Mater, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Apel_Mater, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Domicilio:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Direccion, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Direccion, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Región:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Provincia:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Comuna:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Genreg_Id,
+                                             new SelectList(lstRegion, "genreg_Id", "genreg_Descripcion"),
+                                             "-- Seleccione Region --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Genreg_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Genpro_Id,
+                                             new SelectList(lstProvincia, "genpro_Id", "genpro_Descripcion"),
+                                             "-- Seleccione Provincia --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Genpro_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Gencom_Id,
+                                             new SelectList(lstComuna, "gencom_Id", "gencom_Descripcion"),
+                                             "-- Seleccione Comuna --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Gencom_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Fono:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Fecha Nacimiento:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Nacionalidad:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Sexo:</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Fono_1, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Fono_1, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(model => colaboradorEdit.Rhcol_Fecha_Nacimiento, new { @type = "date", @class = "form-control" })
+                                            @Html.ValidationMessageFor(model => colaboradorEdit.Rhcol_Fecha_Nacimiento, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Genpai_Id,
+                                             new SelectList(lstPais, "genpai_Id", "genpai_Descripcion"),
+                                             "-- Seleccione Nacionalidad --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Genpai_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhcol_Sexo,
+                                               new SelectList(lstGenero, "Gensex_Id", "Gensex_Descripcion"),
+                                               "-- Seleccione Sexo --",
+                                               new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhcol_Sexo, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>¿Pertenece a pueblo originario?</label>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <label>¿Habla español?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditPuebloOriginario">
+                                            </div>
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtEditPuebloOriginario" class="form-control" />
+                                        </div>
+                                        <div class="col-6 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditHablaEspanol">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Nivel de Estudios:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>¿Lee?</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>¿Escribe?</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>¿Licencia conducir?</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label></label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>Fecha de Vencimiento:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhnivest_Id,
+                                             new SelectList(lstNivelEstudio, "rhnivest_Id", "rhnivest_Descripcion"),
+                                             "-- Seleccione Nivel Estudio --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhnivest_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                @Html.CheckBoxFor(x => colaboradorEdit.Rhcol_Lee, new { @class = "form-check-input", id = "colaboradorEdit_Rhcol_Lee" })
+                                            </div>
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                @Html.CheckBoxFor(x => colaboradorEdit.Rhcol_Escribe, new { @class = "form-check-input", id = "colaboradorEdit_Rhcol_Escribe" })
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditLicenciaConducir">
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhliccon_Id,
+                                                new SelectList(lstLicenciaConducir, "rhliccon_Id", "rhliccon_Descripcion"),
+                                                "-- Seleccione Lic. --",
+                                                new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhliccon_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <input type="text" id="txtEditFechaVencLicConducir" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Estado civil:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Contacto de emergencia:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Fono:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhestciv_Id,
+                                             new SelectList(lstEstadoCivil, "rhestciv_Id", "rhestciv_Descripcion"),
+                                             "-- Seleccione Estado Civil --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhestciv_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Nombre_Contac_Emergencia, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Nombre_Contac_Emergencia, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Fono_Contac_Emergencia, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Fono_Contac_Emergencia, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Tallas uniforme:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            Camisa
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Talla_Polera, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Polera, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Guantes
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Talla_Guante, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Guante, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Pantalón
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Talla_Pantalon, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Pantalon, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Zapatos
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Talla_Calzado, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Calzado, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            &nbsp;
+                                            <input type="text" id="txtEditTallaEspecifica" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            Casco
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Talla_Legionario, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Legionario, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Otros
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Talla_Otros, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Otros, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mt-2">
+
+                                        </div>
+                                        <div class="col-2 mt-2">
+
+                                        </div>
+                                        <div class="col-4 mt-2">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>¿Tiene familiares trabajando en la empresa?</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo de parentesco</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditFamiliarTrabajaEmpresa">
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditNombreFamiliarTrabajaEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <input type="text" id="txtEditCargoFamiliarTrabajaEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhvincon_Id,
+                                             new SelectList(lstVinculoContacto, "rhvincon_Id", "rhvincon_Descripcion"),
+                                             "-- Seleccione Parentesco --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhvincon_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditTipoParentescoFamiliarTrabajaEmpresaEspecifique" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>¿Trabajó anteriormente en la empresa?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditTrabajoAnteriorEmpresa">
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditCargoTrabajoAnteriorEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditRazonFinRelacionLaboralAnteriorEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-5 mx-auto">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ANTECEDENTES PREVISIONALES-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;2. ANTECEDENTES PREVISIONALES</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>Afiliado a previsión:</label>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <label>Afiliado a salud:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> Fonasa
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> Isapre
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> AFP
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> INP
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <select class="form-control" id="selectEditPrevision"></select>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <select class="form-control" id="selectEditSalud"></select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--FORMA DE PAGO-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;3. FORMA DE PAGO</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Banco</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo de cuenta</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Número de cuenta</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Genban_Id,
+                                             new SelectList(lstBanco, "genban_Id", "genban_Descripcion"),
+                                             "-- Seleccione Banco --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Genban_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <select class="form-control" id="selectEditTipoCuentaBanco"></select>
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Cuenta_Banco, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Cuenta_Banco, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--DOCUMENTOS DE PRESENTACIÓN OBLIGATORIOS, PREVIO A LA CONTRATACIÓN-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;4. DOCUMENTOS DE PRESENTACIÓN OBLIGATORIOS, PREVIO A LA CONTRATACIÓN</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Certificados</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Estudios
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Antecedentes
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;De Excención
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Residencia
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Pensión
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Discapacidad
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;AFP
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;FONASA
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Isapre
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Seguro Covid 19
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;CONADI
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Curso OS 10
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Curso Supervisor
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Certificado Vacunas
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-8 mt-2">
+                                            <label>Otros</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>¿Cuenta con clave única?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Cédula de Identidad
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Licencia de Conducir
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Currículum
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Hoja de vida
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ANTECEDENTES LABORALES-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;ANTECEDENTES LABORALES (De uso interno de la empresa)</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Fecha ingreso empresa</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo contrato</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Cargo a desempeñar</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Duración inicial contrato</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabFechaIngresoEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabTipoContratoFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabCargoDesempenarFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabDuracionInicialContratoFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Cargo genérico</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>JEAS</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF1</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF2</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabCargoGenericoFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabJeasFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabRef1Ficha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabRef2Ficha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Plaza/Sector</label>
+                                        </div>
+                                        <div class="col-9 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabPlazaSector" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-9 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ADICIONAL-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;ADICIONAL</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Sucursal</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Empresa</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Centro de costo</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosSucursalFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosCentroCostoFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label class="col-form-label">(*) obligatorio</label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnMofificarColaborador" class="btn btn-primary">Modificar</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NUEVO COLABORADOR -->
+<div class="modal fade" id="ingresarColaborador" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModal3Label">Ingresar Colaborador</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="divmodal">
+                        <form>
+                            <div class="card">
+                                <h5 style="background-color: #7EB908; color: white; ">&nbsp;1. ANTECEDENTES PERSONALES</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <label>RUT:</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <label>¿Provisorio?</label>
+                                        </div>
+                                        <div class="col-7">
+                                            <label>Email:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rut_Compuesto, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rut_Compuesto, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchNewProvisorio">
+                                            </div>
+                                        </div>
+                                        <div class="col-7 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Email_Corporativo, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Email_Corporativo, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Nombres:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Apellido Paterno:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Apellido Materno:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Nombre, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Nombre, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Apel_Pater, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Apel_Pater, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Apel_Mater, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Apel_Mater, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Domicilio:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Direccion, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Direccion, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Región:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Provincia:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Comuna:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorNew.Genreg_Id,
+                                             new SelectList(lstRegion, "genreg_Id", "genreg_Descripcion"),
+                                             "-- Seleccione Region --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorNew.Genreg_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorNew.Genpro_Id,
+                                            new SelectList(Enumerable.Empty<SelectListItem>(), "Genpro_Id", "Genpro_Descripcion"),
+                                            "-- Seleccione Provincia --",
+                                            new { @class = "form-control", id = "colaboradorNew_Genpro_Id" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorNew.Gencom_Id,
+                                            new SelectList(Enumerable.Empty<SelectListItem>(), "Gencom_Id", "Gencom_Descripcion"),
+                                            "-- Seleccione Comuna --",
+                                            new { @class = "form-control", id = "colaboradorNew_Gencom_Id" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Fono:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Fecha Nacimiento:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Nacionalidad:</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Sexo:</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Fono_1, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Fono_1, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(model => colaboradorNew.Rhcol_Fecha_Nacimiento, new { @type = "date", @class = "form-control" })
+                                            @Html.ValidationMessageFor(model => colaboradorNew.Rhcol_Fecha_Nacimiento, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorNew.Genpai_Id,
+                                             new SelectList(lstPais, "genpai_Id", "genpai_Descripcion"),
+                                             "-- Seleccione Nacionalidad --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorNew.Genpai_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorNew.Rhcol_Sexo,
+                                               new SelectList(lstGenero, "Gensex_Id", "Gensex_Descripcion"),
+                                               "-- Seleccione Sexo --",
+                                               new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorNew.Rhcol_Sexo, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>¿Pertenece a pueblo originario?</label>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <label>¿Habla español?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditPuebloOriginario">
+                                            </div>
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtEditPuebloOriginario" class="form-control" />
+                                        </div>
+                                        <div class="col-6 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditHablaEspanol">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Nivel de Estudios:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>¿Lee?</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>¿Escribe?</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>¿Licencia conducir?</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label></label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>Fecha de Vencimiento:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhnivest_Id,
+                                             new SelectList(lstNivelEstudio, "rhnivest_Id", "rhnivest_Descripcion"),
+                                             "-- Seleccione Nivel Estudio --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhnivest_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                @Html.CheckBoxFor(x => colaboradorNew.Rhcol_Lee, new { @class = "form-check-input", id = "colaboradorNew_Rhcol_Lee" })
+                                            </div>
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                @Html.CheckBoxFor(x => colaboradorNew.Rhcol_Escribe, new { @class = "form-check-input", id = "colaboradorNew_Rhcol_Escribe" })
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchNewLicenciaConducir">
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorNew.Rhliccon_Id,
+                                             new SelectList(lstLicenciaConducir, "rhliccon_Id", "rhliccon_Descripcion"),
+                                             "-- Seleccione Lic. --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorNew.Rhliccon_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <input type="text" id="txtEditFechaVencLicConducir" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Estado civil:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Contacto de emergencia:</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Fono:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhestciv_Id,
+                                             new SelectList(lstEstadoCivil, "rhestciv_Id", "rhestciv_Descripcion"),
+                                             "-- Seleccione Estado Civil --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhestciv_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Nombre_Contac_Emergencia, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Nombre_Contac_Emergencia, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Fono_Contac_Emergencia, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Fono_Contac_Emergencia, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Tallas uniforme:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            Camisa
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Talla_Polera, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Polera, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Guantes
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Talla_Guante, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Guante, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Pantalón
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Talla_Pantalon, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Pantalon, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Zapatos
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Talla_Calzado, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Calzado, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            &nbsp; <input type="text" id="txtEditTallaEspecifica" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mx-auto">
+                                            Casco
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Talla_Legionario, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Legionario, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            Otros
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Talla_Otros, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Otros, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mt-2">
+
+                                        </div>
+                                        <div class="col-2 mt-2">
+
+                                        </div>
+                                        <div class="col-4 mt-2">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>¿Tiene familiares trabajando en la empresa?</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo de parentesco</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditFamiliarTrabajaEmpresa">
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditNombreFamiliarTrabajaEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <input type="text" id="txtEditCargoFamiliarTrabajaEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Rhvincon_Id,
+                                             new SelectList(lstVinculoContacto, "rhvincon_Id", "rhvincon_Descripcion"),
+                                             "-- Seleccione Parentesco --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Rhvincon_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditTipoParentescoFamiliarTrabajaEmpresaEspecifique" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>¿Trabajó anteriormente en la empresa?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mx-auto">
+                                            <div class="form-switch">
+                                                <input class="form-check-input" type="checkbox" id="switchEditTrabajoAnteriorEmpresa">
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditCargoTrabajoAnteriorEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtEditRazonFinRelacionLaboralAnteriorEmpresa" class="form-control" />
+                                        </div>
+                                        <div class="col-5 mx-auto">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ANTECEDENTES PREVISIONALES-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;2. ANTECEDENTES PREVISIONALES</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <label>Afiliado a previsión:</label>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <label>Afiliado a salud:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> Fonasa
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> Isapre
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> AFP
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <input type="radio" /> INP
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 mt-2">
+                                            <select class="form-control" id="selectEditPrevision"></select>
+                                        </div>
+                                        <div class="col-6 mt-2">
+                                            <select class="form-control" id="selectEditSalud"></select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--FORMA DE PAGO-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;3. FORMA DE PAGO</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Banco</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo de cuenta</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Número de cuenta</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => colaboradorEdit.Genban_Id,
+                                             new SelectList(lstBanco, "genban_Id", "genban_Descripcion"),
+                                             "-- Seleccione Banco --",
+                                             new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => colaboradorEdit.Genban_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <select class="form-control" id="selectEditTipoCuentaBanco"></select>
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Cuenta_Banco, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Cuenta_Banco, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--DOCUMENTOS DE PRESENTACIÓN OBLIGATORIOS, PREVIO A LA CONTRATACIÓN-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;4. DOCUMENTOS DE PRESENTACIÓN OBLIGATORIOS, PREVIO A LA CONTRATACIÓN</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-12 mt-2">
+                                            <label>Certificados</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Estudios
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Antecedentes
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;De Excención
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Residencia
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Pensión
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Discapacidad
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;AFP
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;FONASA
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Isapre
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Seguro Covid 19
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;CONADI
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Curso OS 10
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Curso Supervisor
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Certificado Vacunas
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-8 mt-2">
+                                            <label>Otros</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>¿Cuenta con clave única?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Cédula de Identidad
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Licencia de Conducir
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Currículum
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <input type="checkbox" class="card-text" />&nbsp;Hoja de vida
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ANTECEDENTES LABORALES-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;ANTECEDENTES LABORALES (De uso interno de la empresa)</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Fecha ingreso empresa</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Tipo contrato</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Cargo a desempeñar</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>Duración inicial contrato</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabFechaIngresoEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabTipoContratoFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabCargoDesempenarFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabDuracionInicialContratoFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Cargo genérico</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>JEAS</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF1</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF2</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabCargoGenericoFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabJeasFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabRef1Ficha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabRef2Ficha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mt-2">
+                                            <label>Plaza/Sector</label>
+                                        </div>
+                                        <div class="col-9 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 mx-auto">
+                                            <input type="text" id="txtAlabPlazaSector" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-9 mt-2">
+                                            &nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--ADICIONAL-->
+                                <h5 style="background-color: #7EB908; color: white;">&nbsp;ADICIONAL</h5>
+                                <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Sucursal</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Empresa</label>
+                                        </div>
+                                        <div class="col-4 mt-2">
+                                            <label>Centro de costo</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosSucursalFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosEmpresaFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            <input type="text" id="txtOtrosCentroCostoFicha" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label class="col-form-label">(*) obligatorio</label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnAgregar" class="btn btn-primary">Agregar Colaborador</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CAMBIO JEFATURA -->
+<div class="modal fade" id="cambioJefatura" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog modal-lg col-10 mx-auto" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModal3Label">Cambio Jefatura</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <form>
+                        <div class="card">
+                            <div class="row">
+                                <div class="col-10">
+                                    <label>Jefes:</label>
+                                </div>
+                                </div>
+                            <div class="row">
+                                <div class="col-10">
+                                    <select class="form-control"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label class="col-form-label">(*) obligatorio</label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnModificarJefatura" class="btn btn-primary">Modificar</button>
+            </div>
+        </div>
+    </div>
+
+</div>

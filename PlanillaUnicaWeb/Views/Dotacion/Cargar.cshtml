@@ -1,0 +1,916 @@
+﻿@model IEnumerable<Object>
+@{
+    List<PlanillaUnicaWeb.Models.Gen_Empresa> lstEmpresa = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.Gen_Empresa>;
+    List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCosto = Model.ToList()[1] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
+    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
+    PlanillaUnicaWeb.Models.FiltroDotacion filtroDotacion = Model.ToArray()[3] as PlanillaUnicaWeb.Models.FiltroDotacion;
+    List<PlanillaUnicaWeb.Models.DotacionLista> lstDotacion = Model.ToList()[4] as List<PlanillaUnicaWeb.Models.DotacionLista>;
+    List<PlanillaUnicaWeb.Models.Rh_Tipo_Personal_Ofertado> lstTipoPersonalOfertado = Model.ToList()[5] as List<PlanillaUnicaWeb.Models.Rh_Tipo_Personal_Ofertado>;
+    List<PlanillaUnicaWeb.Models.Rh_Familia> lstFamilia = Model.ToList()[6] as List<PlanillaUnicaWeb.Models.Rh_Familia>;
+    List<PlanillaUnicaWeb.Models.Rh_Cargo_Generico> lstCargoGenerico = Model.ToList()[7] as List<PlanillaUnicaWeb.Models.Rh_Cargo_Generico>;
+    List<PlanillaUnicaWeb.Models.Rh_Referencia_1> lstReferencia1 = Model.ToList()[8] as List<PlanillaUnicaWeb.Models.Rh_Referencia_1>;
+    List<PlanillaUnicaWeb.Models.Rh_Referencia_2> lstReferencia2 = Model.ToList()[9] as List<PlanillaUnicaWeb.Models.Rh_Referencia_2>;
+    List<PlanillaUnicaWeb.Models.Rh_Clasificacion> lstClasificacion = Model.ToList()[10] as List<PlanillaUnicaWeb.Models.Rh_Clasificacion>;
+    PlanillaUnicaWeb.Models.Rh_Dotacion dotacionEdit = Model.ToList()[11] as PlanillaUnicaWeb.Models.Rh_Dotacion;
+    PlanillaUnicaWeb.Models.Rh_Dotacion dotacionNew = Model.ToList()[12] as PlanillaUnicaWeb.Models.Rh_Dotacion;
+
+    string classAlerta = string.Empty;
+
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@{ Html.EnableClientValidation(true);
+    Html.EnableUnobtrusiveJavaScript(true); }
+
+<script>
+
+    $(document).ready(function (e) {
+
+
+        $('#tablaDotacion').DataTable(
+            {
+                "language": {
+                    "lengthMenu": "Motrar _MENU_ registros por página",
+                    "zeroRecords": "Sin información",
+                    "search": "Buscar:",
+                    "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
+                    "infoEmpty": "Sin información disponible",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            }
+        );
+
+        $('#editarDotacion').on('show.bs.modal', function (e) {
+            var id = $(e.relatedTarget).data().id;
+            var modal = @Html.Raw(Json.Encode(lstDotacion));
+            for (var i in modal) {
+                if (id == modal[i].Rhdot_Id) {
+                    $("#dotacionEdit_Gencencos_Id").val(modal[i].Gencencos_Id);
+                    $("#dotacionEdit_Rhdot_Periodo").val(modal[i].Rhdot_Periodo);
+                    //Tipo personal ofertado
+                    var personalOfertadoDotacion = @Html.Raw(Json.Encode(lstTipoPersonalOfertado));
+                    for (var x in personalOfertadoDotacion) {
+                        if (personalOfertadoDotacion[x].Rhtipperofe_Id == modal[i].Rhtipperofe_Id) {
+                            $(e.currentTarget).find('#dotacionEdit_Rhtipperofe_Id').val(personalOfertadoDotacion[x].Rhtipperofe_Id);
+                        }
+                    }
+                    //Familia seteo y rescate de ID
+                    $(e.currentTarget).find('#dotacionEdit_Rhfam_Id').val(modal[i].Rhfam_Id);
+
+                    //Cargo mandante, carga y seteo de dato seleccionado
+                    var cargoGenericoMandanteDotacion = @Html.Raw(Json.Encode(lstCargoGenerico));
+                    document.getElementById("dotacionEdit_Rhcargen_Id_Mandante").innerHTML = "";
+                    for (var x in cargoGenericoMandanteDotacion) {
+                        if (cargoGenericoMandanteDotacion[x].Rhfam_Id == modal[i].Rhfam_Id) {
+                            document.getElementById("dotacionEdit_Rhcargen_Id_Mandante").innerHTML += "<option value='" + cargoGenericoMandanteDotacion[x].Rhcargen_Id + "'>" + cargoGenericoMandanteDotacion[x].Rhcargen_Descripcion + "</option>";
+                        }
+                    }
+                    $("#dotacionEdit_Rhcargen_Id_Mandante").val(modal[i].Id_Cargo_Mandante);
+                    $("#dotacionEdit_Rhcargen_Id_Unificado").val(modal[i].Id_Cargo_Generico);
+                    $("#dotacionEdit_Clasificacion").val(modal[i].Codigo_Clasificacion);
+                    $("#dotacionEdit_Rhref1_Id").val(modal[i].Id_Ref1);
+                    $("#dotacionEdit_Rhref2_Id").val(modal[i].Id_Ref2);
+                    $("#dotacionEdit_Rhdot_Id").val(modal[i].Rhdot_Id);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Ene').val(modal[i].Rhdot_Ene);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Feb').val(modal[i].Rhdot_Feb);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Mar').val(modal[i].Rhdot_Mar);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Abr').val(modal[i].Rhdot_Abr);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_May').val(modal[i].Rhdot_May);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Jun').val(modal[i].Rhdot_Jun);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Jul').val(modal[i].Rhdot_Jul);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Ago').val(modal[i].Rhdot_Ago);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Sep').val(modal[i].Rhdot_Sep);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Oct').val(modal[i].Rhdot_Oct);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Nov').val(modal[i].Rhdot_Nov);
+                    $(e.currentTarget).find('#dotacionEdit_Rhdot_Dic').val(modal[i].Rhdot_Dic);
+
+                }
+            };
+
+        });
+
+        $('#ingresarDotacion').on('show.bs.modal', function (e) {
+            var id = $(e.relatedTarget).data().id;
+            let centroCostoId = document.getElementById('centroCostoDropdown').value;
+            let periodo = document.getElementById('periodoDropdown').value;
+            $("#dotacionNew_Gencencos_Id").val(centroCostoId);
+            $("#dotacionNew_Rhdot_Periodo").val(periodo);
+        });
+
+
+        $('#btnModificar').click(function() {
+            //Obtiene valores de objetos seleccionables
+            let tipoPersonalOfertad = document.getElementById('dotacionEdit_Rhtipperofe_Id').value;
+            let familia = document.getElementById('dotacionEdit_Rhfam_Id').value;
+            let cargoMandante = document.getElementById('dotacionEdit_Rhcargen_Id_Mandante').value;
+            let cargoUnificado = document.getElementById('dotacionEdit_Rhcargen_Id_Unificado').value;
+            let referencia1 = document.getElementById('dotacionEdit_Rhref1_Id').value;
+            let referencia2 = document.getElementById('dotacionEdit_Rhref2_Id').value;
+
+            // Obtiene los valores de los campos de texto
+            var dotacion = {
+                    Rhdot_Id: $('#dotacionEdit_Rhdot_Id').val(),
+                    Gencencos_Id: $('#dotacionEdit_Gencencos_Id').val(),
+		            Rhdot_Periodo: $('#dotacionEdit_Rhdot_Periodo').val(),
+                    Rhtipperofe_Id: tipoPersonalOfertad,
+                    Rhfam_Id: familia,
+                    Rhcargen_Id_Mandante: cargoMandante,
+                    Rhcargen_Id_Unificado: cargoUnificado,
+                    Rhref1_Id: referencia1,
+		            Rhref2_Id: referencia2,
+                    Rhdot_Ene: $('#dotacionEdit_Rhdot_Ene').val(),
+                    Rhdot_Feb: $('#dotacionEdit_Rhdot_Feb').val(),
+                    Rhdot_Mar: $('#dotacionEdit_Rhdot_Mar').val(),
+                    Rhdot_Abr: $('#dotacionEdit_Rhdot_Abr').val(),
+                    Rhdot_May: $('#dotacionEdit_Rhdot_May').val(),
+                    Rhdot_Jun: $('#dotacionEdit_Rhdot_Jun').val(),
+                    Rhdot_Jul: $('#dotacionEdit_Rhdot_Jul').val(),
+                    Rhdot_Ago: $('#dotacionEdit_Rhdot_Ago').val(),
+                    Rhdot_Sep: $('#dotacionEdit_Rhdot_Sep').val(),
+                    Rhdot_Oct: $('#dotacionEdit_Rhdot_Oct').val(),
+                    Rhdot_Nov: $('#dotacionEdit_Rhdot_Nov').val(),
+                    Rhdot_Dic: $('#dotacionEdit_Rhdot_Dic').val(),
+		            Rhdot_Vigencia: 'S'
+             };
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("IngresaModifica", "Dotacion")',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify(dotacion), // Los datos que se envían al servidor
+                success: function (response) {
+                    // Maneja la respuesta exitosa
+                    if (response.success) {
+                        if (response.data) {
+                            Swal.fire({
+                                title: "Actualización de Dotación",
+                                text: response.data.Mensaje,
+                                icon: "success",
+                                confirmButtonColor: '#e60012',
+                                confirmButtonText: 'Aceptar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    document.getElementById("btnBuscar").click();
+                                }
+                            })
+                        }
+                    } else {
+                        Swal.fire({
+                            title: "Actualización de Dotación",
+                            text: response.data,
+                            icon: "error",
+                            confirmButtonColor: '#e60012',
+                            confirmButtonText: 'Aceptar'
+                        }).then((result) => {
+                            //
+                        })
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: "Actualización de Dotación",
+                        text: "Ha ocurrido un error al intentar grabar los datos de la dotación",
+                        icon: "error",
+                        confirmButtonColor: '#e60012',
+                        confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        //
+                    })
+                }
+            });
+        });
+
+
+        $('#btnAgregar').click(function() {
+            //Obtiene valores de objetos seleccionables
+            let tipoPersonalOfertad = document.getElementById('dotacionNew_Rhtipperofe_Id').value;
+            let familia = document.getElementById('dotacionNew_Rhfam_Id').value;
+            let cargoMandante = document.getElementById('dotacionNew_Rhcargen_Id_Mandante').value;
+            let cargoUnificado = document.getElementById('dotacionNew_Rhcargen_Id_Unificado').value;
+            let referencia1 = document.getElementById('dotacionNew_Rhref1_Id').value;
+            let referencia2 = document.getElementById('dotacionNew_Rhref2_Id').value;
+
+            // Obtiene los valores de los campos de texto
+            var dotacion = {
+                    Rhdot_Id: 0,
+                    Gencencos_Id: $('#dotacionNew_Gencencos_Id').val(),
+		            Rhdot_Periodo: $('#dotacionNew_Rhdot_Periodo').val(),
+                    Rhtipperofe_Id: tipoPersonalOfertad,
+                    Rhfam_Id: familia,
+                    Rhcargen_Id_Mandante: cargoMandante,
+                    Rhcargen_Id_Unificado: cargoUnificado,
+                    Rhref1_Id: referencia1,
+		            Rhref2_Id: referencia2,
+                    Rhdot_Ene: $('#dotacionNew_Rhdot_Ene').val(),
+                    Rhdot_Feb: $('#dotacionNew_Rhdot_Feb').val(),
+                    Rhdot_Mar: $('#dotacionNew_Rhdot_Mar').val(),
+                    Rhdot_Abr: $('#dotacionNew_Rhdot_Abr').val(),
+                    Rhdot_May: $('#dotacionNew_Rhdot_May').val(),
+                    Rhdot_Jun: $('#dotacionNew_Rhdot_Jun').val(),
+                    Rhdot_Jul: $('#dotacionNew_Rhdot_Jul').val(),
+                    Rhdot_Ago: $('#dotacionNew_Rhdot_Ago').val(),
+                    Rhdot_Sep: $('#dotacionNew_Rhdot_Sep').val(),
+                    Rhdot_Oct: $('#dotacionNew_Rhdot_Oct').val(),
+                    Rhdot_Nov: $('#dotacionNew_Rhdot_Nov').val(),
+                    Rhdot_Dic: $('#dotacionNew_Rhdot_Dic').val(),
+		            Rhdot_Vigencia: 'S'
+             };
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("IngresaModifica", "Dotacion")',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify(dotacion), // Los datos que se envían al servidor
+                success: function (response) {
+                    // Maneja la respuesta exitosa
+                    if (response.success) {
+                        if (response.data) {
+                            Swal.fire({
+                                title: "Ingreso de Dotación",
+                                text: response.data.Mensaje,
+                                icon: "success",
+                                confirmButtonColor: '#e60012',
+                                confirmButtonText: 'Aceptar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    document.getElementById("btnBuscar").click();
+                                }
+                            })
+                        }
+                    } else {
+                        Swal.fire({
+                            title: "Ingreso de Dotación",
+                            text: response.data,
+                            icon: "error",
+                            confirmButtonColor: '#e60012',
+                            confirmButtonText: 'Aceptar'
+                        }).then((result) => {
+                            //
+                        })
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: "Ingreso de Dotación",
+                        text: "Ha ocurrido un error al intentar grabar los datos de la dotación",
+                        icon: "error",
+                        confirmButtonColor: '#e60012',
+                        confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        //
+                    })
+                }
+            });
+        });
+
+
+        setTimeout(function () {
+            $(".content").fadeOut(1500);
+        }, 3000);
+
+    });
+
+</script>
+
+
+<div class="card shadow">
+    <div class="card-body">
+        @using (Html.BeginForm("Cargar", "Dotacion", null, FormMethod.Post, null))
+        {
+            <div class="row mx-auto">
+                <div class="col-md-12 mx-auto">
+                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Dotación</h4>
+                </div>
+            </div>
+            <div class="row mx-auto">
+                <div class="col-md-12 mt-3 mx-auto">
+                    <div class="row">
+                        <div class="col-md-3 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroDotacion.Genemp_Id,
+                                new SelectList(lstEmpresa, "Genemp_Id", "Genemp_Descripcion"),
+                                "-- Selecciona Empresa --",
+                                new { @class = "form-control", id = "empresaDropdown", data_placeholder = "Selecciona Empresa" })
+                        </div>
+                        <div class="col-md-3 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroDotacion.Gencencos_Id,
+                                new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
+                                "-- Seleccione Centro de Costo --",
+                                new { @class = "form-control", id = "centroCostoDropdown" })
+                        </div>
+                        <div class="col-md-2 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroDotacion.Periodo,
+                                new SelectList(lstAno, "Ano", "Ano"),
+                                "-- Selecciona Periodo --",
+                                new { @class = "form-control", id = "periodoDropdown", data_placeholder = "Selecciona Periodo" })
+                        </div>
+                        <div class="col-md-4 mt-3 auto">
+                            <input id="btnBuscar" type="submit" class="btn btn-primary float-left px-4" value="Buscar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <br />
+
+        <div class="row mx-auto">
+            <div class="col-md-12 mt-3 mx-auto">
+                <button class="btn btn-primary float-right" data-toggle="modal"
+                        data-target="#ingresarDotacion">
+                    <i class="bi bi-plus-lg mr-1"></i> Ingresar
+                    Dotación
+                </button>
+            </div>
+        </div>
+
+        <div class="row mx-auto">
+            <div class="col mx-auto">
+                <table id="tablaDotacion" class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Acciones</th>
+                            <th>Personal Ofertado</th>
+                            <th>Familia</th>
+                            <th>Cargo Mandante</th>
+                            <th>Cargo Genérico Unificado</th>
+                            <th>JEAS GEAS</th>
+                            <th>REF1 (Código cargo)</th>
+                            <th>REF2 (Código especialidad)</th>
+                            <th>Ene</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Abr</th>
+                            <th>May</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Ago</th>
+                            <th>Sep</th>
+                            <th>Oct</th>
+                            <th>Nov</th>
+                            <th>Dic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dotacion in lstDotacion)
+                        {
+                            <tr>
+                                <th style="white-space: nowrap;">
+                                    <a href="#" id="modificaJefatura" data-nombre="@dotacion.Rhdot_Id" data-id="@dotacion.Rhdot_Id" data-toggle="modal" data-target="#editarDotacion">
+                                        <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Dotación" style="width: 30px; height: 30px; padding: 0;">
+                                        </button>
+                                    </a>
+                                </th>
+                                <td style="text-align: left;">@dotacion.Rhtipperofe_Descripcion</td>
+                                <td style="text-align: center;">@dotacion.Rhfam_Descripcion</td>
+                                <td style="text-align: left;">@dotacion.Cargo_Mandante</td>
+                                <td style="text-align: left;">@dotacion.Cargo_Generico</td>
+                                <td style="text-align: center;">@dotacion.Codigo_Clasificacion</td>
+                                <td style="text-align: center;">@dotacion.Codigo_Ref1</td>
+                                <td style="text-align: center;">@dotacion.Codigo_Ref2</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Ene</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Feb</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Mar</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Abr</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_May</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Jun</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Jul</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Ago</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Sep</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Oct</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Nov</td>
+                                <td style="text-align: center;">@dotacion.Rhdot_Dic</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<!-- INGRESAR DOTACION -->
+<div class="modal fade" id="ingresarDotacion" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModal3Label">Ingresar Dotación</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @Html.HiddenFor(Model => dotacionNew.Gencencos_Id)
+            @Html.HiddenFor(Model => dotacionNew.Rhdot_Periodo)
+            <div class="modal-body">
+                <div class="row">
+                    <div class="divmodal">
+                        <form>
+                            <div class="card">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Personal Ofertado:</label>
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Familia:</label>
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Cargo Mandante:</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4 mx-auto">
+                                        @Html.DropDownListFor(x => dotacionNew.Rhtipperofe_Id,
+                                             new SelectList(lstTipoPersonalOfertado, "rhtipperofe_Id", "rhtipperofe_Descripcion"),
+                                             "-- Seleccione Tipo Personal --",
+                                             new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(x => dotacionNew.Rhtipperofe_Id, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-4 mx-auto">
+                                        @Html.DropDownListFor(x => dotacionNew.Rhfam_Id,
+                                             new SelectList(lstFamilia, "rhfam_Id", "rhfam_Descripcion"),
+                                             "-- Seleccione Familia --",
+                                             new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(x => dotacionNew.Rhfam_Id, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-4 mx-auto">
+                                        @Html.DropDownListFor(x => dotacionNew.Rhcargen_Id_Mandante,
+                                        new SelectList(Enumerable.Empty<SelectListItem>(), "Rhcargen_Id", "Rhcargen_Descripcion"),
+                                        "-- Seleccione Cargo Mandante --",
+                                        new { @class = "form-control", id = "dotacionNew_Rhcargen_Id_Mandante" })
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4 mt-2">
+                                        <label>Cargo Genérico Unificado:</label>
+                                    </div>
+                                    <div class="col-2 mt-2">
+                                        <label>JEAS GEAS</label>
+                                    </div>
+                                    <div class="col-3 mt-2">
+                                        <label>REF1 (Código cargo):</label>
+                                    </div>
+                                    <div class="col-3 mt-2">
+                                        <label>REF2 (Código Especialidad):</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4 mx-auto">
+                                        @Html.DropDownListFor(x => dotacionNew.Rhcargen_Id_Unificado,
+                                            new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
+                                            "-- Seleccione Cargo Generico --",
+                                            new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(x => dotacionNew.Rhcargen_Id_Unificado, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-2 mx-auto">
+                                        <input type="text" id="dotacionNew_Clasificacion" class="form-control" disabled />
+                                    </div>
+                                    <div class="col-3 mx-auto">
+                                        @Html.DropDownListFor(x => dotacionNew.Rhref1_Id,
+                                             new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Codigo"),
+                                             "-- Seleccione Código Cargo --",
+                                             new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(x => dotacionNew.Rhref1_Id, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-3 mx-auto">
+                                        @Html.DropDownListFor(x => dotacionNew.Rhref2_Id,
+                                             new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Codigo"),
+                                             "-- Seleccione Código Especialidad --",
+                                             new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(x => dotacionNew.Rhref2_Id, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-1 mt-2">
+                                        <label>Ene:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Feb:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Mar:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Abr:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>May:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Jun:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Jul:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Ago:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Sep:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Oct:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Nov:</label>
+                                    </div>
+                                    <div class="col-1 mt-2">
+                                        <label>Dic:</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Ene, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Ene, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Feb, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Feb, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Mar, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Mar, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Abr, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Abr, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_May, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_May, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Jun, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Jun, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Jul, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Jul, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Ago, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Ago, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Sep, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Sep, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Oct, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Oct, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Nov, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Nov, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-1 mx-auto">
+                                        @Html.TextBoxFor(Model => dotacionNew.Rhdot_Dic, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Dic, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label class="col-form-label">(*) obligatorio</label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnAgregar" class="btn btn-primary">Agregar Dotación</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- EDITAR DOTACION -->
+<div class="modal fade" id="editarDotacion" tabindex="-1" role="dialog" aria-hidden="true">
+  
+        <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModal3Label">Editar Dotación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                @Html.HiddenFor(Model => dotacionEdit.Gencencos_Id)
+                @Html.HiddenFor(Model => dotacionEdit.Rhdot_Periodo)
+                @Html.HiddenFor(Model => dotacionEdit.Rhdot_Id)
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="divmodal">
+                            <form>
+                                <div class="card">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label>Personal Ofertado:</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Familia:</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Cargo Mandante:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => dotacionEdit.Rhtipperofe_Id,
+                  new SelectList(lstTipoPersonalOfertado, "rhtipperofe_Id", "rhtipperofe_Descripcion"),
+                  "-- Seleccione Tipo Personal --",
+                  new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => dotacionEdit.Rhtipperofe_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => dotacionEdit.Rhfam_Id,
+                  new SelectList(lstFamilia, "rhfam_Id", "rhfam_Descripcion"),
+                  "-- Seleccione Familia --",
+                  new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => dotacionEdit.Rhfam_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => dotacionEdit.Rhcargen_Id_Mandante,
+                  new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
+                  "-- Seleccione Cargo Mandante --",
+                  new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => dotacionEdit.Rhcargen_Id_Mandante, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mt-2">
+                                            <label>Cargo Genérico Unificado:</label>
+                                        </div>
+                                        <div class="col-2 mt-2">
+                                            <label>JEAS GEAS</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF1 (Código cargo):</label>
+                                        </div>
+                                        <div class="col-3 mt-2">
+                                            <label>REF2 (Código Especialidad):</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 mx-auto">
+                                            @Html.DropDownListFor(x => dotacionEdit.Rhcargen_Id_Unificado,
+                  new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
+                  "-- Seleccione Cargo Generico --",
+                  new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => dotacionEdit.Rhcargen_Id_Unificado, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-2 mx-auto">
+                                            <input type="text" id="dotacionEdit_Clasificacion" class="form-control" disabled />
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => dotacionEdit.Rhref1_Id,
+                  new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Codigo"),
+                  "-- Seleccione Código Cargo --",
+                  new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => dotacionEdit.Rhref1_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-3 mx-auto">
+                                            @Html.DropDownListFor(x => dotacionEdit.Rhref2_Id,
+                  new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Codigo"),
+                  "-- Seleccione Código Especialidad --",
+                  new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => dotacionEdit.Rhref2_Id, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mt-2">
+                                            <label>Ene:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Feb:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Mar:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Abr:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>May:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Jun:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Jul:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Ago:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Sep:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Oct:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Nov:</label>
+                                        </div>
+                                        <div class="col-1 mt-2">
+                                            <label>Dic:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Ene, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Ene, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Feb, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Feb, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Mar, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Mar, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Abr, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Abr, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_May, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_May, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Jun, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Jun, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Jul, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Jul, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Ago, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Ago, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Sep, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Sep, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Oct, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Oct, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Nov, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Nov, null, new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-1 mx-auto">
+                                            @Html.TextBoxFor(Model => dotacionEdit.Rhdot_Dic, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Dic, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="col-form-label">(*) obligatorio</label>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="btnModificar" class="btn btn-primary">Modificar</button>
+                </div>
+            </div>
+        </div>
+    
+</div>
+
+
+
+
+<script>
+
+    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCosto));
+    var cargosUnificados = @Html.Raw(Json.Encode(lstCargoGenerico));
+    var clasificaciones = @Html.Raw(Json.Encode(lstClasificacion));
+
+    $(document).ready(function () {
+
+        // Cuando se seleccione una empresa para cargar los centros de costo asociados
+        $('#empresaDropdown').change(function () {
+            var empresaId = $(this).val(); // Obtener el ID de la empresa
+
+            // Limpiar el dropdown de centros de costo
+            $('#centroCostoDropdown').empty();
+            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opción por defecto
+
+            // Si hay una empresa seleccionada
+            if (empresaId) {
+                // Filtrar los centros de costo que pertenecen a la empresa seleccionada
+                var filteredCentrosCosto = centrosCostoList.filter(function (item) {
+                    return item.Genemp_Id == empresaId; // Comparar con la empresa seleccionada
+                });
+
+                // Llenar el dropdown con las centros de costo filtrados
+                $.each(filteredCentrosCosto, function (index, item) {
+                    $('#centroCostoDropdown').append($('<option>').val(item.Gencencos_Id).text(item.Gencencos_Codigo + ' - ' + item.Gencencos_Descripcion));
+                });
+            }
+        });
+
+        // Seteo de centro de costo al cargar en búsqueda
+        let empresaId = document.getElementById('empresaDropdown').value;
+        var filteredCentrosCosto = centrosCostoList.filter(function (item) {
+            return item.Genemp_Id == empresaId; // Comparar con la empresa seleccionada
+        });
+
+        // Llenar el dropdown con las centros de costo filtrados
+        $.each(filteredCentrosCosto, function (index, item) {
+            $('#centroCostoDropdown').append($('<option>').val(item.Gencencos_Id).text(item.Gencencos_Codigo + ' - ' + item.Gencencos_Descripcion));
+        });
+        $('#centroCostoDropdown').val(@filtroDotacion.Gencencos_Id);
+
+        // Cargos mandante por familia seleccionada (edición)
+        $('#dotacionEdit_Rhfam_Id').change(function () {
+            var familiaId = $(this).val();
+            document.getElementById("dotacionEdit_Rhcargen_Id_Mandante").innerHTML = "";
+            for (var x in cargosUnificados) {
+                if (cargosUnificados[x].Rhfam_Id == familiaId) {
+                    document.getElementById("dotacionEdit_Rhcargen_Id_Mandante").innerHTML += "<option value='" + cargosUnificados[x].Rhcargen_Id + "'>" + cargosUnificados[x].Rhcargen_Descripcion + "</option>";
+                }
+            }
+        });
+
+        // Cargos mandante por familia seleccionada (nuevo)
+        $('#dotacionNew_Rhfam_Id').change(function () {
+            var familiaId = $(this).val();
+            document.getElementById("dotacionNew_Rhcargen_Id_Mandante").innerHTML = "";
+            for (var x in cargosUnificados) {
+                if (cargosUnificados[x].Rhfam_Id == familiaId) {
+                    document.getElementById("dotacionNew_Rhcargen_Id_Mandante").innerHTML += "<option value='" + cargosUnificados[x].Rhcargen_Id + "'>" + cargosUnificados[x].Rhcargen_Descripcion + "</option>";
+                }
+            }
+        });
+
+
+
+        // Cuando se seleccione un cargo unificado para cargar colocar la clasificacion en texto deshabilitado (edición)
+        $('#dotacionEdit_Rhcargen_Id_Unificado').change(function () {
+            // Limpiamos el objeto de clasificacion
+            $("#dotacionEdit_Clasificacion").val("");
+            // Obtener el ID del cargo unificado
+            var cargoUnificadoId = $(this).val();
+            // Si hay una sistema seleccionado
+            if (cargoUnificadoId) {
+                for (var x in cargosUnificados) {
+                    if (cargosUnificados[x].Rhcargen_Id == cargoUnificadoId) {
+                        for (var z in clasificaciones) {
+                            if (clasificaciones[z].Rhcla_Id == cargosUnificados[x].Rhcla_Id) {
+                                $("#dotacionEdit_Clasificacion").val(clasificaciones[z].Rhcla_Codigo);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Cuando se seleccione un cargo unificado para cargar colocar la clasificacion en texto deshabilitado (nuevo)
+        $('#dotacionNew_Rhcargen_Id_Unificado').change(function () {
+            // Limpiamos el objeto de clasificacion
+            $("#dotacionNew_Clasificacion").val("");
+            // Obtener el ID del cargo unificado
+            var cargoUnificadoId = $(this).val();
+            // Si hay una sistema seleccionado
+            if (cargoUnificadoId) {
+                for (var x in cargosUnificados) {
+                    if (cargosUnificados[x].Rhcargen_Id == cargoUnificadoId) {
+                        for (var z in clasificaciones) {
+                            if (clasificaciones[z].Rhcla_Id == cargosUnificados[x].Rhcla_Id) {
+                                $("#dotacionNew_Clasificacion").val(clasificaciones[z].Rhcla_Codigo);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    });
+</script>

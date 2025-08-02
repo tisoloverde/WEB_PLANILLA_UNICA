@@ -1,0 +1,66 @@
+﻿body {
+    font: sans-serif;
+    margin: 0 auto;
+}
+
+thead {
+    display: table-header-group
+}
+
+tfoot {
+    display: table-row-group
+}
+
+tr {
+    page-break-inside: avoid
+}
+
+table {
+    width: 100%;
+    caption-side: inherit;
+    font-size: 10px;
+}
+
+caption, td, th {
+    padding: 0.3em;
+}
+
+th {
+    font-size: 12px;
+    background-color: white;
+    color: black;
+}
+
+td {
+    font-size: 11px;
+}
+
+caption {
+    font-weight: bold;
+    font-style: italic;
+}
+
+#imageinforme {
+    float: left;
+}
+
+#titulo {
+    display: inline-block;
+    vertical-align: top;
+    font-size: large;
+    text-align: center;
+}
+
+#subtitulo {
+    display: inline-block;
+    vertical-align: top;
+    font-size: medium;
+    float: inherit;
+}
+
+#subtituloderecha {
+    display: inline-block;
+    vertical-align: top;
+    font-size: medium;
+    float: right;
+}

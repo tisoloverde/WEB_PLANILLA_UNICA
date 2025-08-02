@@ -1,0 +1,159 @@
+﻿@model IEnumerable<Object>
+@{
+    List<PlanillaUnicaWeb.Models.Gen_Empresa> lstEmpresa = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.Gen_Empresa>;
+    List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCosto = Model.ToList()[1] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
+    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
+    PlanillaUnicaWeb.Models.FiltroDotacion filtroDotacion = Model.ToArray()[3] as PlanillaUnicaWeb.Models.FiltroDotacion;
+
+
+    string classAlerta = string.Empty;
+
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@{ Html.EnableClientValidation(true);
+    Html.EnableUnobtrusiveJavaScript(true); }
+
+<script>
+
+    $(document).ready(function (e) {
+
+
+        $('#tablaDotacion').DataTable(
+            {
+                "language": {
+                    "lengthMenu": "Motrar _MENU_ registros por página",
+                    "zeroRecords": "Sin información",
+                    "search": "Buscar:",
+                    "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
+                    "infoEmpty": "Sin información disponible",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            }
+        );
+
+        setTimeout(function () {
+            $(".content").fadeOut(1500);
+        }, 3000);
+
+    });
+
+</script>
+
+
+<div class="card shadow">
+    <div class="card-body">
+        @using (Html.BeginForm("Cargar", "Dotacion", null, FormMethod.Post, null))
+        {
+            <div class="row mx-auto">
+                <div class="col-md-12 mx-auto">
+                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Dotación</h4>
+                </div>
+            </div>
+            <div class="row mx-auto">
+                <div class="col-md-12 mt-3 mx-auto">
+                    <div class="row">
+                        <div class="col-md-3 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroDotacion.Genemp_Id,
+                                new SelectList(lstEmpresa, "Genemp_Id", "Genemp_Descripcion"),
+                                "-- Selecciona Empresa --", 
+                                new { @class = "form-control", id = "empresaDropdown", data_placeholder = "Selecciona Empresa" })
+                        </div>
+                        <div class="col-md-3 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroDotacion.Gencencos_Id,
+                                new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
+                                "-- Seleccione Centro de Costo --",
+                                new { @class = "form-control", id = "centroCostoDropdown" })
+                        </div>
+                        <div class="col-md-2 mt-3 auto">
+                            @Html.DropDownListFor(x => filtroDotacion.Periodo,
+                                new SelectList(lstAno, "Ano", "Ano"),
+                                "-- Selecciona Periodo --",
+                                new { @class = "form-control", id = "periodoDropdown", data_placeholder = "Selecciona Periodo" })
+                        </div>
+                        <div class="col-md-4 mt-3 auto">
+                            <input type="submit" class="btn btn-primary float-left px-4" value="Buscar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <br />
+
+        <div class="row mx-auto">
+            <div class="col mx-auto">
+                <table id="tablaDotacion" class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Personal Ofertado</th>
+                            <th>Familia</th>
+                            <th>Cargo Mandante</th>
+                            <th>Cargo Genérico Unificado</th>
+                            <th>JEAS GEAS</th>
+                            <th>REF1 (Código cargo)</th>
+                            <th>REF2 (Código especialidad)</th>
+                            <th>Ene</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Abr</th>
+                            <th>May</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Ago</th>
+                            <th>Sep</th>
+                            <th>Oct</th>
+                            <th>Nov</th>
+                            <th>Dic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<script>
+
+    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCosto));
+
+    $(document).ready(function () {
+        // Cuando se seleccione una empresa para cargar los centros de costo asociados
+        $('#empresaDropdown').change(function () {
+            var empresaId = $(this).val(); // Obtener el ID de la empresa
+
+            // Limpiar el dropdown de centros de costo
+            $('#centroCostoDropdown').empty();
+            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opción por defecto
+
+            // Si hay una empresa seleccionada
+            if (empresaId) {
+                // Filtrar los centros de costo que pertenecen a la empresa seleccionada
+                var filteredCentrosCosto = centrosCostoList.filter(function (item) {
+                    return item.Genemp_Id == empresaId; // Comparar con la empresa seleccionada
+                });
+
+                // Llenar el dropdown con las centros de costo filtrados
+                $.each(filteredCentrosCosto, function (index, item) {
+                    $('#centroCostoDropdown').append($('<option>').val(item.Gencencos_Id).text(item.Gencencos_Codigo + ' - ' + item.Gencencos_Descripcion));
+                });
+            }
+        });
+    });
+</script>

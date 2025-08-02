@@ -1,0 +1,14 @@
+/* 1. PATRONES DE COLORES */
+$primary: #FFC400;
+$secondary: #313133;
+
+/* 2. MODIFICACION VARIABLES BOOTSTRAPS */
+$body-bg: $secondary;
+$body-color: #FFF; 
+
+$box-shadow-lg: 9px 9px 16px rgba(0, 0, 0, 0.70);
+$dark: $secondary;
+
+
+/* IMPORTANDO BOOTSTRAPS */
+@import "../libs/bootstrap-4.6.0/scss/bootstrap";
