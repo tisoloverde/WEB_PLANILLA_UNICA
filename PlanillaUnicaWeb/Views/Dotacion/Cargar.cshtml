@@ -375,8 +375,8 @@
                                 <td style="text-align: left;">@dotacion.Cargo_Mandante</td>
                                 <td style="text-align: left;">@dotacion.Cargo_Generico</td>
                                 <td style="text-align: center;">@dotacion.Codigo_Clasificacion</td>
-                                <td style="text-align: center;">@dotacion.Codigo_Ref1</td>
-                                <td style="text-align: center;">@dotacion.Codigo_Ref2</td>
+                                <td style="text-align: center;">@dotacion.Descripcion_Ref1</td>
+                                <td style="text-align: center;">@dotacion.Descripcion_Ref2</td>
                                 <td style="text-align: center;">@dotacion.Rhdot_Ene</td>
                                 <td style="text-align: center;">@dotacion.Rhdot_Feb</td>
                                 <td style="text-align: center;">@dotacion.Rhdot_Mar</td>
@@ -479,14 +479,14 @@
                                     </div>
                                     <div class="col-3 mx-auto">
                                         @Html.DropDownListFor(x => dotacionNew.Rhref1_Id,
-                                             new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Codigo"),
+                                             new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Descripcion"),
                                              "-- Seleccione Código Cargo --",
                                              new { @class = "form-control" })
                                         @Html.ValidationMessageFor(x => dotacionNew.Rhref1_Id, null, new { @class = "text-danger" })
                                     </div>
                                     <div class="col-3 mx-auto">
                                         @Html.DropDownListFor(x => dotacionNew.Rhref2_Id,
-                                             new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Codigo"),
+                                             new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Descripcion"),
                                              "-- Seleccione Código Especialidad --",
                                              new { @class = "form-control" })
                                         @Html.ValidationMessageFor(x => dotacionNew.Rhref2_Id, null, new { @class = "text-danger" })
@@ -681,14 +681,14 @@
                                         </div>
                                         <div class="col-3 mx-auto">
                                             @Html.DropDownListFor(x => dotacionEdit.Rhref1_Id,
-                  new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Codigo"),
+                  new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Descripcion"),
                   "-- Seleccione Código Cargo --",
                   new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhref1_Id, null, new { @class = "text-danger" })
                                         </div>
                                         <div class="col-3 mx-auto">
                                             @Html.DropDownListFor(x => dotacionEdit.Rhref2_Id,
-                  new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Codigo"),
+                  new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Descripcion"),
                   "-- Seleccione Código Especialidad --",
                   new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhref2_Id, null, new { @class = "text-danger" })

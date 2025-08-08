@@ -75,6 +75,12 @@ namespace PlanillaUnicaWeb.Models
 		public string Rhvincon_Descripcion { get; set; }
 		public decimal Rhnivocu_Id { get; set; }
 		public string Rhnivocu_Descripcion { get; set; }
-
+		public decimal Genemp_Id { get; set; }
+		public string Genemp_Descripcion { get; set; }
+		public decimal Rhcargen_Id { get; set; }
+		public string Rhcargen_Descripcion { get; set; }
+		public decimal Gencencos_Id { get; set; }
+		public string Gencencos_Codigo { get; set; }
+		public string Gencencos_Descripcion { get; set; }
 	}
 }
