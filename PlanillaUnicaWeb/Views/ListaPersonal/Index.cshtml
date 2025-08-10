@@ -94,8 +94,8 @@
             $("#editarColaborador").modal('show');
         });
 
-        $("#btnCambioJefatura").click(function () {
-            $("#cambioJefatura").modal('show');
+        $("#btnSubirImagen").click(function () {
+            $("#subirImagen").modal('show');
         });
 
         $('#verFicha').on('show.bs.modal', function (e) {
@@ -447,7 +447,7 @@
                     <table id="tablaColaboradores" style="white-space: nowrap;" class="table table-bordered table-hover table-responsive">
                         <thead class="thead-light">
                             <tr>
-                                <th>Selección</th>
+                                <th>Foto</th>
                                 <th>RUT</th>
                                 <th>Empresa</th>
                                 <th>Nombres</th>
@@ -471,12 +471,11 @@
                                 <tr>
                                     <input type="hidden" class="hidden-value" value="@colaborador.Rhcol_Id">
                                     <th style="white-space: nowrap;">
-                                        <input type="checkbox" />
-                                        @*<a href="#" id="modificaJefatura" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#modificarJefatura">
-                                                <button type="button" class="btn btn-warning bi bi-arrow-down-up rounded-circle btn-sm" title="Modificar Jefatura" style="width: 30px; height: 30px; padding: 0;">
-                                                </button>
+                                        @*<input type="checkbox" />*@
+                                        <a href="#" id="modificaJefatura" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#modificarJefatura">
+                                            <img src="~/img/icon_foto.jpg" />
                                             </a>
-                                            <a href="#" id="editaColaborador" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#editarColaborador">
+                                            @*<a href="#" id="editaColaborador" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#editarColaborador">
                                                 <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Colaborador" style="width: 30px; height: 30px; padding: 0;">
                                                 </button>
                                             </a>
@@ -509,8 +508,8 @@
                 <div class="col-12 mx-auto">
                     <div class="row">
                         <div class="col-2">
-                            <button type="button" id="btnCambioJefatura" class="btn btn-primary">
-                                <i class="btn btn-warning bi bi-arrow-down-up rounded-circle btn-sm"></i> Modificar Jefatura
+                            <button type="button" id="btnSubirImagen" class="btn btn-primary">
+                                <i class="btn btn-warning bi bi-arrow-down-up rounded-circle btn-sm"></i> Subir Imagen
                             </button>
                         </div>
                         <div class="col-2">
@@ -1162,14 +1161,17 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-4 mx-auto">
+                                        <div class="col-1 mx-auto">
                                             <input type="text" id="txtOtrosSucursalFicha" class="form-control" readonly />
                                         </div>
-                                        <div class="col-4 mx-auto">
+                                        <div class="col-2 mx-auto">
                                             <input type="text" id="txtOtrosEmpresaFicha" class="form-control" readonly />
                                         </div>
-                                        <div class="col-4 mx-auto">
+                                        <div class="col-1 mx-auto">
                                             <input type="text" id="txtOtrosCentroCostoFicha" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-8 mx-auto">
+                                            &nbsp;
                                         </div>
                                     </div>
                                 </div>
@@ -2541,7 +2543,7 @@
 </div>
 
 <!-- CAMBIO JEFATURA -->
-<div class="modal fade" id="cambioJefatura" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="subirImagen" tabindex="-1" role="dialog" aria-hidden="true">
 
     <div class="modal-dialog modal-lg col-10 mx-auto" role="document">
         <div class="modal-content">

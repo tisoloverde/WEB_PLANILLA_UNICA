@@ -327,6 +327,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="img\icon_foto.jpg" />
     <Content Include="img\planilla-unica-soloverde-new.png" />
     <Content Include="img\planilla-unica-soloverde.png" />
     <Content Include="img\logo-soloverde-achs.png" />
