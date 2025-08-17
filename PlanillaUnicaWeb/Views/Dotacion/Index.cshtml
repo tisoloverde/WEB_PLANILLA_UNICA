@@ -61,25 +61,39 @@
             <div class="row mx-auto">
                 <div class="col-md-12 mt-3 mx-auto">
                     <div class="row">
-                        <div class="col-md-3 mt-3 auto">
+                        <div class="col-md-3 mt-2 auto">
+                            <label>Empresa</label>
+                        </div>
+                        <div class="col-md-3 mt-2 auto">
+                            <label>Centro de Costo</label>
+                        </div>
+                        <div class="col-md-2 mt-2 auto">
+                            <labe>Periodo</labe>
+                        </div>
+                        <div class="col-md-4 mt-2 auto">
+                            &nbsp;
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mt-1 auto">
                             @Html.DropDownListFor(x => filtroDotacion.Genemp_Id,
                                 new SelectList(lstEmpresa, "Genemp_Id", "Genemp_Descripcion"),
-                                "-- Selecciona Empresa --", 
+                                "-- Selecciona Empresa --",
                                 new { @class = "form-control", id = "empresaDropdown", data_placeholder = "Selecciona Empresa" })
                         </div>
-                        <div class="col-md-3 mt-3 auto">
+                        <div class="col-md-3 mt-1 auto">
                             @Html.DropDownListFor(x => filtroDotacion.Gencencos_Id,
                                 new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
                                 "-- Seleccione Centro de Costo --",
                                 new { @class = "form-control", id = "centroCostoDropdown" })
                         </div>
-                        <div class="col-md-2 mt-3 auto">
+                        <div class="col-md-2 mt-1 auto">
                             @Html.DropDownListFor(x => filtroDotacion.Periodo,
                                 new SelectList(lstAno, "Ano", "Ano"),
                                 "-- Selecciona Periodo --",
                                 new { @class = "form-control", id = "periodoDropdown", data_placeholder = "Selecciona Periodo" })
                         </div>
-                        <div class="col-md-4 mt-3 auto">
+                        <div class="col-md-4 mt-1 auto">
                             <input type="submit" class="btn btn-primary float-left px-4" value="Buscar">
                         </div>
                     </div>

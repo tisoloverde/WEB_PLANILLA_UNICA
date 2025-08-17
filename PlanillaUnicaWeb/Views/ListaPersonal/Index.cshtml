@@ -447,6 +447,7 @@
                     <table id="tablaColaboradores" style="white-space: nowrap;" class="table table-bordered table-hover table-responsive">
                         <thead class="thead-light">
                             <tr>
+                                <th>Acciones</th>
                                 <th>Foto</th>
                                 <th>RUT</th>
                                 <th>Empresa</th>
@@ -468,44 +469,46 @@
                         <tbody>
                             @foreach (var colaborador in lstColaborador)
                             {
-                                <tr>
-                                    <input type="hidden" class="hidden-value" value="@colaborador.Rhcol_Id">
-                                    <th style="white-space: nowrap;">
-                                        @*<input type="checkbox" />*@
-                                        <a href="#" id="modificaJefatura" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#modificarJefatura">
-                                            <img src="~/img/icon_foto.jpg" />
-                                            </a>
-                                            @*<a href="#" id="editaColaborador" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#editarColaborador">
-                                                <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Colaborador" style="width: 30px; height: 30px; padding: 0;">
-                                                </button>
-                                            </a>
-                                            <a href="#" id="verFichaColaborador" data-nombre="@colaborador.Rhcol_Id" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#verFicha">
-                                                <button type="button" class="btn btn-info bi bi-person-square rounded-circle btn-sm" title="Ficha" style="width: 30px; height: 30px; padding: 0;">
-                                                </button>
-                                            </a>*@
-                                    </th>
-                                    <td style="text-align: right;">@colaborador.Rhcol_Rut-@colaborador.Rhcol_Dv</td>
-                                    <td style="text-align: left;">@colaborador.Genemp_Descripcion</td>
-                                    <td style="text-align: left;">@colaborador.Rhcol_Nombre</td>
-                                    <td style="text-align: left;">@colaborador.Rhcol_Apel_Pater @colaborador.Rhcol_Apel_Mater</td>
-                                    <td style="text-align: left;">@colaborador.Rhcargen_Descripcion</td>
-                                    <td style="text-align: left;">@colaborador.Rhcol_Email_Corporativo</td>
-                                    <td style="text-align: center;">@colaborador.Rhcol_Fecha_Creacion</td>
-                                    <td style="text-align: left;">@colaborador.Rhafp_Descripcion</td>
-                                    <td style="text-align: left;">@colaborador.Rhsal_Descripcion</td>
-                                    <td style="text-align: left;">@colaborador.Rhcol_Fono_1</td>
-                                    <td style="text-align: left;">@colaborador.Gencom_Descripcion</td>
-                                    <td style="text-align: left;">@colaborador.Genreg_Descripcion</td>
-                                    <td style="text-align: left;"></td>
-                                    <td style="text-align: center;">@colaborador.Gencencos_Codigo</td>
-                                    <td style="text-align: left;">@colaborador.Gencencos_Descripcion</td>
+                            <tr>
+                                <input type="hidden" class="hidden-value" value="@colaborador.Rhcol_Id">
+                                <th style="white-space: nowrap;">
+                                    <a href="#" id="editaColaborador" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#editarColaborador">
+                                        <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Colaborador" style="width: 30px; height: 30px; padding: 0;">
+                                        </button>
+                                    </a>
+                                    <a href="#" id="verFichaColaborador" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#verFicha">
+                                        <button type="button" class="btn btn-secondary bi bi-card-list rounded-circle btn-sm" title="Ficha" style="width: 30px; height: 30px; padding: 0;">
+                                        </button>
+                                    </a>
+                                </th>
+                                <th style="white-space: nowrap;">   
+                                    <a href="#" id="imagenes" data-id="@colaborador.Rhcol_Id" data-toggle="modal" data-target="#imageModal">
+                                        <button type="button" class="btn btn-info bi bi-person-square rounded-circle btn-sm" title="Foto Colaborador" style="width: 30px; height: 30px; padding: 0;">
+                                        </button>
+                                    </a>
+                                </th>
+                                <td style="text-align: right;">@colaborador.Rhcol_Rut-@colaborador.Rhcol_Dv</td>
+                                <td style="text-align: left;">@colaborador.Genemp_Descripcion</td>
+                                <td style="text-align: left;">@colaborador.Rhcol_Nombre</td>
+                                <td style="text-align: left;">@colaborador.Rhcol_Apel_Pater @colaborador.Rhcol_Apel_Mater</td>
+                                <td style="text-align: left;">@colaborador.Rhcarliq_Descripcion</td>
+                                <td style="text-align: left;">@colaborador.Rhcol_Email_Corporativo</td>
+                                <td style="text-align: center;">@colaborador.Rhcon_Fecha_Inicio</td>
+                                <td style="text-align: left;">@colaborador.Rhafp_Descripcion</td>
+                                <td style="text-align: left;">@colaborador.Rhsal_Descripcion</td>
+                                <td style="text-align: left;">@colaborador.Rhcol_Fono_1</td>
+                                <td style="text-align: left;">@colaborador.Gencom_Descripcion</td>
+                                <td style="text-align: left;">@colaborador.Genreg_Descripcion</td>
+                                <td style="text-align: left;"></td>
+                                <td style="text-align: center;">@colaborador.Gencencos_Codigo</td>
+                                <td style="text-align: left;">@colaborador.Gencencos_Descripcion</td>
 
-                                </tr>
+                            </tr>
                             }
                         </tbody>
                     </table>
                 </div>
-                <div class="col-12 mx-auto">
+                @*<div class="col-12 mx-auto">
                     <div class="row">
                         <div class="col-2">
                             <button type="button" id="btnSubirImagen" class="btn btn-primary">
@@ -526,7 +529,7 @@
                             &nbsp;
                         </div>
                     </div>
-                </div>
+                </div>*@
             </div>
         </div>
     </div>

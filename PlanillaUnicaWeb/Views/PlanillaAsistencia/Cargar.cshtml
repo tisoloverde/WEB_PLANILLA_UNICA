@@ -1,0 +1,433 @@
+﻿@model IEnumerable<Object>
+@{
+    List<PlanillaUnicaWeb.Models.Gen_Empresa> lstEmpresa = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.Gen_Empresa>;
+    List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCosto = Model.ToList()[1] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
+    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
+    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptos = Model.ToList()[3] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
+    PlanillaUnicaWeb.Models.FiltroPlanilla filtroPlanilla = Model.ToArray()[4] as PlanillaUnicaWeb.Models.FiltroPlanilla;
+    List<PlanillaUnicaWeb.Models.AsistenciaLista> lstAsistencia = Model.ToList()[5] as List<PlanillaUnicaWeb.Models.AsistenciaLista>;
+
+
+    string classAlerta = string.Empty;
+
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@{ Html.EnableClientValidation(true);
+    Html.EnableUnobtrusiveJavaScript(true); }
+
+<script>
+    $(document).ready(function (e) {
+
+        $('#tablaPlanilla').DataTable(
+            {
+                "scrollY": 530,
+                "paging": false,
+                "language": {
+                    "lengthMenu": "Motrar _MENU_ registros por página",
+                    "zeroRecords": "Sin información",
+                    "search": "Buscar:",
+                    "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
+                    "infoEmpty": "Sin información disponible",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            }
+        );
+
+        // Evento change para el select de periodos
+        $('#periodoDropdown').change(function () {
+            const periodo = $(this).val();
+
+            // Limpiar select de ciudades
+            $('#numeroSemanaDropdown').empty();
+            $('#numeroSemanaDropdown').append($('<option>').val('').text('-- Seleccione Semana --')); // Opción por defecto
+
+            if (periodo) {
+
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("BuscaSemanasPeriodo", "PlanillaAsistencia")',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: { periodo: periodo },
+
+                    success: function (response) {
+                        // Limpiar select
+                        $('#numeroSemanaDropdown').empty();
+
+                        // Agregar opción por defecto
+                        $('#numeroSemanaDropdown').append('<option value="">Seleccione Semana</option>');
+
+                        // Llenar con datos de la API
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function (index, item) {
+                                if (item.Activa) {
+                                    $('#numeroSemanaDropdown').append(`<option value="${item.NumeroSemana}" data-fecini="${item.FechaInicioSemana}" data-fecfin="${item.FechaFinSemana}" selected> Semana ${item.NumeroSemana} del ${item.Ano} ( ${item.FechaInicioSemana} al ${item.FechaFinSemana} )</option>`);
+                                    $('#filtroPlanilla_FechaInicio').val(item.FechaInicioSemana);
+                                    $('#filtroPlanilla_FechaTermino').val(item.FechaFinSemana);
+                                } else
+                                    $('#numeroSemanaDropdown').append(`<option value="${item.NumeroSemana}" data-fecini="${item.FechaInicioSemana}" data-fecfin="${item.FechaFinSemana} "> Semana ${item.NumeroSemana} del ${item.Ano} ( ${item.FechaInicioSemana} al ${item.FechaFinSemana} )</option>`);
+
+                            });
+                        } else {
+                            $('#numeroSemanaDropdown').append(`<option value="" data-fecini="" data-fecfin="" >No hay datos disponibles</option>`);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error al cargar datos:', error);
+                        $('#numeroSemanaDropdown').empty();
+                        $('#numeroSemanaDropdown').append('<option value="">Error al cargar semanas</option>');
+                    },
+                    complete: function () {
+                        // Habilitar select
+                        $('#numeroSemanaDropdown').prop('disabled', false);
+                    }
+
+                });
+            }
+        });
+
+        // Evento change para el select de semanas
+        $('#numeroSemanaDropdown').change(function () {
+            const opcionSeleccionada = $(this).find('option:selected');
+            const fechaIni = opcionSeleccionada.data('fecini');
+            const fechaFin = opcionSeleccionada.data('fecfin');
+            $('#filtroPlanilla_FechaInicio').val(fechaIni);
+            $('#filtroPlanilla_FechaTermino').val(fechaFin);
+        });
+
+        setTimeout(function () {
+            $(".content").fadeOut(1500);
+        }, 3000);
+
+    });
+
+</script>
+
+
+<div class="row mx-auto" style="width: 170vh;">
+    <div class="card-body">
+        @using (Html.BeginForm("Cargar", "PlanillaAsistencia", null, FormMethod.Post, null))
+        {
+            <div class="row mx-auto">
+                <div class="col-md-12 mx-auto">
+                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Planilla Asistencia</h4>
+                </div>
+            </div>
+            <div class="row mx-auto">
+                <div class="col-md-12 mt-3 mx-auto">
+                    <div class="row">
+                        <div class="col-md-3 mt-2 auto">
+                            <label>Empresa</label>
+                        </div>
+                        <div class="col-md-3 mt-2 auto">
+                            <label>Centro de Costo</label>
+                        </div>
+                        <div class="col-md-1 mt-2 auto">
+                            <labe>Periodo</labe>
+                        </div>
+                        <div class="col-md-3 mt-2 auto">
+                            <labe>Semana</labe>
+                        </div>
+                        <div class="col-md-1 mt-2 auto">
+                            &nbsp;
+                        </div>
+                    </div>
+                    @Html.HiddenFor(Model => filtroPlanilla.FechaInicio)
+                    @Html.HiddenFor(Model => filtroPlanilla.FechaTermino)
+                    <div class="row">
+                        <div class="col-md-3 mt-1 auto">
+                            @Html.DropDownListFor(x => filtroPlanilla.Genemp_Id,
+                             new SelectList(lstEmpresa, "Genemp_Id", "Genemp_Descripcion"),
+                             "-- Selecciona Empresa --", new { @class = "form-control", id = "empresaDropdown", data_placeholder = "Selecciona Empresa" })
+                        </div>
+                        <div class="col-md-3 mt-1 auto">
+                            @Html.DropDownListFor(x => filtroPlanilla.Gencencos_Id,
+                                             new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
+                                             "-- Seleccione Centro de Costo --",
+                                             new { @class = "form-control", id = "centroCostoDropdown" })
+                            @Html.ValidationMessageFor(x => filtroPlanilla.Gencencos_Id, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-1 mt-1 auto">
+                            @Html.DropDownListFor(x => filtroPlanilla.Periodo,
+                                            new SelectList(lstAno, "Ano", "Ano"),
+                                            "-- Seleccione --",
+                                            new { @class = "form-control", id = "periodoDropdown", data_placeholder = "Seleccione" })
+                        </div>
+                        <div class="col-md-3 mt-1 auto">
+                            @Html.DropDownListFor(x => filtroPlanilla.NumeroSemana,
+                                            new SelectList(Enumerable.Empty<SelectListItem>(), "NumeroSemana", "DescripcionSemana"),
+                                            "-- Seleccione Semana --",
+                                            new { @class = "form-control", id = "numeroSemanaDropdown" })
+                        </div>
+                        <div class="col-md-1 mt-1 auto">
+                            <input type="submit" class="btn btn-primary float-left px-4" value="Buscar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <br />
+
+        <div class="row mx-auto">
+            <div class="col-12">
+                <table id="tablaPlanilla" class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th></th>
+                            <th>RUT</th>
+                            <th>Apellidos y Nombres</th>
+                            <th>Cargo Liquidación</th>
+                            <th>cargo Genérico</th>
+                            <th>JEAS</th>
+                            <th>REF1</th>
+                            <th>REF2</th>
+                            <th>Cargo Genérico</th>
+                            <th>JEAS</th>
+                            <th>REF1</th>
+                            <th>REF2</th>
+                            <th>RUT</th>
+                            <th>Fecha Ingreso</th>
+                            <th>Fecha Término</th>
+                            <th>Nro. de Contrato</th>
+                            @*<th>Temporal</th>*@
+                            <th>Lu</th>
+                            <th>Ma</th>
+                            <th>Mi</th>
+                            <th>Ju</th>
+                            <th>Vi</th>
+                            <th>Sá</th>
+                            <th>Do</th>
+                            <th>Días</th>
+                            <th>HE50</th>
+                            <th>HE100</th>
+                            <th>Atraso</th>
+                            <th>Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < lstAsistencia.Count; i++) // each (var asistencia in lstAsistencia)
+                        {
+                        <tr>
+                            <th style="white-space: nowrap;">
+                                @*<a href="#" id="modificaJefatura" data-nombre="@dotacion.Rhdot_Id" data-id="@dotacion.Rhdot_Id" data-toggle="modal" data-target="#editarDotacion">
+                <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Dotación" style="width: 30px; height: 30px; padding: 0;">
+                </button>
+            </a>*@
+                            </th>
+                            <td style="text-align: right;">@lstAsistencia[i].Rhcol_Rut-@lstAsistencia[i].Rhcol_Dv</td>
+                            <td style="text-align: left;">@lstAsistencia[i].Rhcol_Apel_Pater @lstAsistencia[i].Rhcol_Apel_Mater @lstAsistencia[i].Rhcol_Nombre</td>
+                            <td style="text-align: left;">@lstAsistencia[i].Rhcarliq_Descripcion</td>
+                            <td style="text-align: left;">@lstAsistencia[i].Rhcargen_Descripcion</td>
+                            <td style="text-align: center;">@lstAsistencia[i].Rhcla_Codigo</td>
+                            <td style="text-align: center;">@lstAsistencia[i].Rhref1_Descripcion</td>
+                            <td style="text-align: center;">@lstAsistencia[i].Rhref2_Descripcion</td>
+                            <td style="text-align: center;">
+
+                                @Html.DropDownListFor(x => lstAsistencia[i].Rhcargen_Id_Terreno,
+                                                                      new SelectList(lstAno, "Ano", "Ano"),
+                                                                      "-- Seleccione --",
+                                                                      new { @class = "form-control-sm" })
+
+
+                            </td>
+                            <td style="text-align: center;"></td>
+                            <td style="text-align: center;"></td>
+                            <td style="text-align: center;"></td>
+                            <td style="text-align: center;"></td>
+                            <td style="text-align: center;">@lstAsistencia[i].Rhcon_Fecha_Inicio</td>
+                            <td style="text-align: center;">@lstAsistencia[i].Rhcon_Fecha_Termino</td>
+                            <td style="text-align: center;">@lstAsistencia[i].Rhcon_Contrato_Numero</td>
+                            @*<td style="text-align: center;"></td>*@
+
+
+                            @if (lstAsistencia[i].Lun_Id.Equals(0))
+                            {
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: red;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Lun_Id,
+                                                                 new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Lun_Id),
+                                                                 " ",
+                                                                 new { @class = "form-control-sm" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: green;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Lun_Id,
+                                                                     new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Lun_Id),
+                                                                     " ",
+                                                                     new { @class = "form-control-sm" })
+                                </td>
+                            }
+
+                               
+                             
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: red;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Mar_Id,
+                                                                          new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Mar_Id),
+                                                                          " ",
+                                                                          new { @class = "form-control-sm" })
+                                </td>
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: red;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Mie_Id,
+                                                                          new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Mie_Id),
+                                                                          " ",
+                                                                          new { @class = "form-control-sm" })
+                                </td>
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: red;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Jue_Id,
+                                                                          new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Jue_Id),
+                                                                          " ",
+                                                                          new { @class = "form-control-sm" })
+                                </td>
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: red;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Vie_Id,
+                                                                          new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Vie_Id),
+                                                                          " ",
+                                                                          new { @class = "form-control-sm" })
+                                </td>
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: red;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Sab_Id,
+                                                                          new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Sab_Id),
+                                                                          " ",
+                                                                          new { @class = "form-control-sm" })
+                                </td>
+                                <td style="text-align: center; border-top: 3px solid; border-top-color: red;">
+                                    @Html.DropDownListFor(x => lstAsistencia[i].Dom_Id,
+                                                                          new SelectList(lstAsistenciaConceptos, "Rhasicon_Id", "Rhasicon_Sigla", lstAsistencia[i].Dom_Id),
+                                                                          " ",
+                                                                          new { @class = "form-control-sm" })
+                                </td>
+
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: center;">
+                                    @Html.TextBoxFor(x => lstAsistencia[i].H50, new { @class = "form-control-sm text-center border-0", type = "number" })
+                                </td>
+                                <td style="text-align: center;">
+                                    @Html.TextBoxFor(x => lstAsistencia[i].H100, new { @class = "form-control-sm text-center border-0", type = "number" })
+                                </td>
+                                <td style="text-align: center;">
+                                    @Html.TextBoxFor(x => lstAsistencia[i].Atraso, new { @class = "form-control-sm text-center border-0", type = "number" })
+                                </td>
+                                <td style="text-align: center; white-space: nowrap;" >
+                                    @Html.TextBoxFor(x => lstAsistencia[i].Observacion, new { @class = "form-control-sm border-0", type = "text" })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-12 mx-auto">
+                <div class="row">
+                    <div class="col-2">
+                        <button type="button" id="btnGuardar" class="btn btn-primary" style="width: 300px;">
+                            <i class="btn btn-success bi bi-pencil-square rounded-circle btn-sm"></i> Guardar
+                        </button>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" id="btnInforme" class="btn btn-primary" style="width: 300px;">
+                            <i class="btn btn-success bi bi-file-earmark-excel-fill rounded-circle btn-sm"></i> Informe
+                        </button>
+                    </div>
+                    <div class="col-8">
+                        &nbsp;
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCosto));
+
+    $(document).ready(function () {
+        // Cuando se seleccione una empresa para cargar los centros de costo asociados
+        $('#empresaDropdown').change(function () {
+            var empresaId = $(this).val(); // Obtener el ID de la empresa
+
+            // Limpiar el dropdown de centros de costo
+            $('#centroCostoDropdown').empty();
+            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opción por defecto
+
+            // Si hay una empresa seleccionada
+            if (empresaId) {
+                // Filtrar los centros de costo que pertenecen a la empresa seleccionada
+                var filteredCentrosCosto = centrosCostoList.filter(function (item) {
+                    return item.Genemp_Id == empresaId; // Comparar con la empresa seleccionada
+                });
+
+                // Llenar el dropdown con las centros de costo filtrados
+                $.each(filteredCentrosCosto, function (index, item) {
+                    $('#centroCostoDropdown').append($('<option>').val(item.Gencencos_Id).text(item.Gencencos_Codigo + ' - ' + item.Gencencos_Descripcion));
+                });
+            }
+        });
+
+        // Seteo de centro de costo al cargar en búsqueda
+        let empresaId = document.getElementById('empresaDropdown').value;
+        var filteredCentrosCosto = centrosCostoList.filter(function (item) {
+            return item.Genemp_Id == empresaId; // Comparar con la empresa seleccionada
+        });
+
+        // Llenar el dropdown con las centros de costo filtrados
+        $.each(filteredCentrosCosto, function (index, item) {
+            $('#centroCostoDropdown').append($('<option>').val(item.Gencencos_Id).text(item.Gencencos_Codigo + ' - ' + item.Gencencos_Descripcion));
+        });
+        $('#centroCostoDropdown').val(@filtroPlanilla.Gencencos_Id);
+
+        // Carga y seteo de semanas por periodo
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("BuscaSemanasPeriodo", "PlanillaAsistencia")',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: { periodo: @filtroPlanilla.Periodo },
+
+            success: function (response) {
+                // Limpiar select
+                $('#numeroSemanaDropdown').empty();
+
+                // Agregar opción por defecto
+                $('#numeroSemanaDropdown').append('<option value="">Seleccione Semana</option>');
+
+                // Llenar con datos de la API
+                if (response.data && response.data.length > 0) {
+                    $.each(response.data, function (index, item) {
+                        if (item.NumeroSemana == @filtroPlanilla.NumeroSemana ) {
+                            $('#numeroSemanaDropdown').append(`<option value="${item.NumeroSemana}" data-fecini="${item.FechaInicioSemana}" data-fecfin="${item.FechaFinSemana}" selected> Semana ${item.NumeroSemana} del ${item.Ano} ( ${item.FechaInicioSemana} al ${item.FechaFinSemana} )</option>`);
+                            $('#filtroPlanilla_FechaInicio').val(item.FechaInicioSemana);
+                            $('#filtroPlanilla_FechaTermino').val(item.FechaFinSemana);
+                        } else
+                            $('#numeroSemanaDropdown').append(`<option value="${item.NumeroSemana}" data-fecini="${item.FechaInicioSemana}" data-fecfin="${item.FechaFinSemana}" > Semana ${item.NumeroSemana} del ${item.Ano} ( ${item.FechaInicioSemana} al ${item.FechaFinSemana} )</option>`);
+
+                    });
+                } else {
+                    $('#numeroSemanaDropdown').append('<option value="">No hay datos disponibles</option>');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error al cargar datos:', error);
+                $('#numeroSemanaDropdown').empty();
+                $('#numeroSemanaDropdown').append('<option value="">Error al cargar semanas</option>');
+            },
+            complete: function () {
+                // Habilitar select
+                $('#numeroSemanaDropdown').prop('disabled', false);
+            }
+        });
+    });
+
+</script>

@@ -273,6 +273,7 @@
     <Compile Include="Models\Account_Usuario.cs" />
     <Compile Include="Models\Account_Usuario_Sistema.cs" />
     <Compile Include="Models\Alert.cs" />
+    <Compile Include="Models\AsistenciaLista.cs" />
     <Compile Include="Models\CachedUser.cs" />
     <Compile Include="Models\ColaboradorLista.cs" />
     <Compile Include="Models\DotacionLista.cs" />
@@ -289,6 +290,8 @@
     <Compile Include="Models\Gen_Provincia.cs" />
     <Compile Include="Models\Gen_Region.cs" />
     <Compile Include="Models\Resultado.cs" />
+    <Compile Include="Models\Rh_Asistencia_Concepto.cs" />
+    <Compile Include="Models\Rh_Calendario_Semanas.cs" />
     <Compile Include="Models\Rh_Cargo_Generico.cs" />
     <Compile Include="Models\Rh_Clasificacion.cs" />
     <Compile Include="Models\Rh_Colaborador.cs" />
@@ -328,6 +331,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="img\icon_foto.jpg" />
+    <Content Include="img\logo-soloverde.png" />
     <Content Include="img\planilla-unica-soloverde-new.png" />
     <Content Include="img\planilla-unica-soloverde.png" />
     <Content Include="img\logo-soloverde-achs.png" />
@@ -474,6 +478,7 @@
     <Content Include="Views\ListaPersonal\Index.cshtml" />
     <Content Include="Views\PlanillaAsistencia\Index.cshtml" />
     <Content Include="Views\Dotacion\Cargar.cshtml" />
+    <Content Include="Views\PlanillaAsistencia\Cargar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
