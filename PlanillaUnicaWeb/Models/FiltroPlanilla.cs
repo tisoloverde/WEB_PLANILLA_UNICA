@@ -11,7 +11,7 @@ namespace PlanillaUnicaWeb.Models
 		public decimal Gencencos_Id { get; set; }
 		public decimal Periodo { get; set; }
 		public decimal NumeroSemana { get; set; }
-		public string FechaInicio { get; set; }
-		public string FechaTermino { get; set; }
+		public DateTime FechaInicio { get; set; }
+		public DateTime FechaTermino { get; set; }
 	}
 }

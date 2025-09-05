@@ -11,5 +11,6 @@ namespace PlanillaUnicaWeb.Models
 		public string Rhcargen_Descripcion { get; set; } 
 		public decimal Rhfam_Id { get; set; }
 		public decimal Rhcla_Id { get; set; }
+		public string Rhcargen_Vigencia { get; set; }
 	}
 }

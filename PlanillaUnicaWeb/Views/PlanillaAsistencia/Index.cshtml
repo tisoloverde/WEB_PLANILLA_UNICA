@@ -14,12 +14,27 @@
 @{ Html.EnableClientValidation(true);
     Html.EnableUnobtrusiveJavaScript(true); }
 
+<style>
+    th, td {
+        white-space: nowrap;
+    }
+
+    div.dataTables_wrapper {
+        margin: 0 auto;
+    }
+
+    div.container {
+        width: 80%;
+    }
+
+</style>
+
 <script>
     $(document).ready(function (e) {
 
         $('#tablaPlanilla').DataTable(
             {
-                "scrollY": 450,
+                "scrollY": 540,
                 "paging": false,
                 "language": {
                     "lengthMenu": "Motrar _MENU_ registros por página",
@@ -40,56 +55,69 @@
             }
         );
 
-        // Evento change para el select de regiones
-        $('#periodoDropdown').change(function () {
+        // Evento change para el select de periodos
+        $('#periodoDropdown').on('change', async function () {
+            $('#loader').fadeIn(300);
             const periodo = $(this).val();
 
-            // Limpiar select de ciudades
+            let semanaActivaEncontrada = false;
+
             $('#numeroSemanaDropdown').empty();
-            $('#numeroSemanaDropdown').append($('<option>').val('').text('-- Seleccione Semana --')); // Opción por defecto
+            $('#numeroSemanaDropdown').append($('<option>').val('').text('-- Seleccione Semana --'));
 
             if (periodo) {
+                try {
+                    const response = await $.ajax({
+                        url: '@Url.Action("BuscaSemanasPeriodo", "PlanillaAsistencia")',
+                        type: 'GET',
+                        data: { periodo: periodo },
+                        dataType: 'json',
+                        timeout: 10000
+                    });
 
-                $.ajax({
-                    type: 'GET',
-                    url: '@Url.Action("BuscaSemanasPeriodo", "PlanillaAsistencia")',
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: 'json',
-                    data: { periodo: periodo },
-
-                    success: function (response) {
-                        // Limpiar select
-                        $('#numeroSemanaDropdown').empty();
-
-                        // Agregar opción por defecto
-                        $('#numeroSemanaDropdown').append('<option value="">Seleccione Semana</option>');
-
-                        // Llenar con datos de la API
-                        if (response.data && response.data.length > 0) {
-                            $.each(response.data, function (index, item) {
-                                if (item.Activa) {
-                                    $('#numeroSemanaDropdown').append(`<option value="${item.NumeroSemana}" data-fec-ini="${item.FechaInicioSemana}" data-fec-fin="${item.FechaFinSemana}" selected> Semana ${item.NumeroSemana} del ${item.Ano} ( ${item.FechaInicioSemana} al ${item.FechaFinSemana} )</option>`);
-                                    $('#filtroPlanilla_FechaInicio').val(item.FechaInicioSemana);
-                                    $('#filtroPlanilla_FechaTermino').val(item.FechaFinSemana);
-                                } else 
-                                    $('#numeroSemanaDropdown').append(`<option value="${item.NumeroSemana}" data-fec-ini="${item.FechaInicioSemana}" data-fec-fin="${item.FechaFinSemana} "> Semana ${item.NumeroSemana} del ${item.Ano} ( ${item.FechaInicioSemana} al ${item.FechaFinSemana} )</option>`);
-                                
-                            });
-                        } else {
-                            $('#numeroSemanaDropdown').append('<option value="">No hay datos disponibles</option>');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error al cargar datos:', error);
-                        $('#numeroSemanaDropdown').empty();
-                        $('#numeroSemanaDropdown').append('<option value="">Error al cargar semanas</option>');
-                    },
-                    complete: function () {
-                        // Habilitar select
-                        $('#numeroSemanaDropdown').prop('disabled', false);
+                    if (!response || !response.data || !Array.isArray(response.data)) {
+                        throw new Error('Respuesta del servidor inválida');
                     }
 
-                });
+                    response.data.forEach(p => {
+                        if (p.Activa) {
+                            $('#numeroSemanaDropdown').append(
+                                `<option value="${p.NumeroSemana}"
+                                 data-fecini="${p.FechaInicioSemana}"
+                                 data-fecfin="${p.FechaFinSemana}" selected>
+                                 Semana ${p.NumeroSemana} del ${p.Ano} ( ${p.FechaInicioSemana} al ${p.FechaFinSemana} )
+                                 </option>`
+                            );
+                            $('#filtroPlanilla_FechaInicio').val(p.FechaInicioSemana);
+                            $('#filtroPlanilla_FechaTermino').val(p.FechaFinSemana);
+                            semanaActivaEncontrada = true;
+                        } else {
+                            $('#numeroSemanaDropdown').append(
+                                `<option value="${p.NumeroSemana}"
+                                 data-fecini="${p.FechaInicioSemana}"
+                                 data-fecfin="${p.FechaFinSemana}">
+                                 Semana ${p.NumeroSemana} del ${p.Ano} ( ${p.FechaInicioSemana} al ${p.FechaFinSemana} )
+                                 </option>`
+                            );
+                        }
+                    });
+
+                    if (semanaActivaEncontrada) {
+                        // Opción 1: Submit directo del formulario
+                        autoSubmitForm();
+
+                    }                                                        
+
+                } catch (error) {
+                    console.error('Error detallado:', error);
+
+                    let errorMessage = 'Error cargando semanas';
+                    if (error.status) {
+                        errorMessage += ` (Status: ${error.status})`;
+                    }
+
+                    alert(errorMessage);
+                }
             }
         });
 
@@ -98,13 +126,27 @@
         }, 3000);
 
     });
+       
+
+    function autoSubmitForm() {
+        const selectCentroCosto = document.getElementById('centroCostoDropdown');
+        const selectPeriodo = document.getElementById('periodoDropdown');
+        const selectSemana = document.getElementById('numeroSemanaDropdown');
+
+        if ((selectCentroCosto.value && selectCentroCosto.value !== '') &&
+            (selectPeriodo.value && selectPeriodo.value !== '') &&
+            (selectSemana.value && selectSemana.value !== '')) {
+            // Submit automático
+            document.getElementById('autoSubmitForm').submit();
+        }
+    }
 
 </script>
 
 
 <div class="row mx-auto" style="width: 170vh;">
     <div class="card-body">
-        @using (Html.BeginForm("Cargar", "PlanillaAsistencia", null, FormMethod.Post, null))
+        @using (Html.BeginForm("Cargar", "PlanillaAsistencia", null, FormMethod.Post, new { id = "autoSubmitForm" } ))
         {
             <div class="row mx-auto">
                 <div class="col-md-12 mx-auto">
@@ -142,7 +184,7 @@
                             @Html.DropDownListFor(x => filtroPlanilla.Gencencos_Id,
                                              new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
                                              "-- Seleccione Centro de Costo --",
-                                             new { @class = "form-control", id = "centroCostoDropdown" })
+                                             new { @class = "form-control", id = "centroCostoDropdown", onchange = "autoSubmitForm()" })
                             @Html.ValidationMessageFor(x => filtroPlanilla.Gencencos_Id, null, new { @class = "text-danger" })
                         </div>
                         <div class="col-md-1 mt-1 auto">
@@ -158,7 +200,7 @@
                                             new { @class = "form-control", id = "numeroSemanaDropdown" })
                         </div>
                         <div class="col-md-2 mt-1 auto">
-                            <input type="submit" class="btn btn-primary float-left px-4" value="Buscar">
+                            <input type="submit" class="btn btn-primary float-left px-4" value="Buscar" style="display: none;">
                         </div>
                     </div>
                 </div>
@@ -171,6 +213,13 @@
             <div class="col-12">
                 <table id="tablaPlanilla" class="table table-bordered table-hover">
                     <thead class="thead-light">
+                        <tr>
+                            <th colspan="8">Datos Generales</th>
+                            <th colspan="4">Información en Terreno</th>
+                            <th colspan="1">Reemplazo</th>
+                            <th colspan="3">Fechas</th>
+                            <th colspan="12">Asistencia</th>
+                        </tr>
                         <tr>
                             <th></th>
                             <th>RUT</th>
@@ -188,14 +237,28 @@
                             <th>Fecha Ingreso</th>
                             <th>Fecha Término</th>
                             <th>Nro. de Contrato</th>
-                            <th>Temporal</th>
-                            <th>Lu</th>
-                            <th>Ma</th>
-                            <th>Mi</th>
-                            <th>Ju</th>
-                            <th>Vi</th>
-                            <th>Sá</th>
-                            <th>Do</th>
+                            @*<th>Temporal</th>*@
+                            <th class="header-with-day">
+                                <span class="day-label">Lu</span>
+                            </th>
+                            <th class="header-with-day">
+                                <span class="day-label">Ma</span>
+                            </th>
+                            <th class="header-with-day">
+                                <span class="day-label">Mi</span>
+                            </th>
+                            <th class="header-with-day">
+                                <span class="day-label">Ju</span>
+                            </th>
+                            <th class="header-with-day">
+                                <span class="day-label">Vi</span>
+                            </th>
+                            <th class="header-with-day">
+                                <span class="day-label">Sá</span>
+                            </th>
+                            <th class="header-with-day">
+                                <span class="day-label">Do</span>
+                            </th>
                             <th>Días</th>
                             <th>HE50</th>
                             <th>HE100</th>
@@ -222,6 +285,9 @@
     $(document).ready(function () {
         // Cuando se seleccione una empresa para cargar los centros de costo asociados
         $('#empresaDropdown').change(function () {
+            var table = $('#tablaPlanilla').DataTable();
+            table.clear().draw();
+
             var empresaId = $(this).val(); // Obtener el ID de la empresa
 
             // Limpiar el dropdown de centros de costo
