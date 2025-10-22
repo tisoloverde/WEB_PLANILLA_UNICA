@@ -54,9 +54,9 @@ namespace PlanillaUnicaWeb.Models
 		public Boolean Dom_Status { get; set; }
 		public string Observacion { get; set; }
 		public int Dias { get; set; }
-		public decimal H50 { get; set; }
-		public decimal H100 { get; set; }
-		public decimal Atraso { get; set; }
+		public decimal? Rhsis_H50 { get; set; }
+		public decimal? Rhsis_H100 { get; set; }
+		public decimal? Rhsis_Atraso { get; set; }
 
 	}
 }

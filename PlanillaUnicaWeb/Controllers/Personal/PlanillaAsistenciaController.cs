@@ -147,9 +147,9 @@ namespace PlanillaUnicaWeb.Controllers.Personal
                                     break;
                             }
                             asistenciaEnvia.Rhsis_Fecha = fecha.ToString("yyyy-MM-dd");
-                            asistenciaEnvia.Rhsis_H50 = asistencia.H50;
-                            asistenciaEnvia.Rhsis_H100 = asistencia.H100;
-                            asistenciaEnvia.Rhsis_Atraso = asistencia.Atraso;
+                            asistenciaEnvia.Rhsis_H50 = asistencia.Rhsis_H50;
+                            asistenciaEnvia.Rhsis_H100 = asistencia.Rhsis_H100;
+                            asistenciaEnvia.Rhsis_Atraso = asistencia.Rhsis_Atraso;
 							if (string.IsNullOrEmpty(asistencia.Observacion)) 
                             {
                                 asistenciaEnvia.Rhsis_Observacion = "";
@@ -165,7 +165,7 @@ namespace PlanillaUnicaWeb.Controllers.Personal
                             asistenciaEnvia.Rhcargen_Id_B = asistencia.Rhcargen_Id_Terreno;
                             asistenciaEnvia.Rhref1_Id_B = asistencia.Rhref1_Id_Terreno;
                             asistenciaEnvia.Rhref2_Id_B = asistencia.Rhref2_Id_Terreno;
-                            if (!asistenciaEnvia.Rhasicon_Id.Equals(0) && !sw_bloqueado) // Si tiene un valor distinto de 0, y que no sea dato que viene de REX
+                            if (!sw_bloqueado) // Si no es dato que viene de REX
                                 lstAsistenciaEnvia.Add(asistenciaEnvia);
                             diaSemana += 1;
                             fecha = fecha.AddDays(1);
@@ -204,6 +204,9 @@ namespace PlanillaUnicaWeb.Controllers.Personal
 
             json = await httpClient.GetStringAsync(ConfigurationManager.AppSettings["ApiGenerica"] + Resource.Generica_CentrosCosto + "/GetAllCentroCostoUsuario?usuarioId=" + usuarioId);
             List<Gen_Centro_Costo> centrosCostoList = JsonConvert.DeserializeObject<List<Gen_Centro_Costo>>(json);
+
+            json = await httpClient.GetStringAsync(ConfigurationManager.AppSettings["ApiGenerica"] + Resource.Generica_CentrosCosto + "/GetAllCentroCosto");
+            List<Gen_Centro_Costo> centrosCostoListTodos = JsonConvert.DeserializeObject<List<Gen_Centro_Costo>>(json);
 
             json = await httpClient.GetStringAsync(ConfigurationManager.AppSettings["ApiGenerica"] + Resource.Generica_Ano + "/GetAllAnos?agregaMas=0&agregaMenos=5");
             List<Gen_Ano> anosList = JsonConvert.DeserializeObject<List<Gen_Ano>>(json);
@@ -290,6 +293,7 @@ namespace PlanillaUnicaWeb.Controllers.Personal
 
             myModel.Add(empresasList);
             myModel.Add(centrosCostoList);
+            myModel.Add(centrosCostoListTodos);
             myModel.Add(anosList);
             myModel.Add(asistenciaConceptos);
 

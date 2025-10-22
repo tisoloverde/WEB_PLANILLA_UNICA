@@ -2,16 +2,17 @@
 @{
     List<PlanillaUnicaWeb.Models.Gen_Empresa> lstEmpresa = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.Gen_Empresa>;
     List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCosto = Model.ToList()[1] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
-    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
-    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptos = Model.ToList()[3] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
-    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptosVisibles = Model.ToList()[4] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
-    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptosRexmas = Model.ToList()[5] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
-    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptosInternos = Model.ToList()[6] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
-    PlanillaUnicaWeb.Models.FiltroPlanilla filtroPlanilla = Model.ToArray()[7] as PlanillaUnicaWeb.Models.FiltroPlanilla;
-    List<PlanillaUnicaWeb.Models.Rh_Cargo_Generico> lstCargosGenericos = Model.ToList()[8] as List<PlanillaUnicaWeb.Models.Rh_Cargo_Generico>;
-    List<PlanillaUnicaWeb.Models.Rh_Referencia_1> lstReferencias1 = Model.ToList()[9] as List<PlanillaUnicaWeb.Models.Rh_Referencia_1>;
-    List<PlanillaUnicaWeb.Models.Rh_Referencia_2> lstReferencias2 = Model.ToList()[10] as List<PlanillaUnicaWeb.Models.Rh_Referencia_2>;
-    List<PlanillaUnicaWeb.Models.AsistenciaLista> lstAsistencia = Model.ToList()[11] as List<PlanillaUnicaWeb.Models.AsistenciaLista>;
+    List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCostoTodos = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
+    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[3] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
+    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptos = Model.ToList()[4] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
+    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptosVisibles = Model.ToList()[5] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
+    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptosRexmas = Model.ToList()[6] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
+    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptosInternos = Model.ToList()[7] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
+    PlanillaUnicaWeb.Models.FiltroPlanilla filtroPlanilla = Model.ToArray()[8] as PlanillaUnicaWeb.Models.FiltroPlanilla;
+    List<PlanillaUnicaWeb.Models.Rh_Cargo_Generico> lstCargosGenericos = Model.ToList()[9] as List<PlanillaUnicaWeb.Models.Rh_Cargo_Generico>;
+    List<PlanillaUnicaWeb.Models.Rh_Referencia_1> lstReferencias1 = Model.ToList()[10] as List<PlanillaUnicaWeb.Models.Rh_Referencia_1>;
+    List<PlanillaUnicaWeb.Models.Rh_Referencia_2> lstReferencias2 = Model.ToList()[11] as List<PlanillaUnicaWeb.Models.Rh_Referencia_2>;
+    List<PlanillaUnicaWeb.Models.AsistenciaLista> lstAsistencia = Model.ToList()[12] as List<PlanillaUnicaWeb.Models.AsistenciaLista>;
 
     string classAlerta = string.Empty;
 
@@ -204,12 +205,37 @@
             min-width: 420px; /* Suma de las 3 primeras columnas */
             width: 420px;
         }
+
+    #btnGuardarAsistencia:disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+    }   
+
 </style>
 
 
 
 <script>
     $(document).ready(function (e) {
+
+        $('.fila-checkbox').each(function () {
+            this.checked = false;
+            // Quitar estilos si los tiene
+            const $row = $(this).closest('tr');
+            $row.removeClass('fila-seleccionada-checkbox');
+            $row.children('td, th').css({
+                'background-color': '',
+                'color': ''
+            });
+            $row.find('select, input').css({
+                'background-color': '',
+                'color': '',
+                'border': ''
+            });
+        });
+
 
         $('#tablaPlanilla').DataTable(
             {
@@ -310,6 +336,8 @@
                                         $(row).children('td, th').css('background-color', '#36ACC4');
                                         $(row).children('td, th').css('color', 'white');
                                     });
+
+                                    setTimeout(verificarBotonGuardar, 100);
                                 }
                             },
                             {
@@ -358,6 +386,9 @@
                                         $(row).children('td, th').css('background-color', 'white');
                                         $(row).children('td, th').css('color', 'black');
                                     });
+
+                                    setTimeout(verificarBotonGuardar, 100);
+
                                 }
                             },
                             {
@@ -446,6 +477,17 @@
             const fechaFin = opcionSeleccionada.data('fecfin');
             asignarYEnviar(fechaIni, fechaFin);
         });
+
+
+        // Evento click para el boton de grabar asistencia
+        $('#numeroSemanaDropdown').change(function () {
+            $('#loader').fadeIn(300);
+            const opcionSeleccionada = $(this).find('option:selected');
+            const fechaIni = opcionSeleccionada.data('fecini');
+            const fechaFin = opcionSeleccionada.data('fecfin');
+            asignarYEnviar(fechaIni, fechaFin);
+        });
+
 
         $('#glosario [data-bs-dismiss="modal"]').on('click', function () {
             $('#glosario').modal('hide');
@@ -574,8 +616,61 @@
         $(document).on('change', '.fila-checkbox', function () {
             const isChecked = $(this).is(':checked');
             aplicarColorFila(this, isChecked);
+
+            verificarBotonGuardar();
+
         });
 
+        // MANEJO COMPLETO DE CAMPOS DECIMALES
+        function formatearCampoDecimal(elemento) {
+            var valor = $(elemento).val();
+            if (valor && valor !== '') {
+                // Reemplazar coma por punto
+                valor = valor.replace(',', '.');
+                // Convertir a número
+                var numero = parseFloat(valor);
+                if (!isNaN(numero) && numero !== 0) {
+                    // Solo mostrar decimales si no son .00
+                    var valorFormateado = numero % 1 === 0 ? numero.toString() : numero.toFixed(2).replace(/\.?0+$/, '');
+                    $(elemento).val(valorFormateado);
+                } else if (numero === 0) {
+                    // Si es cero, dejar el campo vacío
+                    $(elemento).val('');
+                }
+            }
+        }
+
+        // Los valores ya se cargan formateados desde la vista, no necesita formateo adicional
+
+        // Durante la escritura, permitir solo números, puntos y comas
+        $(document).on('input', '.decimal-input', function () {
+            var valor = $(this).val();
+            // Permitir solo números, punto y coma
+            valor = valor.replace(/[^0-9.,]/g, '');
+            // Permitir solo una coma o punto
+            valor = valor.replace(/([.,].*?)[.,]/g, '$1');
+            $(this).val(valor);
+        });
+
+        // Al salir del campo, formatear correctamente
+        $(document).on('blur', '.decimal-input', function () {
+            formatearCampoDecimal(this);
+        });
+
+        // Antes de enviar el formulario, convertir TODO a formato punto y manejar vacíos
+        $(document).on('submit', '#formGuardarAsistencia', function (e) {
+            $('.decimal-input').each(function () {
+                var valor = $(this).val();
+                if (valor && valor !== '') {
+                    // Convertir coma a punto y asegurar formato numérico
+                    valor = valor.replace(',', '.');
+                    $(this).val(valor);
+                } else {
+                    // Si está vacío, enviar 0 para evitar null en el servidor
+                    $(this).val('0');
+                }
+            });
+        });
 
         setTimeout(function () {
             $(".content").fadeOut(1500);
@@ -588,6 +683,17 @@
         }, 100);
 
     });
+
+    function verificarBotonGuardar() {
+        const checkboxesSeleccionados = $('.fila-checkbox:checked').length;
+        const $btnGuardar = $('#btnGuardarAsistencia');
+
+        if (checkboxesSeleccionados > 0) {
+            $btnGuardar.prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary');
+        } else {
+            $btnGuardar.prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
+        }
+    }
 
     function asignarYEnviar(fechaIni, fechaFin) {
 
@@ -624,6 +730,35 @@
 
 </script>
 
+@if (TempData["Estado"] != null)
+{
+    if (TempData["Estado"].ToString().Equals("ERROR"))
+    {
+        TempData["Estado"] = null;
+        <script>
+                Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "@TempData["Mensaje"].ToString()",
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#e60012',
+                })
+        </script>
+    }
+    else
+    {
+        TempData["Estado"] = null;
+        <script>
+                Swal.fire({
+                icon: "success",
+                title: "Aviso",
+                text: "@TempData["Mensaje"].ToString()",
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#e60012',
+                })
+        </script>
+    }
+}
 
 <div class="row mx-auto" style="width: 170vh;">
     <div class="card-body">
@@ -998,13 +1133,31 @@
 
                                     <td style="text-align: center;"></td>
                                     <td style="text-align: center;">
-                                        @Html.TextBoxFor(x => lstAsistencia[i].H50, new { @class = "form-control-sm text-center border-0", type = "number" })
+                                        @Html.TextBoxFor(x => lstAsistencia[i].Rhsis_H50, new
+                                        {
+                                            @class = "form-control-sm text-center border-0 decimal-input",
+                                            type = "text",
+                                            @Value = (lstAsistencia[i].Rhsis_H50.HasValue && lstAsistencia[i].Rhsis_H50.Value != 0) ? 
+                                                     lstAsistencia[i].Rhsis_H50.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : ""
+                                        })
                                     </td>
                                     <td style="text-align: center;">
-                                        @Html.TextBoxFor(x => lstAsistencia[i].H100, new { @class = "form-control-sm text-center border-0", type = "number" })
+                                        @Html.TextBoxFor(x => lstAsistencia[i].Rhsis_H100, new
+                                        {
+                                            @class = "form-control-sm text-center border-0 decimal-input",
+                                            type = "text",
+                                            @Value = (lstAsistencia[i].Rhsis_H100.HasValue && lstAsistencia[i].Rhsis_H100.Value != 0) ? 
+                                                     lstAsistencia[i].Rhsis_H100.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : ""
+                                        })
                                     </td>
                                     <td style="text-align: center;">
-                                        @Html.TextBoxFor(x => lstAsistencia[i].Atraso, new { @class = "form-control-sm text-center border-0", type = "number" })
+                                        @Html.TextBoxFor(x => lstAsistencia[i].Rhsis_Atraso, new
+                                        {
+                                            @class = "form-control-sm text-center border-0 decimal-input",
+                                            type = "text",
+                                            @Value = (lstAsistencia[i].Rhsis_Atraso.HasValue && lstAsistencia[i].Rhsis_Atraso.Value != 0) ? 
+                                                     lstAsistencia[i].Rhsis_Atraso.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : ""
+                                        })
                                     </td>
                                     <td style="text-align: center; white-space: nowrap;">
                                         @Html.TextBoxFor(x => lstAsistencia[i].Observacion, new { @class = "form-control-sm border-0", @style = "width: 400px;", type = "text" })
@@ -1030,7 +1183,7 @@
                 <div class="col-12 mx-auto">
                     <div class="row">
                         <div class="col-3">
-                            <button type="submit" id="btnGuardarAsistencia" class="btn btn-primary" style="width: 300px;">
+                            <button type="submit" id="btnGuardarAsistencia" class="btn btn-primary" style="width: 300px;" disabled>
                                 <i class="btn btn-success bi bi-pencil-square rounded-circle btn-sm"></i> Guardar
                             </button>
                         </div>
@@ -1051,7 +1204,7 @@
 </div>
 
 
-<!-- MODIFICACION DE PRECIO (NUEVO PRECIO) -->
+<!-- GLOSARIO -->
 <div class="modal fade" id="glosario" tabindex="-1" role="dialog" aria-hidden="true">
 
     <div class="modal-dialog modal-lg col-8 mx-auto" role="document">
@@ -1093,8 +1246,108 @@
 
 </div>
 
-<script>
+    <!-- INFORME MODAL -->
+    <div class="modal fade" id="informeModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-md col-6 mx-auto" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generar Informe</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formInforme">
+                        <div class="form-group mb-2">
+                            <label for="informeCentroCosto">Centro de Costo</label>
+                            <select id="informeCentroCosto" name="Gencencos_Id" class="form-control">
+                                <option value="">-- Seleccione Centro de Costo --</option>
+                                @foreach (var cc in lstCentroCostoTodos)
+                                {
+                                    <option value="@cc.Gencencos_Id">@cc.Gencencos_Descripcion</option>
+                                }
+                            </select>
+                        </div>
 
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-2">
+                                <label for="informeFechaInicio">Fecha Inicio</label>
+                                <input type="date" id="informeFechaInicio" name="FechaInicio" class="form-control" />
+                            </div>
+                            <div class="col-md-6 form-group mb-2">
+                                <label for="informeFechaFin">Fecha Fin</label>
+                                <input type="date" id="informeFechaFin" name="FechaFin" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label for="informeTipo">Tipo de Informe</label>
+                            <select id="informeTipo" name="TipoInforme" class="form-control">
+                                <option value="faltas_permisos">Faltas y Permisos</option>
+                                <option value="horas_extras_atrasos">Horas Extras y Atrasos</option>
+                                <option value="general_mensual">General Mensual</option>
+                                <option value="validacion_mensual">Validacion Mensual</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnCerrarInforme" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" id="btnGenerarInforme" class="btn btn-primary">Generar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Abrir modal al clickear el boton Informe
+            $('#btnInforme').on('click', function (e) {
+                e.preventDefault();
+                $('#informeModal').modal('show');
+            });
+
+            // Cerrar modal (existe el atributo data-bs-dismiss, esto es adicional)
+            $('#btnCerrarInforme').on('click', function () {
+                $('#informeModal').modal('hide');
+            });
+
+            // Generar: valida campos y por ahora muestra valores (placeholder para llamada al backend)
+            $('#btnGenerarInforme').on('click', function () {
+                var centro = $('#informeCentroCosto').val();
+                var fecIni = $('#informeFechaInicio').val();
+                var fecFin = $('#informeFechaFin').val();
+                var tipo = $('#informeTipo').val();
+
+                if (!centro) {
+                    alert('Seleccione un Centro de Costo.');
+                    return;
+                }
+                if (!fecIni || !fecFin) {
+                    alert('Seleccione Fecha Inicio y Fecha Fin.');
+                    return;
+                }
+                if (new Date(fecIni) > new Date(fecFin)) {
+                    alert('La Fecha Inicio no puede ser posterior a la Fecha Fin.');
+                    return;
+                }
+
+                // Placeholder: aquí se podría redirigir o enviar por AJAX al backend para generar el informe
+                console.log('Generando informe con:', { centro: centro, fecIni: fecIni, fecFin: fecFin, tipo: tipo });
+                // Mostrar feedback y cerrar modal
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Generando',
+                    text: 'Se está generando el informe. (Implementar envío al servidor)',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                $('#informeModal').modal('hide');
+            });
+        });
+    </script>
+
+<script>
     var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCosto));
 
     $(document).ready(function () {
@@ -1124,6 +1377,14 @@
 
         // Seteo de centro de costo al cargar en búsqueda
         let empresaId = document.getElementById('empresaDropdown').value;
+
+        if (empresaId == '') {
+            $('#empresaDropdown').val(@filtroPlanilla.Genemp_Id);
+            $('#periodoDropdown').val(@filtroPlanilla.Periodo);
+            empresaId = document.getElementById('empresaDropdown').value;
+        }
+
+
         var filteredCentrosCosto = centrosCostoList.filter(function (item) {
             return item.Genemp_Id == empresaId; // Comparar con la empresa seleccionada
         });
