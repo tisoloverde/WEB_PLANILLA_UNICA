@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Text;
 
 namespace PlanillaUnicaWeb.Controllers.Personal
 {
@@ -30,16 +31,36 @@ namespace PlanillaUnicaWeb.Controllers.Personal
             json = await httpClient.GetStringAsync(ConfigurationManager.AppSettings["ApiGenerica"] + Resource.Generica_CentrosCosto + "/GetAllCentroCostoUsuario?usuarioId=" + usuarioId);
             List<Gen_Centro_Costo> centrosCostoList = JsonConvert.DeserializeObject<List<Gen_Centro_Costo>>(json);
 
+            // Agregar lista completa de centros de costo para el modal de informes
+            json = await httpClient.GetStringAsync(ConfigurationManager.AppSettings["ApiGenerica"] + Resource.Generica_CentrosCosto + "/GetAllCentroCosto");
+            List<Gen_Centro_Costo> centrosCostoListTodos = JsonConvert.DeserializeObject<List<Gen_Centro_Costo>>(json);
+
             json = await httpClient.GetStringAsync(ConfigurationManager.AppSettings["ApiGenerica"] + Resource.Generica_Ano + "/GetAllAnos?agregaMas=0&agregaMenos=5");
             List<Gen_Ano> anosList = JsonConvert.DeserializeObject<List<Gen_Ano>>(json);
+
+            json = await httpClient.GetStringAsync(ConfigurationManager.AppSettings["ApiPlanillaUnica"] + Resource.PlanillaUnica_Asistencia + "/GetAsistenciaConceptos");
+            List<Rh_Asistencia_Concepto> asistenciaConceptos = JsonConvert.DeserializeObject<List<Rh_Asistencia_Concepto>>(json);
+
+            Rh_Asistencia_Concepto conceptoDefecto = new Rh_Asistencia_Concepto();
+            conceptoDefecto.Rhasicon_Id = 0;
+            conceptoDefecto.Rhasicon_Descripcion = "";
+            conceptoDefecto.Rhasicon_Sigla = "---";
+            conceptoDefecto.Rhasicon_Visible = "N";
+            asistenciaConceptos.Insert(0, conceptoDefecto); //Insertar como primera opcion por defecto -- Seleccione --
+
+
+            List<Rh_Asistencia_Concepto> asistenciaConceptosVisibles = asistenciaConceptos.Where(x => x.Rhasicon_Visible.Equals("S")).ToList(); //Filtra solo los conceptos visibles
 
             //Account_Sistema sistemaEdit = new Account_Sistema();
             //Account_Sistema sistemaNew = new Account_Sistema();
 
             myModel.Add(empresasList);
             myModel.Add(centrosCostoList);
+            myModel.Add(centrosCostoListTodos);
             myModel.Add(anosList);
             myModel.Add(filtroPlanilla);
+            myModel.Add(asistenciaConceptosVisibles);
+            
 
             ViewBag.Message2 = "PLANILLAASISTENCIA";
             return View(myModel);
@@ -311,6 +332,155 @@ namespace PlanillaUnicaWeb.Controllers.Personal
             return View(myModel);
         }
 
-      
+        [HttpPost]
+        public async Task<JsonResult> GeneraInforme(Rh_Informe_Asistencia request)
+        {
+            try
+            {
+                // Validar modelo
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                    return Json(new Resultado
+                    {
+                        Estado = "ERROR",
+                        Mensaje = "Datos inválidos: " + string.Join(", ", errors)
+                    });
+                }
+
+                // Obtener email del usuario conectado y asignarlo si no viene en el request
+                if (string.IsNullOrEmpty(request.Email))
+                {
+                    request.Email = Session["user_Email"]?.ToString();
+                }
+                
+                // Log para debugging
+                System.Diagnostics.Debug.WriteLine($"Email obtenido de sesión: {request.Email}");
+                
+                if (string.IsNullOrEmpty(request.Email))
+                {
+                    return Json(new Resultado
+                    {
+                        Estado = "ERROR",
+                        Mensaje = "No se pudo obtener el email del usuario conectado. Verifique que haya iniciado sesión correctamente."
+                    });
+                }
+
+                // Validar fechas
+                if (!string.IsNullOrEmpty(request.FechaInicio) && !string.IsNullOrEmpty(request.FechaTermino))
+                {
+                    if (DateTime.TryParse(request.FechaInicio, out DateTime fechaIni) && 
+                        DateTime.TryParse(request.FechaTermino, out DateTime fechaFin))
+                    {
+                        if (fechaIni > fechaFin)
+                        {
+                            return Json(new Resultado
+                            {
+                                Estado = "ERROR",
+                                Mensaje = "La fecha de inicio no puede ser posterior a la fecha de fin"
+                            });
+                        }
+                    }
+                }
+
+                // Validar que tenga al menos un tipo de informe
+                if (request.TiposInforme == null || !request.TiposInforme.Any())
+                {
+                    return Json(new Resultado
+                    {
+                        Estado = "ERROR",
+                        Mensaje = "Debe seleccionar al menos un tipo de informe"
+                    });
+                }
+
+                // Llamar a la API
+                using (var httpClient = new HttpClient())
+                {
+                    // Configurar timeout
+                    httpClient.Timeout = TimeSpan.FromMinutes(5);
+
+                    // Serializar el objeto Rh_Informe_Asistencia directamente
+                    var jsonContent = JsonConvert.SerializeObject(request);
+                    var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+                    // Realizar petición POST
+                    string apiUrl = ConfigurationManager.AppSettings["ApiPlanillaUnica"] + "api/InformeAsistencia/GeneraInforme";
+                    var response = await httpClient.PostAsync(apiUrl, content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        var resultado = JsonConvert.DeserializeObject<Resultado>(jsonResponse);
+                        return Json(resultado);
+                    }
+                    else
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        
+                        // Intentar deserializar el error como respuesta estándar
+                        try
+                        {
+                            var errorResponse = JsonConvert.DeserializeObject<Resultado>(errorContent);
+                            return Json(errorResponse);
+                        }
+                        catch
+                        {
+                            // Si no se puede deserializar, crear respuesta de error genérica
+                            return Json(new Resultado
+                            {
+                                Estado = "ERROR",
+                                Mensaje = $"Error del servidor: {response.StatusCode} - {response.ReasonPhrase}"
+                            });
+                        }
+                    }
+                }
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                return Json(new Resultado
+                {
+                    Estado = "ERROR",
+                    Mensaje = "Tiempo de espera agotado. El proceso puede estar tomando más tiempo del esperado."
+                });
+            }
+            catch (HttpRequestException ex)
+            {
+                return Json(new Resultado
+                {
+                    Estado = "ERROR",
+                    Mensaje = "Error de conexión con el servidor: " + ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new Resultado
+                {
+                    Estado = "ERROR",
+                    Mensaje = "Error inesperado: " + ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public JsonResult ObtenerEmailUsuario()
+        {
+            try
+            {
+                string email = Session["user_Email"]?.ToString();
+                return Json(new { 
+                    success = true, 
+                    email = email ?? "" 
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { 
+                    success = false, 
+                    email = "",
+                    error = ex.Message 
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
     }
 }

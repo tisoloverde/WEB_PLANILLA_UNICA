@@ -391,10 +391,12 @@
     <Compile Include="Models\Rh_Dotacion.cs" />
     <Compile Include="Models\Rh_Estado_Civil.cs" />
     <Compile Include="Models\Rh_Familia.cs" />
+    <Compile Include="Models\Rh_Informe_Asistencia.cs" />
     <Compile Include="Models\Rh_Licencia_Conducir.cs" />
     <Compile Include="Models\Rh_Nivel_Estudio.cs" />
     <Compile Include="Models\Rh_Referencia_1.cs" />
     <Compile Include="Models\Rh_Referencia_2.cs" />
+    <Compile Include="Models\Rh_Tipo_Informe.cs" />
     <Compile Include="Models\Rh_Tipo_Personal_Ofertado.cs" />
     <Compile Include="Models\Rh_Vinculo_Contacto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -2,10 +2,12 @@
 @{
     List<PlanillaUnicaWeb.Models.Gen_Empresa> lstEmpresa = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.Gen_Empresa>;
     List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCosto = Model.ToList()[1] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
-    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
-    PlanillaUnicaWeb.Models.FiltroPlanilla filtroPlanilla = Model.ToArray()[3] as PlanillaUnicaWeb.Models.FiltroPlanilla;
+    List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCostoTodos = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
+    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[3] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
+    PlanillaUnicaWeb.Models.FiltroPlanilla filtroPlanilla = Model.ToArray()[4] as PlanillaUnicaWeb.Models.FiltroPlanilla;
+    List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto> lstAsistenciaConceptosVisibles = Model.ToList()[5] as List<PlanillaUnicaWeb.Models.Rh_Asistencia_Concepto>;
 
-
+   
     string classAlerta = string.Empty;
 
     ViewBag.Title = "Index";
@@ -13,6 +15,8 @@
 
 @{ Html.EnableClientValidation(true);
     Html.EnableUnobtrusiveJavaScript(true); }
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
 <style>
     th, td {
@@ -27,6 +31,103 @@
         width: 80%;
     }
 
+    /* Estilos basicos para etiquetas con iconos */
+    .label-with-icon {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #365A0F;
+        margin-bottom: 5px;
+    }
+
+    .label-with-icon i {
+        font-size: 16px;
+        color: #5E9217;
+        transition: all 0.3s ease;
+    }
+
+    /* Efectos hover simples */
+    .label-with-icon:hover i {
+        color: #4A7613;
+        transform: scale(1.1);
+    }
+
+    .btn i {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover i {
+        transform: scale(1.05);
+    }
+
+    /* Botones estilo modal dotacion */
+    .btn-modern-success {
+        background: linear-gradient(135deg, #5E9217, #4A7613) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 20px !important;
+        color: white !important;
+        font-weight: 600 !important;
+    }
+
+    .btn-modern-secondary {
+        background: transparent !important;
+        border: 1px solid #6c757d !important;
+        border-radius: 8px !important;
+        padding: 8px 20px !important;
+        color: #6c757d !important;
+        font-weight: 600 !important;
+    }
+
+    .btn-modern-secondary:hover {
+        background: #6c757d !important;
+        color: white !important;
+    }
+
+    /* Estilos Especificos para el modal de glosario compacto */
+    .glosario-table tbody .glosario-row {
+        transition: all 0.2s ease;
+        background-color: white;
+        height: 40px;
+    }
+
+    .glosario-table tbody .glosario-row:hover {
+        background-color: #f8f9fa !important;
+        transform: scale(1.01);
+        cursor: pointer;
+    }
+
+    .glosario-badge {
+        transition: all 0.2s ease;
+    }
+
+    .glosario-row:hover .glosario-badge {
+        transform: scale(1.03);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    /* Scroll suave para el glosario */
+    .modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #5E9217;
+        border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #4A7613;
+    }
+
+
+
 </style>
 
 <script>
@@ -37,11 +138,11 @@
                 "scrollY": 540,
                 "paging": false,
                 "language": {
-                    "lengthMenu": "Motrar _MENU_ registros por página",
-                    "zeroRecords": "Sin información",
+                    "lengthMenu": "Motrar _MENU_ registros por pagina",
+                    "zeroRecords": "Sin informacion",
                     "search": "Buscar:",
                     "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
-                    "infoEmpty": "Sin información disponible",
+                    "infoEmpty": "Sin informacion disponible",
                     "infoFiltered": "(filtered from _MAX_ total records)",
                     "loadingRecords": "Cargando...",
                     "processing": "Procesando...",
@@ -51,12 +152,28 @@
                         "next": "Siguiente",
                         "previous": "Anterior"
                     }
+                },
+                "layout": {
+                    topStart: {
+                        buttons: [
+                            {
+                                text: 'Glosario',
+                                className: 'btn btn-info',
+                                action: function (e, dt, button, config) {
+                                    $('#glosario').modal('show');
+                                }
+                            }
+                        ]
+                    }
                 }
             }
         );
 
         // Evento change para el select de periodos
         $('#periodoDropdown').on('change', async function () {
+            // Limpiar tabla inmediatamente cuando cambia el periodo
+            clearTableOnFilterChange();
+            
             $('#loader').fadeIn(300);
             const periodo = $(this).val();
 
@@ -76,7 +193,7 @@
                     });
 
                     if (!response || !response.data || !Array.isArray(response.data)) {
-                        throw new Error('Respuesta del servidor inválida');
+                        throw new Error('Respuesta del servidor invalida');
                     }
 
                     response.data.forEach(p => {
@@ -103,7 +220,7 @@
                     });
 
                     if (semanaActivaEncontrada) {
-                        // Opción 1: Submit directo del formulario
+                        // Opcion 1: Submit directo del formulario
                         autoSubmitForm();
 
                     }                                                        
@@ -129,16 +246,37 @@
        
 
     function autoSubmitForm() {
+        const selectEmpresa = document.getElementById('empresaDropdown');
         const selectCentroCosto = document.getElementById('centroCostoDropdown');
         const selectPeriodo = document.getElementById('periodoDropdown');
         const selectSemana = document.getElementById('numeroSemanaDropdown');
 
-        if ((selectCentroCosto.value && selectCentroCosto.value !== '') &&
+        // Limpiar tabla si falta algún filtro requerido
+        if (!selectEmpresa.value || selectEmpresa.value === '' ||
+            !selectCentroCosto.value || selectCentroCosto.value === '' ||
+            !selectPeriodo.value || selectPeriodo.value === '' ||
+            !selectSemana.value || selectSemana.value === '') {
+            
+            // Limpiar la tabla
+            var table = $('#tablaPlanilla').DataTable();
+            table.clear().draw();
+            return; // No enviar el formulario
+        }
+
+        // Solo enviar si todos los filtros están completos
+        if ((selectEmpresa.value && selectEmpresa.value !== '') &&
+            (selectCentroCosto.value && selectCentroCosto.value !== '') &&
             (selectPeriodo.value && selectPeriodo.value !== '') &&
             (selectSemana.value && selectSemana.value !== '')) {
-            // Submit automático
+            // Submit automatico
             document.getElementById('autoSubmitForm').submit();
         }
+    }
+
+    // Función para limpiar tabla cuando se cambian los filtros
+    function clearTableOnFilterChange() {
+        var table = $('#tablaPlanilla').DataTable();
+        table.clear().draw();
     }
 
 </script>
@@ -157,16 +295,28 @@
                 <div class="col-md-12 mt-3 mx-auto">
                     <div class="row">
                         <div class="col-md-3 mt-2 auto">
-                            <label>Empresa</label>
+                            <label class="label-with-icon">
+                                <i class="bi bi-building"></i>
+                                Empresa
+                            </label>
                         </div>
                         <div class="col-md-3 mt-2 auto">
-                            <label>Centro de Costo</label>
+                            <label class="label-with-icon">
+                                <i class="bi bi-geo-alt"></i>
+                                Centro de Costo
+                            </label>
                         </div>
                         <div class="col-md-1 mt-2 auto">
-                            <labe>Periodo</labe>
+                            <label class="label-with-icon">
+                                <i class="bi bi-calendar"></i>
+                                Periodo
+                            </label>
                         </div>
                         <div class="col-md-3 mt-2 auto">
-                            <labe>Semana</labe>
+                            <label class="label-with-icon">
+                                <i class="bi bi-calendar-week"></i>
+                                Semana
+                            </label>
                         </div>
                         <div class="col-md-2 mt-2 auto">
                             &nbsp;
@@ -215,7 +365,7 @@
                     <thead class="thead-light">
                         <tr>
                             <th colspan="8">Datos Generales</th>
-                            <th colspan="4">Información en Terreno</th>
+                            <th colspan="4">informacion en Terreno</th>
                             <th colspan="1">Reemplazo</th>
                             <th colspan="3">Fechas</th>
                             <th colspan="12">Asistencia</th>
@@ -224,18 +374,18 @@
                             <th></th>
                             <th>RUT</th>
                             <th>Apellidos y Nombres</th>
-                            <th>Cargo Liquidación</th>
-                            <th>cargo Genérico</th>
+                            <th>Cargo Liquidacion</th>
+                            <th>cargo Generico</th>
                             <th>JEAS</th>
                             <th>REF1</th>
                             <th>REF2</th>
-                            <th>Cargo Genérico</th>
+                            <th>Cargo Generico</th>
                             <th>JEAS</th>
                             <th>REF1</th>
                             <th>REF2</th>
                             <th>RUT</th>
                             <th>Fecha Ingreso</th>
-                            <th>Fecha Término</th>
+                            <th>Fecha Termino</th>
                             <th>Nro. de Contrato</th>
                             @*<th>Temporal</th>*@
                             <th class="header-with-day">
@@ -254,16 +404,16 @@
                                 <span class="day-label">Vi</span>
                             </th>
                             <th class="header-with-day">
-                                <span class="day-label">Sá</span>
+                                <span class="day-label">Sa</span>
                             </th>
                             <th class="header-with-day">
                                 <span class="day-label">Do</span>
                             </th>
-                            <th>Días</th>
+                            <th>Dias</th>
                             <th>HE50</th>
                             <th>HE100</th>
                             <th>Atraso</th>
-                            <th>Observación</th>
+                            <th>Observacion</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -272,15 +422,148 @@
             </div>
         </div>
 
+        <!-- Botones siempre visibles -->
+        <div class="row mx-auto" style="width: 170vh;">
+            <div class="card-body">
+                <div class="col-12 mx-auto">
+                    <div class="row">
+                        <div class="col-3">
+                            <button type="button" id="btnGuardarAsistencia" class="btn btn-secondary" style="width: 300px;" disabled>
+                                <i class="bi bi-floppy me-2"></i>Guardar
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button type="button" id="btnInforme" class="btn btn-primary" style="width: 300px;">
+                                <i class="bi bi-file-earmark-excel me-2"></i>Informe
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+    </div>
+</div>
 
+<!-- INFORME MODAL -->
+<div class="modal fade" id="informeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg col-10 mx-auto" role="document">
+        <div class="modal-content" style="border-radius: 15px; border: none; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; border-radius: 15px 15px 0 0; border-bottom: none; padding: 1.25rem;">
+                <h5 class="modal-title" style="color: white; font-weight: 600; margin: 0;">
+                    <i class="bi bi-file-earmark-bar-graph me-2"></i>Generar Informe
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+                <form id="formInforme">
+                    <div class="form-group mb-2">
+                        <label for="informeCentroCosto" class="label-with-icon">
+                            <i class="bi bi-geo-alt"></i>
+                            Centro de Costo
+                        </label>
+                        <select id="informeCentroCosto" name="Gencencos_Id" class="form-control">
+                            <option value="">-- Seleccione Centro de Costo --</option>
+                            <option value="0">TODOS</option>
+                            @foreach (var cc in lstCentroCostoTodos)
+                            {
+                                <option value="@cc.Gencencos_Id">@cc.Gencencos_Descripcion</option>
+                            }
+                        </select>
+                    </div>
 
+                    <div class="row">
+                        <div class="col-md-6 form-group mb-2">
+                            <label for="informeFechaInicio" class="label-with-icon">
+                                <i class="bi bi-calendar-event"></i>
+                                Fecha Inicio
+                            </label>
+                            <input type="date" id="informeFechaInicio" name="FechaInicio" class="form-control" />
+                        </div>
+                        <div class="col-md-6 form-group mb-2">
+                            <label for="informeFechaFin" class="label-with-icon">
+                                <i class="bi bi-calendar-check"></i>
+                                Fecha Fin
+                            </label>
+                            <input type="date" id="informeFechaFin" name="FechaFin" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="informeTipo" class="label-with-icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                            Tipo de Informe
+                        </label>
+                        <select id="informeTipo" name="TipoInforme" class="form-control">
+                            <option value="">-- Seleccione el tipo de informe --</option>
+                            <option value="faltas_permisos">Faltas y Permisos</option>
+                            <option value="horas_extras_atrasos">Horas Extras y Atrasos</option>
+                            <option value="general_mensual">General Mensual</option>
+                            <option value="validacion_mensual">Validacion Mensual</option>
+                        </select>
+                    </div>
+
+                    <!-- Opciones especificas para Horas Extras y Atrasos -->
+                    <div id="opcionesHorasExtras" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                        <h6 style="color: #5E9217; margin-bottom: 15px;">
+                            <i class="bi bi-gear me-2"></i>Opciones de Informe
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="switch-container" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 15px;">
+                                    <div class="form-check form-switch" style="margin-bottom: 8px;">
+                                        <input class="form-check-input" type="checkbox" id="toggleHE50" checked>
+                                    </div>
+                                    <label for="toggleHE50" class="switch-labels" style="text-align: center; font-size: 14px; color: #5E9217; font-weight: 600;">
+                                        <i class="bi bi-clock me-1"></i>HE50
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="switch-container" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 15px;">
+                                    <div class="form-check form-switch" style="margin-bottom: 8px;">
+                                        <input class="form-check-input" type="checkbox" id="toggleHE100" checked>
+                                    </div>
+                                    <label for="toggleHE100" class="switch-labels" style="text-align: center; font-size: 14px; color: #5E9217; font-weight: 600;">
+                                        <i class="bi bi-clock-history me-1"></i>HE100
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="switch-container" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 15px;">
+                                    <div class="form-check form-switch" style="margin-bottom: 8px;">
+                                        <input class="form-check-input" type="checkbox" id="toggleAtraso" checked>
+                                    </div>
+                                    <label for="toggleAtraso" class="switch-labels" style="text-align: center; font-size: 14px; color: #5E9217; font-weight: 600;">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>Atrasos
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 1.25rem; background: #f8f9fa;">
+                <button type="button" id="btnCerrarInforme" class="btn btn-modern-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cerrar
+                </button>
+                <button type="button" id="btnGenerarInforme" class="btn btn-modern-success">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Generar
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
 
-    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCosto));
+    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCostoTodos));
 
     $(document).ready(function () {
         // Cuando se seleccione una empresa para cargar los centros de costo asociados
@@ -292,7 +575,7 @@
 
             // Limpiar el dropdown de centros de costo
             $('#centroCostoDropdown').empty();
-            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opción por defecto
+            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opcion por defecto
 
             // Si hay una empresa seleccionada
             if (empresaId) {
@@ -307,5 +590,347 @@
                 });
             }
         });
+
+        // Eventos adicionales para limpiar tabla cuando se cambien los filtros
+        $('#centroCostoDropdown').on('change', function () {
+            // Si se deselecciona el centro de costo, limpiar tabla
+            if (!$(this).val() || $(this).val() === '') {
+                clearTableOnFilterChange();
+            }
+        });
+
+        $('#numeroSemanaDropdown').on('change', function () {
+            // Si se deselecciona la semana, limpiar tabla
+            if (!$(this).val() || $(this).val() === '') {
+                clearTableOnFilterChange();
+            }
+        });
+
+        // JavaScript para el modal de informes
+        // Abrir modal al clickear el boton Informe
+        $('#btnInforme').on('click', function (e) {
+            e.preventDefault();
+            $('#informeModal').modal('show');
+        });
+
+        // Cerrar modal (existe el atributo data-bs-dismiss, esto es adicional)
+        $('#btnCerrarInforme').on('click', function () {
+            $('#informeModal').modal('hide');
+        });
+
+        // Mostrar/ocultar opciones de horas extras segun el tipo seleccionado
+        $('#informeTipo').on('change', function () {
+            if ($(this).val() === 'horas_extras_atrasos') {
+                $('#opcionesHorasExtras').slideDown(300);
+            } else {
+                $('#opcionesHorasExtras').slideUp(300);
+            }
+        });
+
+        // Inicializar estado de opciones al abrir modal
+        $('#informeModal').on('shown.bs.modal', function () {
+            if ($('#informeTipo').val() === 'horas_extras_atrasos') {
+                $('#opcionesHorasExtras').show();
+            } else {
+                $('#opcionesHorasExtras').hide();
+            }
+        });
+
+        // Generar informe - enviar al controller
+        $('#btnGenerarInforme').on('click', function () {
+            var centro = $('#informeCentroCosto').val();
+            var fecIni = $('#informeFechaInicio').val();
+            var fecFin = $('#informeFechaFin').val();
+            var tipo = $('#informeTipo').val();
+
+            // Validacion de tipo de informe seleccionado
+            if (!tipo) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo requerido',
+                    text: 'Debe seleccionar un tipo de informe.',
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            // Validacion de tipos de informe no implementados
+            if (tipo === 'faltas_permisos' || tipo === 'general_mensual' || tipo === 'validacion_mensual') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Funcionalidad en desarrollo',
+                    text: 'Este tipo de informe esta en proceso de implementacion. Por ahora, solo estan disponibles los informes de Horas Extras y Atrasos.',
+                    confirmButtonText: 'Entendido'
+                });
+                return;
+            }
+
+            // Validaciones
+            if (!centro) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo requerido',
+                    text: 'Seleccione un Centro de Costo.'
+                });
+                return;
+            }
+            if (!fecIni || !fecFin) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Seleccione Fecha Inicio y Fecha Fin.'
+                });
+                return;
+            }
+            if (new Date(fecIni) > new Date(fecFin)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Fechas incorrectas',
+                    text: 'La Fecha Inicio no puede ser posterior a la Fecha Fin.'
+                });
+                return;
+            }
+
+            // Preparar tipos de informe
+            var tiposInformeArray = [];
+            
+            if (tipo === 'horas_extras_atrasos') {
+                if ($('#toggleHE50').is(':checked')) {
+                    tiposInformeArray.push({ TipoInforme: 1, Descripcion: "HE50" });
+                }
+                if ($('#toggleHE100').is(':checked')) {
+                    tiposInformeArray.push({ TipoInforme: 2, Descripcion: "HE100" });
+                }
+                if ($('#toggleAtraso').is(':checked')) {
+                    tiposInformeArray.push({ TipoInforme: 3, Descripcion: "Atrasos" });
+                }
+                
+                if (tiposInformeArray.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Seleccion requerida',
+                        text: 'Debe seleccionar al menos una opcion para Horas Extras y Atrasos.'
+                    });
+                    return;
+                }
+            } else {
+                // Para otros tipos de informe, usar valores por defecto
+                switch(tipo) {
+                    case 'faltas_permisos':
+                        tiposInformeArray.push({ TipoInforme: 4, Descripcion: "Faltas y Permisos" });
+                        break;
+                    case 'general_mensual':
+                        tiposInformeArray.push({ TipoInforme: 5, Descripcion: "General Mensual" });
+                        break;
+                    case 'validacion_mensual':
+                        tiposInformeArray.push({ TipoInforme: 6, Descripcion: "Validacion Mensual" });
+                        break;
+                }
+            }
+
+            // Mostrar loading
+            Swal.fire({
+                title: 'Generando Informe',
+                text: 'Por favor espere...',
+                icon: 'info',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Formatear fechas en formato yyyy-MM-dd
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                var date = new Date(dateString);
+                var year = date.getFullYear();
+                var month = String(date.getMonth() + 1).padStart(2, '0');
+                var day = String(date.getDate()).padStart(2, '0');
+                return year + '-' + month + '-' + day;
+            }
+
+            // Obtener email del usuario antes de enviar
+            $.ajax({
+                url: '@Url.Action("ObtenerEmailUsuario", "PlanillaAsistencia")',
+                type: 'GET',
+                success: function (emailResponse) {
+                    if (!emailResponse.success || !emailResponse.email) {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo obtener el email del usuario. Por favor, inicie sesion nuevamente.',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        return;
+                    }
+
+                    // Enviar datos al controller usando el modelo Rh_Informe_Asistencia
+                    $.ajax({
+                        url: '@Url.Action("GeneraInforme", "PlanillaAsistencia")',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            Email: emailResponse.email,
+                            CentroCosto: parseInt(centro),
+                            FechaInicio: formatDate(fecIni),
+                            FechaTermino: formatDate(fecFin),
+                            TiposInforme: tiposInformeArray
+                        }),
+                        success: function (response) {
+                            Swal.close();
+                            
+                            if (response.Estado === 'OK') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Exito',
+                                    text: response.Mensaje,
+                                    confirmButtonText: 'Aceptar'
+                                });
+                                $('#informeModal').modal('hide');
+                            } else if (response.Estado === 'WARNING') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Advertencia',
+                                    text: response.Mensaje,
+                                    confirmButtonText: 'Aceptar'
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.Mensaje || 'Ocurrio un error al generar el informe.',
+                                    confirmButtonText: 'Aceptar'
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.close();
+                            
+                            var mensaje = 'Error de conexion. Por favor, intente nuevamente.';
+                            if (xhr.responseJSON && xhr.responseJSON.Mensaje) {
+                                mensaje = xhr.responseJSON.Mensaje;
+                            }
+                            
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: mensaje,
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    });
+                },
+                error: function (xhr, status, error) {
+                    Swal.close();
+                    console.error('Error al obtener email del usuario:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de sesion',
+                        text: 'No se pudo obtener la informacion del usuario. Por favor, inicie sesion nuevamente.',
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            });
+        });
+
+        // Event handler para cerrar modal de glosario
+        $('#glosario [data-bs-dismiss="modal"]').on('click', function () {
+            $('#glosario').modal('hide');
+        });
     });
 </script>
+
+<!-- GLOSARIO MODERNIZADO -->
+<div class="modal fade" id="glosario" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg col-10 mx-auto" role="document">
+        <div class="modal-content" style="border-radius: 15px; border: none; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; border-radius: 15px 15px 0 0; border-bottom: none; padding: 1.25rem;">
+                <h5 class="modal-title" id="exampleModal3Label" style="color: white; font-weight: 600; margin: 0;">
+                    <i class="bi bi-book me-2"></i>Glosario de Conceptos
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 1rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef); max-height: 70vh; overflow-y: auto;">
+                <div class="table-responsive" style="max-height: 60vh;">
+                    <table id="tablaGlosario" class="table table-hover glosario-table table-sm" style="width: 100%; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 0;">
+                        <thead style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; position: sticky; top: 0; z-index: 10;">
+                            <tr>
+                                <th style="padding: 8px 12px; font-weight: 600; border: none; font-size: 14px;">
+                                    <i class="bi bi-tags me-1"></i>Sigla
+                                </th>
+                                <th style="padding: 8px 12px; font-weight: 600; border: none; font-size: 14px;">
+                                    <i class="bi bi-card-text me-1"></i>Descripcion
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (lstAsistenciaConceptosVisibles != null && lstAsistenciaConceptosVisibles.Count > 0)
+                            {
+                                foreach (var conceptoVisible in lstAsistenciaConceptosVisibles)
+                                {
+                                    <tr class="glosario-row" style="transition: all 0.2s ease; background-color: white;">
+                                        <td style="padding: 8px 12px; border: 1px solid #e9ecef; vertical-align: middle; text-align: center;">
+                                            @conceptoVisible.Rhasicon_Sigla
+                                        </td>
+                                        <td style="padding: 8px 12px; color: #495057; border: 1px solid #e9ecef; vertical-align: middle; font-size: 13px;">
+                                            @conceptoVisible.Rhasicon_Descripcion
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <!-- Conceptos básicos de ejemplo si no están disponibles del controller -->
+                                <tr class="glosario-row" style="transition: all 0.2s ease; background-color: white;">
+                                    <td style="padding: 8px 12px; border: 1px solid #e9ecef; vertical-align: middle; text-align: center;">
+                                        P
+                                    </td>
+                                    <td style="padding: 8px 12px; color: #495057; border: 1px solid #e9ecef; vertical-align: middle; font-size: 13px;">
+                                        Presente
+                                    </td>
+                                </tr>
+                                <tr class="glosario-row" style="transition: all 0.2s ease; background-color: white;">
+                                    <td style="padding: 8px 12px; border: 1px solid #e9ecef; vertical-align: middle; text-align: center;">
+                                        A
+                                    </td>
+                                    <td style="padding: 8px 12px; color: #495057; border: 1px solid #e9ecef; vertical-align: middle; font-size: 13px;">
+                                        Ausente
+                                    </td>
+                                </tr>
+                                <tr class="glosario-row" style="transition: all 0.2s ease; background-color: white;">
+                                    <td style="padding: 8px 12px; border: 1px solid #e9ecef; vertical-align: middle; text-align: center;">
+                                        V
+                                    </td>
+                                    <td style="padding: 8px 12px; color: #495057; border: 1px solid #e9ecef; vertical-align: middle; font-size: 13px;">
+                                        Vacaciones
+                                    </td>
+                                </tr>
+                                <tr class="glosario-row" style="transition: all 0.2s ease; background-color: white;">
+                                    <td style="padding: 8px 12px; border: 1px solid #e9ecef; vertical-align: middle; text-align: center;">
+                                        LS
+                                    </td>
+                                    <td style="padding: 8px 12px; color: #495057; border: 1px solid #e9ecef; vertical-align: middle; font-size: 13px;">
+                                        Licencia por Salud
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="padding: 15px; text-align: center; color: #6c757d; font-style: italic; background-color: #f8f9fa;">
+                                        <i class="bi bi-info-circle me-2"></i>Para ver el glosario completo, realice una búsqueda primero
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 1.25rem; background: #f8f9fa;">
+                <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -22,6 +22,457 @@
 @{ Html.EnableClientValidation(true);
     Html.EnableUnobtrusiveJavaScript(true); }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    /* Estilos básicos para etiquetas con iconos - igual que modal de informes */
+    .label-with-icon {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #365A0F;
+        margin-bottom: 5px;
+    }
+
+    .label-with-icon i {
+        font-size: 16px;
+        color: #5E9217;
+        transition: all 0.3s ease;
+    }
+
+    /* Efectos hover simples */
+    .label-with-icon:hover i {
+        color: #4A7613;
+        transform: scale(1.1);
+    }
+
+    .btn i {
+        transition: all 0.3s ease;
+    }
+
+    /* Estilos para iconos en modales */
+    .modal .form-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .modal .form-group i {
+        font-size: 14px;
+        color: #5E9217;
+        min-width: 16px;
+        text-align: center;
+    }
+
+    .modal label i {
+        margin-right: 6px;
+        color: #5E9217;
+        font-size: 14px;
+    }
+
+    /* Estilo para títulos de secciones en modales */
+    .modal h6.form-group {
+        color: #365A0F;
+        font-weight: 600;
+        border-bottom: 2px solid #5E9217;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        text-align: left !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .modal h6.form-group i {
+        font-size: 16px;
+        color: #5E9217;
+    }
+
+    /* Reducir espaciado entre filas en modales */
+    .modal .row {
+        margin-bottom: 8px !important;
+    }
+
+    .modal .row.mt-2 {
+        margin-top: 8px !important;
+    }
+
+    .modal .row.mt-3 {
+        margin-top: 12px !important;
+    }
+
+    /* Labels más compactos */
+    .modal label {
+        margin-bottom: 4px !important;
+    }
+
+    /* Form controls más compactos y centrados verticalmente */
+    .modal .form-control {
+        margin-bottom: 8px !important;
+        height: 38px !important;
+        padding: 8px 12px !important;
+    }
+
+    /* Centrado vertical específico para dropdowns */
+    .modal select.form-control {
+        height: 38px !important;
+        line-height: 22px !important;
+        padding: 8px 12px !important;
+        vertical-align: middle !important;
+        text-align-last: left !important;
+    }
+
+    /* Centrado vertical para inputs */
+    .modal input.form-control {
+        height: 38px !important;
+        line-height: 22px !important;
+        padding: 8px 12px !important;
+        vertical-align: middle !important;
+    }
+
+    /* Estilos para label-with-icon igual que modal de asistencia */
+    .modal .label-with-icon {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        font-weight: 600 !important;
+        color: #365A0F !important;
+        margin-bottom: 5px !important;
+    }
+
+    .modal .label-with-icon i {
+        font-size: 16px !important;
+        color: #5E9217 !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .modal .label-with-icon:hover i {
+        color: #4A7613 !important;
+        transform: scale(1.1) !important;
+    }
+
+    /* Labels de meses más destacados como en modal de informes */
+    .modal .row .col-1 label {
+        font-weight: 600 !important;
+        color: #365A0F !important;
+        font-size: 13px !important;
+        margin-bottom: 5px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+
+    .modal .row .col-1 label i {
+        color: #5E9217 !important;
+        font-size: 14px !important;
+    }
+        margin-bottom: 6px !important;
+        font-size: 14px !important;
+    }
+
+    .modal .label-with-icon i {
+        color: #5E9217 !important;
+        font-size: 14px !important;
+        min-width: 16px !important;
+        text-align: center !important;
+    }
+
+    /* Alineación vertical de elementos */
+    .modal .form-group {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        height: auto !important;
+    }
+
+    /* Centrado vertical de textos en controles */
+    .modal .form-control {
+        display: flex !important;
+        align-items: center !important;
+        text-align: left !important;
+        height: 38px !important;
+        line-height: 1.5 !important;
+        padding: 6px 12px !important;
+    }
+
+    .modal select.form-control {
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .modal input.form-control {
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Alineación de labels a la izquierda */
+    .modal .label-with-icon {
+        text-align: left !important;
+        justify-content: flex-start !important;
+    }
+
+    .modal label {
+        text-align: left !important;
+    }
+
+    /* Centrado vertical específico para inputs deshabilitados */
+    .modal input[disabled] {
+        background-color: #f8f9fa !important;
+        color: #6c757d !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Tablas principales - usar estilos Bootstrap por defecto igual que en Index */
+
+    /* Tablas de Dotacion - mantener estilos Bootstrap por defecto como en Index */
+    #tablaDotacion {
+        /* Remover estilos customizados para mantener consistencia con Index */
+    }
+
+    /* Headers - mantener estilos Bootstrap por defecto */
+
+    /* Borders - usar estilos Bootstrap por defecto */
+
+    /* Hover - mantener efecto Bootstrap por defecto */
+
+    /* Filas - usar estilos Bootstrap por defecto */
+
+    /* Estilos específicos para DataTables */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        font-size: 13px !important;
+    }
+
+    /* Controles de DataTables alineados */
+    .dataTables_wrapper .dataTables_filter input {
+        margin-left: 6px !important;
+        border-radius: 4px !important;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    /* Centrado vertical para dropdowns en modales */
+    .modal select.form-control option {
+        padding: 6px 12px !important;
+    }
+
+    /* Asegurar que todos los elementos de formulario tengan el mismo height */
+    .modal .form-control,
+    .modal .form-control:focus,
+    .modal .form-control:disabled {
+        min-height: 38px !important;
+        height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .btn i {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover i {
+        transform: scale(1.05);
+    }
+
+    /* Modal-content estilo informes */
+    #ingresarDotacion .modal-content,
+    #editarDotacion .modal-content {
+        border-radius: 15px;
+        border: none;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        max-height: 90vh;
+        position: relative;
+    }
+
+    #ingresarDotacion .modal-body,
+    #editarDotacion .modal-body {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+
+    /* Botones movidos dentro del modal-body */
+    #ingresarDotacion .btn,
+    #editarDotacion .btn {
+        border-radius: 8px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    /* Contenedor de botones dentro del modal */
+    #ingresarDotacion .d-flex.justify-content-end,
+    #editarDotacion .d-flex.justify-content-end {
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+        margin-top: 1rem;
+        background: rgba(248, 249, 250, 0.5);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    /* Prevenir que elementos se salgan del modal */
+    #ingresarDotacion .modal-dialog,
+    #editarDotacion .modal-dialog {
+        max-width: 95%;
+        margin: 1rem auto;
+    }
+
+    #ingresarDotacion .modal-body,
+    #editarDotacion .modal-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+    }
+
+    /* Botones estilo modal informes */
+    .btn-modern-success {
+        background: linear-gradient(135deg, #5E9217, #4A7613) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 20px !important;
+        color: white !important;
+        font-weight: 600 !important;
+    }
+
+    .btn-modern-secondary {
+        background: transparent !important;
+        border: 1px solid #6c757d !important;
+        border-radius: 8px !important;
+        padding: 8px 20px !important;
+        color: #6c757d !important;
+        font-weight: 600 !important;
+    }
+
+    .btn-modern-secondary:hover {
+        background: #6c757d !important;
+        color: white !important;
+    }
+
+    /* Form-controls estilo modal informes */
+    .modal .form-control {
+        border-radius: 8px !important;
+        border: 2px solid #e9ecef !important;
+        padding: 0.6rem 1rem !important;
+        transition: all 0.3s ease !important;
+        background: white !important;
+    }
+
+    .modal .form-control:focus {
+        border-color: #5E9217 !important;
+        box-shadow: 0 0 0 0.2rem rgba(94, 146, 23, 0.15) !important;
+    }
+
+    /* Elementos .card removidos - estructura simplificada como modal informes */
+
+    /* Espaciado mejorado para labels y campos */
+    .modal label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .modal .col-form-label {
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Espaciado entre filas de campos */
+    .modal .row {
+        margin-bottom: 1rem;
+    }
+
+    .modal .row:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Mejores márgenes para los campos de entrada numérica */
+    .modal input[type="number"] {
+        text-align: center;
+        font-weight: 600;
+    }
+
+    /* Modal-body estilo informes - fondo degradado */
+    #ingresarDotacion .modal-body,
+    #editarDotacion .modal-body {
+        padding: 1.5rem !important;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    }
+
+    /* Form-groups como en modal de informes */
+    .modal .form-group {
+        margin-bottom: 1rem;
+    }
+
+    /* Labels con iconos como en modal de informes */
+    .modal .form-group label,
+    .modal label {
+        font-weight: 600;
+        color: #365A0F;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Mejoras para los grupos de campos mensuales */
+    .modal .col-md-1, .modal .col-1 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    /* Espaciado para texto obligatorio */
+    .modal .col-form-label[style*="font-style"] {
+        font-style: italic;
+        color: #6c757d;
+        margin-top: 1rem;
+    }
+
+    /* Mejor presentación de dropdowns */
+    .modal select.form-control {
+        padding: 0.6rem 1rem;
+        background-color: white;
+        margin: 0.25rem 0;
+    }
+
+    /* Espaciado específico para elementos del form dentro del modal */
+    .modal form {
+        padding: 1rem;
+    }
+
+    .modal .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    /* Asegurar espaciado en todas las columnas */
+    .modal .col-md-1, .modal .col-md-2, .modal .col-md-3, 
+    .modal .col-md-4, .modal .col-md-6, .modal .col-md-12,
+    .modal .col-1, .modal .col-2, .modal .col-3, 
+    .modal .col-4, .modal .col-6, .modal .col-12 {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        margin-bottom: 1rem;
+    }
+
+    /* Estructura simplificada - sin .divmodal ni .card como modal informes */
+    
+    /* Espaciado para títulos de sección */
+    .modal h6, .modal .h6 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        color: #365A0F;
+        font-weight: 600;
+    }
+</style>
+
 <script>
 
     $(document).ready(function (e) {
@@ -152,7 +603,7 @@
                     if (response.success) {
                         if (response.data) {
                             Swal.fire({
-                                title: "Actualización de Dotación",
+                                title: "Actualización de Dotacion",
                                 text: response.data.Mensaje,
                                 icon: "success",
                                 confirmButtonColor: '#e60012',
@@ -165,7 +616,7 @@
                         }
                     } else {
                         Swal.fire({
-                            title: "Actualización de Dotación",
+                            title: "Actualización de Dotacion",
                             text: response.data,
                             icon: "error",
                             confirmButtonColor: '#e60012',
@@ -177,8 +628,8 @@
                 },
                 error: function(xhr, status, error) {
                     Swal.fire({
-                        title: "Actualización de Dotación",
-                        text: "Ha ocurrido un error al intentar grabar los datos de la dotación",
+                        title: "Actualización de Dotacion",
+                        text: "Ha ocurrido un error al intentar grabar los datos de la Dotacion",
                         icon: "error",
                         confirmButtonColor: '#e60012',
                         confirmButtonText: 'Aceptar'
@@ -236,7 +687,7 @@
                     if (response.success) {
                         if (response.data) {
                             Swal.fire({
-                                title: "Ingreso de Dotación",
+                                title: "Ingreso de Dotacion",
                                 text: response.data.Mensaje,
                                 icon: "success",
                                 confirmButtonColor: '#e60012',
@@ -249,7 +700,7 @@
                         }
                     } else {
                         Swal.fire({
-                            title: "Ingreso de Dotación",
+                            title: "Ingreso de Dotacion",
                             text: response.data,
                             icon: "error",
                             confirmButtonColor: '#e60012',
@@ -261,8 +712,8 @@
                 },
                 error: function(xhr, status, error) {
                     Swal.fire({
-                        title: "Ingreso de Dotación",
-                        text: "Ha ocurrido un error al intentar grabar los datos de la dotación",
+                        title: "Ingreso de Dotacion",
+                        text: "Ha ocurrido un error al intentar grabar los datos de la Dotacion",
                         icon: "error",
                         confirmButtonColor: '#e60012',
                         confirmButtonText: 'Aceptar'
@@ -289,20 +740,29 @@
         {
             <div class="row mx-auto">
                 <div class="col-md-12 mx-auto">
-                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Dotación</h4>
+                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-people-fill"></i>&nbsp;Dotacion</h4>
                 </div>
             </div>
             <div class="row mx-auto">
                 <div class="col-md-12 mt-3 mx-auto">
                     <div class="row">
                         <div class="col-md-3 mt-2 auto">
-                            <label>Empresa</label>
+                            <label class="label-with-icon">
+                                <i class="bi bi-building"></i>
+                                Empresa
+                            </label>
                         </div>
                         <div class="col-md-3 mt-2 auto">
-                            <label>Centro de Costo</label>
+                            <label class="label-with-icon">
+                                <i class="bi bi-geo-alt"></i>
+                                Centro de Costo
+                            </label>
                         </div>
                         <div class="col-md-2 mt-2 auto">
-                            <labe>Periodo</labe>
+                            <label class="label-with-icon">
+                                <i class="bi bi-calendar"></i>
+                                Periodo
+                            </label>
                         </div>
                         <div class="col-md-4 mt-2 auto">
                             &nbsp;
@@ -328,7 +788,9 @@
                                 new { @class = "form-control", id = "periodoDropdown", data_placeholder = "Selecciona Periodo" })
                         </div>
                         <div class="col-md-4 mt-1 auto">
-                            <input id="btnBuscar" type="submit" class="btn btn-primary float-left px-4" value="Buscar">
+                            <button id="btnBuscar" type="submit" class="btn btn-primary float-left px-4">
+                                <i class="bi bi-search me-1"></i>Buscar
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -342,7 +804,7 @@
                 <button class="btn btn-primary float-right" data-toggle="modal"
                         data-target="#ingresarDotacion">
                     <i class="bi bi-plus-lg mr-1"></i> Ingresar
-                    Dotación
+                    Dotacion
                 </button>
             </div>
         </div>
@@ -380,7 +842,7 @@
                             <tr>
                                 <th style="white-space: nowrap;">
                                     <a href="#" id="modificaJefatura" data-nombre="@dotacion.Rhdot_Id" data-id="@dotacion.Rhdot_Id" data-toggle="modal" data-target="#editarDotacion">
-                                        <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Dotación" style="width: 30px; height: 30px; padding: 0;">
+                                        <button type="button" class="btn btn-success bi bi-pencil-fill rounded-circle btn-sm" title="Editar Dotacion" style="width: 30px; height: 30px; padding: 0;">
                                         </button>
                                     </a>
                                 </th>
@@ -418,48 +880,48 @@
 
 <!-- INGRESAR DOTACION -->
 <div class="modal fade" id="ingresarDotacion" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModal3Label">Ingresar Dotación</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <div class="modal-header" style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; border-radius: 15px 15px 0 0; border-bottom: none; padding: 1.25rem;">
+                <h5 class="modal-title" id="exampleModal3Label" style="font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-plus-circle-fill"></i>Ingresar Dotacion
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.9; font-size: 1.5rem; text-shadow: none;">
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
             @Html.HiddenFor(Model => dotacionNew.Gencencos_Id)
             @Html.HiddenFor(Model => dotacionNew.Rhdot_Periodo)
             <div class="modal-body">
-                <div class="row">
-                    <div class="divmodal">
-                        <form>
-                            <div class="card">
-                                <div class="row">
-                                    <div class="col-4">
-                                        <label>Personal Ofertado:</label>
-                                    </div>
-                                    <div class="col-4">
-                                        <label>Familia:</label>
-                                    </div>
-                                    <div class="col-4">
-                                        <label>Cargo Mandante:</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-4 mx-auto">
+                <form>
+                    <div class="row">
+                        <div class="col-md-4 form-group mb-2">
+                            <label class="label-with-icon">
+                                <i class="bi bi-person-badge"></i>
+                                Personal Ofertado
+                            </label>
                                         @Html.DropDownListFor(x => dotacionNew.Rhtipperofe_Id,
                                              new SelectList(lstTipoPersonalOfertado, "rhtipperofe_Id", "rhtipperofe_Descripcion"),
                                              "-- Seleccione Tipo Personal --",
                                              new { @class = "form-control" })
                                         @Html.ValidationMessageFor(x => dotacionNew.Rhtipperofe_Id, null, new { @class = "text-danger" })
                                     </div>
-                                    <div class="col-4 mx-auto">
+                                    <div class="col-md-4 form-group mb-2">
+                                        <label class="label-with-icon">
+                                            <i class="bi bi-diagram-3"></i>
+                                            Familia
+                                        </label>
                                         @Html.DropDownListFor(x => dotacionNew.Rhfam_Id,
                                              new SelectList(lstFamilia, "rhfam_Id", "rhfam_Descripcion"),
                                              "-- Seleccione Familia --",
                                              new { @class = "form-control" })
                                         @Html.ValidationMessageFor(x => dotacionNew.Rhfam_Id, null, new { @class = "text-danger" })
                                     </div>
-                                    <div class="col-4 mx-auto">
+                                    <div class="col-md-4 form-group mb-2">
+                                        <label class="label-with-icon">
+                                            <i class="bi bi-briefcase"></i>
+                                            Cargo Mandante
+                                        </label>
                                         @Html.DropDownListFor(x => dotacionNew.Rhcargen_Id_Mandante,
                                         new SelectList(Enumerable.Empty<SelectListItem>(), "Rhcargen_Id", "Rhcargen_Descripcion"),
                                         "-- Seleccione Cargo Mandante --",
@@ -467,38 +929,40 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-4 mt-2">
-                                        <label>Cargo Genérico Unificado:</label>
-                                    </div>
-                                    <div class="col-2 mt-2">
-                                        <label>JEAS GEAS</label>
-                                    </div>
-                                    <div class="col-3 mt-2">
-                                        <label>REF1 (Código cargo):</label>
-                                    </div>
-                                    <div class="col-3 mt-2">
-                                        <label>REF2 (Código Especialidad):</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-4 mx-auto">
+                                    <div class="col-md-4 form-group mb-2">
+                                        <label class="label-with-icon">
+                                            <i class="bi bi-award"></i>
+                                            Cargo Genérico Unificado
+                                        </label>
                                         @Html.DropDownListFor(x => dotacionNew.Rhcargen_Id_Unificado,
                                             new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
                                             "-- Seleccione Cargo Generico --",
                                             new { @class = "form-control" })
                                         @Html.ValidationMessageFor(x => dotacionNew.Rhcargen_Id_Unificado, null, new { @class = "text-danger" })
                                     </div>
-                                    <div class="col-2 mx-auto">
+                                    <div class="col-md-2 form-group mb-2">
+                                        <label class="label-with-icon">
+                                            <i class="bi bi-gear"></i>
+                                            JEAS GEAS
+                                        </label>
                                         <input type="text" id="dotacionNew_Clasificacion" class="form-control" disabled />
                                     </div>
-                                    <div class="col-3 mx-auto">
+                                    <div class="col-md-3 form-group mb-2">
+                                        <label class="label-with-icon">
+                                            <i class="bi bi-code"></i>
+                                            REF1 (Código cargo)
+                                        </label>
                                         @Html.DropDownListFor(x => dotacionNew.Rhref1_Id,
                                              new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Descripcion"),
                                              "-- Seleccione Código Cargo --",
                                              new { @class = "form-control" })
                                         @Html.ValidationMessageFor(x => dotacionNew.Rhref1_Id, null, new { @class = "text-danger" })
                                     </div>
-                                    <div class="col-3 mx-auto">
+                                    <div class="col-md-3 form-group mb-2">
+                                        <label class="label-with-icon">
+                                            <i class="bi bi-tags"></i>
+                                            REF2 (Código Especialidad)
+                                        </label>
                                         @Html.DropDownListFor(x => dotacionNew.Rhref2_Id,
                                              new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Descripcion"),
                                              "-- Seleccione Código Especialidad --",
@@ -506,42 +970,49 @@
                                         @Html.ValidationMessageFor(x => dotacionNew.Rhref2_Id, null, new { @class = "text-danger" })
                                     </div>
                                 </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <h6 class="form-group mb-3">
+                                            <i class="bi bi-calendar-range"></i>Dotacion Mensual:
+                                        </h6>
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="col-1 mt-2">
-                                        <label>Ene:</label>
+                                        <label><i class="bi bi-1-circle"></i> Ene:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Feb:</label>
+                                        <label><i class="bi bi-2-circle"></i> Feb:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Mar:</label>
+                                        <label><i class="bi bi-3-circle"></i> Mar:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Abr:</label>
+                                        <label><i class="bi bi-4-circle"></i> Abr:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>May:</label>
+                                        <label><i class="bi bi-5-circle"></i> May:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Jun:</label>
+                                        <label><i class="bi bi-6-circle"></i> Jun:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Jul:</label>
+                                        <label><i class="bi bi-7-circle"></i> Jul:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Ago:</label>
+                                        <label><i class="bi bi-8-circle"></i> Ago:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Sep:</label>
+                                        <label><i class="bi bi-9-circle"></i> Sep:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Oct:</label>
+                                        <label><i class="bi bi-calendar-check"></i> Oct:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Nov:</label>
+                                        <label><i class="bi bi-calendar2-event"></i> Nov:</label>
                                     </div>
                                     <div class="col-1 mt-2">
-                                        <label>Dic:</label>
+                                        <label><i class="bi bi-calendar3-event"></i> Dic:</label>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -594,21 +1065,26 @@
                                         @Html.ValidationMessageFor(Model => dotacionNew.Rhdot_Dic, null, new { @class = "text-danger" })
                                     </div>
                                 </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-12">
-                        <label class="col-form-label">(*) obligatorio</label>
+                                <!-- Botones del modal dentro del form -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="form-group mb-2">
+                                            <label class="col-form-label" style="font-size: 12px; color: #6c757d;">(*) obligatorio</label>
+                                        </div>
+                                        <div class="d-flex justify-content-end gap-2" style="padding: 1rem; border-top: 1px solid #e9ecef; background: rgba(248, 249, 250, 0.8); border-radius: 8px; margin-top: 1rem;">
+                                            <button type="button" class="btn btn-modern-secondary" data-dismiss="modal">
+                                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                                            </button>
+                                            <button type="button" id="btnAgregar" class="btn btn-modern-success">
+                                                <i class="bi bi-plus-circle me-1"></i>Agregar Dotacion
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
                     </div>
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnAgregar" class="btn btn-primary">Agregar Dotación</button>
+                </form>
             </div>
         </div>
     </div>
@@ -617,12 +1093,13 @@
 
 <!-- EDITAR DOTACION -->
 <div class="modal fade" id="editarDotacion" tabindex="-1" role="dialog" aria-hidden="true">
-  
-        <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModal3Label">Editar Dotación</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="modal-header" style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; border-radius: 15px 15px 0 0; border-bottom: none; padding: 1.25rem;">
+                    <h5 class="modal-title" id="exampleModal3Label" style="font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                        <i class="bi bi-pencil-square"></i>Editar Dotacion
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.9; font-size: 1.5rem; text-shadow: none;">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
@@ -630,120 +1107,127 @@
                 @Html.HiddenFor(Model => dotacionEdit.Rhdot_Periodo)
                 @Html.HiddenFor(Model => dotacionEdit.Rhdot_Id)
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="divmodal">
-                            <form>
-                                <div class="card">
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <label>Personal Ofertado:</label>
-                                        </div>
-                                        <div class="col-4">
-                                            <label>Familia:</label>
-                                        </div>
-                                        <div class="col-4">
-                                            <label>Cargo Mandante:</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-4 mx-auto">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-4 form-group mb-2">
+                                <label class="label-with-icon">
+                                    <i class="bi bi-person-badge"></i>
+                                                Personal Ofertado
+                                            </label>
                                             @Html.DropDownListFor(x => dotacionEdit.Rhtipperofe_Id,
-                  new SelectList(lstTipoPersonalOfertado, "rhtipperofe_Id", "rhtipperofe_Descripcion"),
-                  "-- Seleccione Tipo Personal --",
-                  new { @class = "form-control" })
+                      new SelectList(lstTipoPersonalOfertado, "rhtipperofe_Id", "rhtipperofe_Descripcion"),
+                      "-- Seleccione Tipo Personal --",
+                      new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhtipperofe_Id, null, new { @class = "text-danger" })
                                         </div>
-                                        <div class="col-4 mx-auto">
+                                        <div class="col-md-4 form-group mb-2">
+                                            <label class="label-with-icon">
+                                                <i class="bi bi-diagram-3"></i>
+                                                Familia
+                                            </label>
                                             @Html.DropDownListFor(x => dotacionEdit.Rhfam_Id,
-                  new SelectList(lstFamilia, "rhfam_Id", "rhfam_Descripcion"),
-                  "-- Seleccione Familia --",
-                  new { @class = "form-control" })
+                      new SelectList(lstFamilia, "rhfam_Id", "rhfam_Descripcion"),
+                      "-- Seleccione Familia --",
+                      new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhfam_Id, null, new { @class = "text-danger" })
                                         </div>
-                                        <div class="col-4 mx-auto">
+                                        <div class="col-md-4 form-group mb-2">
+                                            <label class="label-with-icon">
+                                                <i class="bi bi-briefcase"></i>
+                                                Cargo Mandante
+                                            </label>
                                             @Html.DropDownListFor(x => dotacionEdit.Rhcargen_Id_Mandante,
-                  new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
-                  "-- Seleccione Cargo Mandante --",
-                  new { @class = "form-control" })
+                      new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
+                      "-- Seleccione Cargo Mandante --",
+                      new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhcargen_Id_Mandante, null, new { @class = "text-danger" })
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-4 mt-2">
-                                            <label>Cargo Genérico Unificado:</label>
-                                        </div>
-                                        <div class="col-2 mt-2">
-                                            <label>JEAS GEAS</label>
-                                        </div>
-                                        <div class="col-3 mt-2">
-                                            <label>REF1 (Código cargo):</label>
-                                        </div>
-                                        <div class="col-3 mt-2">
-                                            <label>REF2 (Código Especialidad):</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-4 mx-auto">
+                                        <div class="col-md-4 form-group mb-2">
+                                            <label class="label-with-icon">
+                                                <i class="bi bi-award"></i>
+                                                Cargo Genérico Unificado
+                                            </label>
                                             @Html.DropDownListFor(x => dotacionEdit.Rhcargen_Id_Unificado,
-                  new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
-                  "-- Seleccione Cargo Generico --",
-                  new { @class = "form-control" })
+                      new SelectList(lstCargoGenerico, "rhcargen_Id", "rhcargen_Descripcion"),
+                      "-- Seleccione Cargo Generico --",
+                      new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhcargen_Id_Unificado, null, new { @class = "text-danger" })
                                         </div>
-                                        <div class="col-2 mx-auto">
+                                        <div class="col-md-2 form-group mb-2">
+                                            <label class="label-with-icon">
+                                                <i class="bi bi-gear"></i>
+                                                JEAS GEAS
+                                            </label>
                                             <input type="text" id="dotacionEdit_Clasificacion" class="form-control" disabled />
                                         </div>
-                                        <div class="col-3 mx-auto">
+                                        <div class="col-md-3 form-group mb-2">
+                                            <label class="label-with-icon">
+                                                <i class="bi bi-code"></i>
+                                                REF1 (Código cargo)
+                                            </label>
                                             @Html.DropDownListFor(x => dotacionEdit.Rhref1_Id,
-                  new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Descripcion"),
-                  "-- Seleccione Código Cargo --",
-                  new { @class = "form-control" })
+                      new SelectList(lstReferencia1, "rhref1_Id", "rhref1_Descripcion"),
+                      "-- Seleccione Código Cargo --",
+                      new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhref1_Id, null, new { @class = "text-danger" })
                                         </div>
-                                        <div class="col-3 mx-auto">
+                                        <div class="col-md-3 form-group mb-2">
+                                            <label class="label-with-icon">
+                                                <i class="bi bi-tags"></i>
+                                                REF2 (Código Especialidad)
+                                            </label>
                                             @Html.DropDownListFor(x => dotacionEdit.Rhref2_Id,
-                  new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Descripcion"),
-                  "-- Seleccione Código Especialidad --",
-                  new { @class = "form-control" })
+                      new SelectList(lstReferencia2, "rhref2_Id", "rhref2_Descripcion"),
+                      "-- Seleccione Código Especialidad --",
+                      new { @class = "form-control" })
                                             @Html.ValidationMessageFor(x => dotacionEdit.Rhref2_Id, null, new { @class = "text-danger" })
                                         </div>
                                     </div>
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <h6 class="form-group mb-3">
+                                                <i class="bi bi-calendar-range"></i>Dotacion Mensual:
+                                            </h6>
+                                        </div>
+                                    </div>
                                     <div class="row">
                                         <div class="col-1 mt-2">
-                                            <label>Ene:</label>
+                                            <label><i class="bi bi-1-circle"></i> Ene:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Feb:</label>
+                                            <label><i class="bi bi-2-circle"></i> Feb:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Mar:</label>
+                                            <label><i class="bi bi-3-circle"></i> Mar:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Abr:</label>
+                                            <label><i class="bi bi-4-circle"></i> Abr:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>May:</label>
+                                            <label><i class="bi bi-5-circle"></i> May:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Jun:</label>
+                                            <label><i class="bi bi-6-circle"></i> Jun:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Jul:</label>
+                                            <label><i class="bi bi-7-circle"></i> Jul:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Ago:</label>
+                                            <label><i class="bi bi-8-circle"></i> Ago:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Sep:</label>
+                                            <label><i class="bi bi-9-circle"></i> Sep:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Oct:</label>
+                                            <label><i class="bi bi-calendar-check"></i> Oct:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Nov:</label>
+                                            <label><i class="bi bi-calendar2-event"></i> Nov:</label>
                                         </div>
                                         <div class="col-1 mt-2">
-                                            <label>Dic:</label>
+                                            <label><i class="bi bi-calendar3-event"></i> Dic:</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -796,21 +1280,24 @@
                                             @Html.ValidationMessageFor(Model => dotacionEdit.Rhdot_Dic, null, new { @class = "text-danger" })
                                         </div>
                                     </div>
+
+                        <!-- Botones del modal dentro del form -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="form-group mb-2">
+                                    <label class="col-form-label" style="font-size: 12px; color: #6c757d;">(*) obligatorio</label>
                                 </div>
-                            </form>
+                                <div class="d-flex justify-content-end gap-2" style="padding: 1rem; border-top: 1px solid #e9ecef; background: rgba(248, 249, 250, 0.8); border-radius: 8px; margin-top: 1rem;">
+                                    <button type="button" class="btn btn-modern-secondary" data-dismiss="modal">
+                                        <i class="bi bi-x-circle me-1"></i>Cancelar
+                                    </button>
+                                    <button type="button" id="btnModificar" class="btn btn-modern-success">
+                                        <i class="bi bi-pencil-square me-1"></i>Modificar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <label class="col-form-label">(*) obligatorio</label>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="button" id="btnModificar" class="btn btn-primary">Modificar</button>
+                    </form>
                 </div>
             </div>
         </div>

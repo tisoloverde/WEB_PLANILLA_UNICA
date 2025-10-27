@@ -30,6 +30,7 @@ namespace PlanillaUnicaWeb.Utility
         public const string PlanillaUnica_Referencia1 = "api/Referencia1";
         public const string PlanillaUnica_Referencia2 = "api/Referencia2";
         public const string PlanillaUnica_Asistencia = "api/Asistencia";
+        public const string PlanillaUnica_InformeAsistencia = "api/InformeAsistencia";
 
         //SERVICIOS DE API GENERICA
         public const string Generica_CentrosCosto = "api/CentroCosto";

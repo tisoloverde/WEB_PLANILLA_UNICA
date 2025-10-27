@@ -41,6 +41,166 @@
     .selected {
         background-color: #f0f0f0; /* Color de fondo para la fila seleccionada */
     }
+
+    /* Estilos para Modal Ingresar Colaborador - Header Azul */
+    #ingresarColaborador .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    #ingresarColaborador .modal-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border-bottom: none;
+        padding: 20px 25px;
+    }
+
+    #ingresarColaborador .modal-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    #ingresarColaborador .close {
+        color: white;
+        opacity: 0.8;
+        font-size: 1.5rem;
+    }
+
+    #ingresarColaborador .close:hover {
+        opacity: 1;
+        color: white;
+    }
+
+    #ingresarColaborador .modal-footer {
+        background-color: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+        border-top: 1px solid #e9ecef;
+        padding: 15px 25px;
+    }
+
+    /* Estilos para Modal Editar Colaborador - Header Verde */
+    #editarColaborador .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    #editarColaborador .modal-header {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border-bottom: none;
+        padding: 20px 25px;
+    }
+
+    #editarColaborador .modal-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    #editarColaborador .close {
+        color: white;
+        opacity: 0.8;
+        font-size: 1.5rem;
+    }
+
+    #editarColaborador .close:hover {
+        opacity: 1;
+        color: white;
+    }
+
+    #editarColaborador .modal-footer {
+        background-color: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+        border-top: 1px solid #e9ecef;
+        padding: 15px 25px;
+    }
+
+    /* Estilos para Modal Ver Ficha - Header Gris (solo consulta) */
+    #verFicha .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    #verFicha .modal-header {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border-bottom: none;
+        padding: 20px 25px;
+    }
+
+    #verFicha .modal-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    #verFicha .close {
+        color: white;
+        opacity: 0.8;
+        font-size: 1.5rem;
+    }
+
+    #verFicha .close:hover {
+        opacity: 1;
+        color: white;
+    }
+
+    #verFicha .modal-footer {
+        background-color: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+        border-top: 1px solid #e9ecef;
+        padding: 15px 25px;
+    }
+
+    /* Estilos comunes para todos los modales */
+    #ingresarColaborador .modal-body,
+    #editarColaborador .modal-body,
+    #verFicha .modal-body {
+        padding: 25px;
+        background-color: #ffffff;
+    }
+
+    #ingresarColaborador .form-control,
+    #editarColaborador .form-control,
+    #verFicha .form-control {
+        border-radius: 6px;
+        border: 1px solid #d1d3e2;
+        font-size: 0.9rem;
+        padding: 8px 12px;
+        transition: border-color 0.3s ease;
+    }
+
+    #ingresarColaborador .form-control:focus,
+    #editarColaborador .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    #verFicha .form-control:focus {
+        border-color: #6c757d;
+        box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+    }
+
+    #ingresarColaborador label,
+    #editarColaborador label,
+    #verFicha label {
+        font-weight: 500;
+        color: #5a5c69;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+
+    /* Botones con bordes redondeados */
+    .btn-colaborador-style {
+        border-radius: 0.375rem !important;
+        padding: 8px 16px !important;
+        font-weight: 400 !important;
+        transition: all 0.15s ease-in-out !important;
+    }
 </style>
 
 <script>
@@ -50,11 +210,11 @@
         $('#tablaColaboradores').DataTable(
             {
                 "language": {
-                    "lengthMenu": "Motrar _MENU_ registros por página",
-                    "zeroRecords": "Sin información",
+                    "lengthMenu": "Mostrar _MENU_ registros por pagina",
+                    "zeroRecords": "Sin informacion",
                     "search": "Buscar:",
                     "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
-                    "infoEmpty": "Sin información disponible",
+                    "infoEmpty": "Sin informacion disponible",
                     "infoFiltered": "(filtered from _MAX_ total records)",
                     "loadingRecords": "Cargando...",
                     "processing": "Procesando...",
@@ -147,7 +307,7 @@
                     $("#colaboradorFicha_Rhcol_Sexo").val(response.data.Rhcol_Sexo);
                     //**Pertenece a pueblo originario ¿?
                     //**Pueblo originario nombre
-                    //**Habla español
+                    //**Habla espanol
                     $("#colaboradorFicha_Rhnivest_Id").val(response.data.Rhnivest_Id);
                     var checkFichaLee = document.getElementById("colaboradorFicha_Rhcol_Lee");
                     if (response.data.Rhcol_Lee == 'S') {
@@ -250,7 +410,7 @@
                     $("#colaboradorEdit_Rhcol_Sexo").val(response.data.Rhcol_Sexo);
                     //**Pertenece a pueblo originario ¿?
                     //**Pueblo originario nombre
-                    //**Habla español
+                    //**Habla espanol
                     $("#colaboradorEdit_Rhnivest_Id").val(response.data.Rhnivest_Id);
                     var checkEditLee = document.getElementById("colaboradorEdit_Rhcol_Lee");
                     if (response.data.Rhcol_Lee == 'S') {
@@ -458,11 +618,11 @@
                                 <th>Fecha Ingreso</th>
                                 <th>A.F.P.</th>
                                 <th>Salud</th>
-                                <th>Teléfono</th>
+                                <th>Telefono</th>
                                 <th>Comuna</th>
-                                <th>Región</th>
+                                <th>Region</th>
                                 <th>Sucursal</th>
-                                <th>Cód. Ceco</th>
+                                <th>Cod. Ceco</th>
                                 <th>Ceco</th>
                             </tr>
                         </thead>
@@ -542,7 +702,9 @@
     <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModal3Label">Ficha Personal</h5>
+                <h5 class="modal-title" id="exampleModal3Label">
+                    <i class="bi bi-person-badge me-2"></i>Ficha Personal
+                </h5>
                 <button type="button" class="close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
@@ -621,7 +783,7 @@
 
                                     <div class="row">
                                         <div class="col-4 mt-2">
-                                            <label>Región:</label>
+                                            <label>Region:</label>
                                         </div>
                                         <div class="col-4 mt-2">
                                             <label>Provincia:</label>
@@ -698,7 +860,7 @@
                                             <label>¿Pertenece a pueblo originario?</label>
                                         </div>
                                         <div class="col-6 mt-2">
-                                            <label>¿Habla español?</label>
+                                            <label>¿Habla espanol?</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -813,7 +975,7 @@
                                             @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Guante, null, new { @class = "text-danger" })
                                         </div>
                                         <div class="col-2 mx-auto">
-                                            Pantalón
+                                            Pantalon
                                             @Html.TextBoxFor(Model => colaboradorFicha.Rhcol_Talla_Pantalon, new { @class = "form-control", @readonly = "readonly" })
                                             @Html.ValidationMessageFor(Model => colaboradorFicha.Rhcol_Talla_Pantalon, null, new { @class = "text-danger" })
                                         </div>
@@ -881,7 +1043,7 @@
 
                                     <div class="row">
                                         <div class="col-12 mt-2">
-                                            <label>¿Trabajó anteriormente en la empresa?</label>
+                                            <label>¿Trabajo anteriormente en la empresa?</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -902,7 +1064,7 @@
                                 <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
                                     <div class="row">
                                         <div class="col-6 mt-2">
-                                            <label>Afiliado a previsión:</label>
+                                            <label>Afiliado a prevision:</label>
                                         </div>
                                         <div class="col-6 mt-2">
                                             <label>Afiliado a salud:</label>
@@ -1083,7 +1245,7 @@
                                             <label>Tipo contrato</label>
                                         </div>
                                         <div class="col-3 mt-2">
-                                            <label>Cargo a desempeñar</label>
+                                            <label>Cargo a desempenar</label>
                                         </div>
                                         <div class="col-3 mt-2">
                                             <label>Duración inicial contrato</label>
@@ -1191,7 +1353,9 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-secondary btn-colaborador-style" data-bs-dismiss="modal" data-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cerrar
+                </button>
             </div>
         </div>
     </div>
@@ -1203,7 +1367,9 @@
     <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModal3Label">Editar Personal</h5>
+                <h5 class="modal-title" id="exampleModal3Label">
+                    <i class="bi bi-person-gear me-2"></i>Editar Personal
+                </h5>
                 <button type="button" class="close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
@@ -1282,7 +1448,7 @@
 
                                     <div class="row">
                                         <div class="col-4 mt-2">
-                                            <label>Región:</label>
+                                            <label>Region:</label>
                                         </div>
                                         <div class="col-4 mt-2">
                                             <label>Provincia:</label>
@@ -1360,7 +1526,7 @@
                                             <label>¿Pertenece a pueblo originario?</label>
                                         </div>
                                         <div class="col-6 mt-2">
-                                            <label>¿Habla español?</label>
+                                            <label>¿Habla espanol?</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -1480,7 +1646,7 @@
                                             @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Guante, null, new { @class = "text-danger" })
                                         </div>
                                         <div class="col-2 mx-auto">
-                                            Pantalón
+                                            Pantalon
                                             @Html.TextBoxFor(Model => colaboradorEdit.Rhcol_Talla_Pantalon, new { @class = "form-control" })
                                             @Html.ValidationMessageFor(Model => colaboradorEdit.Rhcol_Talla_Pantalon, null, new { @class = "text-danger" })
                                         </div>
@@ -1553,7 +1719,7 @@
 
                                     <div class="row">
                                         <div class="col-12 mt-2">
-                                            <label>¿Trabajó anteriormente en la empresa?</label>
+                                            <label>¿Trabajo anteriormente en la empresa?</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -1579,7 +1745,7 @@
                                 <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
                                     <div class="row">
                                         <div class="col-6 mt-2">
-                                            <label>Afiliado a previsión:</label>
+                                            <label>Afiliado a prevision:</label>
                                         </div>
                                         <div class="col-6 mt-2">
                                             <label>Afiliado a salud:</label>
@@ -1760,7 +1926,7 @@
                                             <label>Tipo contrato</label>
                                         </div>
                                         <div class="col-3 mt-2">
-                                            <label>Cargo a desempeñar</label>
+                                            <label>Cargo a desempenar</label>
                                         </div>
                                         <div class="col-3 mt-2">
                                             <label>Duración inicial contrato</label>
@@ -1865,8 +2031,12 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnMofificarColaborador" class="btn btn-primary">Modificar</button>
+                <button type="button" class="btn btn-secondary btn-colaborador-style" data-bs-dismiss="modal" data-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" id="btnMofificarColaborador" class="btn btn-success btn-colaborador-style">
+                    <i class="bi bi-person-gear me-1"></i>Modificar Colaborador
+                </button>
             </div>
         </div>
     </div>
@@ -1878,7 +2048,9 @@
     <div class="modal-dialog modal-xl col-10 mx-auto" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModal3Label">Ingresar Colaborador</h5>
+                <h5 class="modal-title" id="exampleModal3Label">
+                    <i class="bi bi-person-plus-fill me-2"></i>Ingresar Colaborador
+                </h5>
                 <button type="button" class="close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
@@ -1957,7 +2129,7 @@
 
                                     <div class="row">
                                         <div class="col-4 mt-2">
-                                            <label>Región:</label>
+                                            <label>Region:</label>
                                         </div>
                                         <div class="col-4 mt-2">
                                             <label>Provincia:</label>
@@ -2033,7 +2205,7 @@
                                             <label>¿Pertenece a pueblo originario?</label>
                                         </div>
                                         <div class="col-6 mt-2">
-                                            <label>¿Habla español?</label>
+                                            <label>¿Habla espanol?</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -2153,7 +2325,7 @@
                                             @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Guante, null, new { @class = "text-danger" })
                                         </div>
                                         <div class="col-2 mx-auto">
-                                            Pantalón
+                                            Pantalon
                                             @Html.TextBoxFor(Model => colaboradorNew.Rhcol_Talla_Pantalon, new { @class = "form-control" })
                                             @Html.ValidationMessageFor(Model => colaboradorNew.Rhcol_Talla_Pantalon, null, new { @class = "text-danger" })
                                         </div>
@@ -2225,7 +2397,7 @@
 
                                     <div class="row">
                                         <div class="col-12 mt-2">
-                                            <label>¿Trabajó anteriormente en la empresa?</label>
+                                            <label>¿Trabajo anteriormente en la empresa?</label>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -2251,7 +2423,7 @@
                                 <div class="card-body" style="border: 1px solid; border-color: darkgrey;">
                                     <div class="row">
                                         <div class="col-6 mt-2">
-                                            <label>Afiliado a previsión:</label>
+                                            <label>Afiliado a prevision:</label>
                                         </div>
                                         <div class="col-6 mt-2">
                                             <label>Afiliado a salud:</label>
@@ -2432,7 +2604,7 @@
                                             <label>Tipo contrato</label>
                                         </div>
                                         <div class="col-3 mt-2">
-                                            <label>Cargo a desempeñar</label>
+                                            <label>Cargo a desempenar</label>
                                         </div>
                                         <div class="col-3 mt-2">
                                             <label>Duración inicial contrato</label>
@@ -2537,8 +2709,12 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnAgregar" class="btn btn-primary">Agregar Colaborador</button>
+                <button type="button" class="btn btn-secondary btn-colaborador-style" data-bs-dismiss="modal" data-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" id="btnAgregar" class="btn btn-primary btn-colaborador-style">
+                    <i class="bi bi-person-plus-fill me-1"></i>Agregar Colaborador
+                </button>
             </div>
         </div>
     </div>

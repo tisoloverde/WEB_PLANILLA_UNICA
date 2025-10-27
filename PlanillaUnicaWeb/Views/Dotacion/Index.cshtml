@@ -14,6 +14,40 @@
 @{ Html.EnableClientValidation(true);
     Html.EnableUnobtrusiveJavaScript(true); }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    /* Estilos básicos para etiquetas con iconos */
+    .label-with-icon {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #365A0F;
+        margin-bottom: 5px;
+    }
+
+    .label-with-icon i {
+        font-size: 16px;
+        color: #5E9217;
+        transition: all 0.3s ease;
+    }
+
+    /* Efectos hover simples */
+    .label-with-icon:hover i {
+        color: #4A7613;
+        transform: scale(1.1);
+    }
+
+    .btn i {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover i {
+        transform: scale(1.05);
+    }
+</style>
+
 <script>
 
     $(document).ready(function (e) {
@@ -55,20 +89,29 @@
         {
             <div class="row mx-auto">
                 <div class="col-md-12 mx-auto">
-                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Dotación</h4>
+                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-people-fill"></i>&nbsp;Dotacion</h4>
                 </div>
             </div>
             <div class="row mx-auto">
                 <div class="col-md-12 mt-3 mx-auto">
                     <div class="row">
                         <div class="col-md-3 mt-2 auto">
-                            <label>Empresa</label>
+                            <label class="label-with-icon">
+                                <i class="bi bi-building"></i>
+                                Empresa
+                            </label>
                         </div>
                         <div class="col-md-3 mt-2 auto">
-                            <label>Centro de Costo</label>
+                            <label class="label-with-icon">
+                                <i class="bi bi-geo-alt"></i>
+                                Centro de Costo
+                            </label>
                         </div>
                         <div class="col-md-2 mt-2 auto">
-                            <labe>Periodo</labe>
+                            <label class="label-with-icon">
+                                <i class="bi bi-calendar"></i>
+                                Periodo
+                            </label>
                         </div>
                         <div class="col-md-4 mt-2 auto">
                             &nbsp;
@@ -94,7 +137,9 @@
                                 new { @class = "form-control", id = "periodoDropdown", data_placeholder = "Selecciona Periodo" })
                         </div>
                         <div class="col-md-4 mt-1 auto">
-                            <input type="submit" class="btn btn-primary float-left px-4" value="Buscar">
+                            <button type="submit" class="btn btn-primary float-left px-4">
+                                <i class="bi bi-search me-1"></i>Buscar
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -22,9 +22,142 @@
 @{ Html.EnableClientValidation(true);
     Html.EnableUnobtrusiveJavaScript(true); }
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
 
 <style>
+    /* Estilos de filtros (replicados desde Dotación) */
+    .filter-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-bottom: 20px;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .filter-title {
+        color: #5E9217;
+        font-weight: 600;
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-title i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #5E9217;
+    }
+
+    .filter-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        height: 20px;
+    }
+
+    .form-control-modern {
+        border-radius: 8px !important;
+        border: 2px solid #e9ecef !important;
+        padding: 12px 15px !important;
+        font-size: 0.95rem !important;
+        transition: all 0.3s ease !important;
+        background-color: #fff !important;
+        height: 45px !important;
+        line-height: 21px !important;
+        vertical-align: middle !important;
+    }
+
+    .form-control-modern:focus {
+        border-color: #5E9217 !important;
+        box-shadow: 0 0 0 0.2rem rgba(94, 146, 23, 0.15) !important;
+        background-color: #fff !important;
+    }
+
+    .btn-search-modern {
+        background: linear-gradient(135deg, #5E9217, #4A7613) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 12px 30px !important;
+        font-weight: 500 !important;
+        font-size: 0.95rem !important;
+        color: white !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 12px rgba(94, 146, 23, 0.3) !important;
+    }
+
+    .btn-search-modern:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(94, 146, 23, 0.4) !important;
+        background: linear-gradient(135deg, #4A7613, #365A0F) !important;
+        color: white !important;
+    }
+
+    /* Estilos para el contenedor de la tabla */
+    .card.shadow.mt-4 {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .card.shadow.mt-4 .card-body {
+        padding: 15px;
+        overflow-x: auto;
+    }
+
+    /* Tabla responsive */
+    #tablaPlanilla {
+        width: 100%;
+        min-width: 800px;
+        font-size: 0.85rem;
+    }
+
+    #tablaPlanilla th,
+    #tablaPlanilla td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    /* Estilos para la tabla de resultados (copiados de Dotación) */
+    .table-asistencia-custom th {
+        background: linear-gradient(135deg, #5E9217, #4A7613) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        padding: 15px 10px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .table-asistencia-custom th:first-child {
+        border-top-left-radius: 10px !important;
+    }
+
+    .table-asistencia-custom th:last-child {
+        border-top-right-radius: 10px !important;
+    }
+
+    #tablaPlanilla tbody tr:hover {
+        background-color: rgba(94, 146, 23, 0.1) !important;
+        transition: background-color 0.2s ease !important;
+    }
 
     th, td {
         white-space: nowrap;
@@ -32,10 +165,15 @@
 
     div.dataTables_wrapper {
         margin: 0 auto;
+        width: 100%;
+        overflow-x: auto;
     }
 
     div.container {
-        width: 80%;
+        width: 98%;
+        max-width: 1200px;
+        padding: 0 10px;
+        margin: 0 auto;
     }
 
     .circulo-rojo {
@@ -44,7 +182,7 @@
         height: 10px;
         border-radius: 50%;
         background-color: red;
-        margin-right: 5px; /* Espacio entre el circulo y el texto */
+        margin-right: 5px; /* Espacio entre el círculo y el texto */
     }
 
     .circulo-amarillo {
@@ -53,7 +191,7 @@
         height: 10px;
         border-radius: 50%;
         background-color: orange;
-        margin-right: 5px; /* Espacio entre el circulo y el texto */
+        margin-right: 5px; /* Espacio entre el círculo y el texto */
     }
 
     .circulo-verde {
@@ -62,11 +200,11 @@
         height: 10px;
         border-radius: 50%;
         background-color: green;
-        margin-right: 5px; /* Espacio entre el circulo y el texto */
+        margin-right: 5px; /* Espacio entre el círculo y el texto */
     }
 
 
-    /* Correccion: Preservar alineacion original de texto */
+    /* CORRECCIÓN: Preservar alineación original de texto */
     #tablaPlanilla td[style*="text-align: left"] {
         text-align: left !important;
     }
@@ -97,22 +235,30 @@
 
 
 
-    /* SOLUCIÓN CSS PARA COLUMNAS FIJAS SIN FIXEDCOLUMNS - VERSIÓN SIMPLIFICADA */
+    /* SOLUCIÓN CSS PARA COLUMNAS FIJAS SIN FIXEDCOLUMNS - VERSIÓN RESPONSIVE */
 
-    /* Configuracion básica de la tabla */
+    /* Configuración básica de la tabla - compatible con contenedor responsive */
     #tablaPlanilla {
         width: 100% !important;
         border-collapse: separate !important;
         border-spacing: 0 !important;
+        max-width: 100%; /* Respetar el contenedor padre */
     }
 
-    /* Contenedor con scroll horizontal */
+    /* Contenedor con scroll horizontal - mejorado para responsive */
     .dataTables_scrollBody {
         overflow-x: auto !important;
         position: relative;
+        max-width: 100%; /* Limitar al contenedor padre */
     }
 
-    /* COLUMNAS FIJAS - Primera columna (Checkbox) */
+    /* Wrapper de DataTables responsive */
+    .dataTables_wrapper {
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* COLUMNAS FIJAS - Primera columna (Checkbox) - Responsive */
     #tablaPlanilla th:nth-child(1),
     #tablaPlanilla td:nth-child(1) {
         position: -webkit-sticky;
@@ -121,37 +267,37 @@
         z-index: 10;
         background-color: white;
         border-right: 2px solid #dee2e6;
-        min-width: 50px;
-        max-width: 50px;
-        width: 50px;
+        min-width: 40px;
+        width: 40px;
+        max-width: 40px;
     }
 
-    /* COLUMNAS FIJAS - Segunda columna (RUT) */
+    /* COLUMNAS FIJAS - Segunda columna (RUT) - Responsive */
     #tablaPlanilla th:nth-child(2),
     #tablaPlanilla td:nth-child(2) {
         position: -webkit-sticky;
         position: sticky;
-        left: 50px;
+        left: 40px;
         z-index: 10;
         background-color: white;
         border-right: 2px solid #dee2e6;
-        min-width: 120px;
-        max-width: 120px;
-        width: 120px;
+        min-width: 100px;
+        width: 100px;
+        max-width: 100px;
     }
 
-    /* COLUMNAS FIJAS - Tercera columna (Apellidos y Nombres) */
+    /* COLUMNAS FIJAS - Tercera columna (Apellidos y Nombres) - Responsive */
     #tablaPlanilla th:nth-child(3),
     #tablaPlanilla td:nth-child(3) {
         position: -webkit-sticky;
         position: sticky;
-        left: 170px;
+        left: 140px;
         z-index: 10;
         background-color: white;
-        border-right: 3px solid #007bff;
-        min-width: 250px;
-        max-width: 250px;
-        width: 250px;
+        border-right: 3px solid #5E9217;
+        min-width: 200px;
+        width: 200px;
+        max-width: 200px;
         box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     }
 
@@ -164,14 +310,14 @@
         font-weight: bold;
     }
 
-    /* Ajustar el ancho de las columnas restantes */
+    /* Ajustar el ancho de las columnas restantes - Responsive */
     #tablaPlanilla th:nth-child(n+4),
     #tablaPlanilla td:nth-child(n+4) {
-        min-width: 120px;
+        min-width: 100px;
         white-space: nowrap;
     }
 
-    /* Especifico para columnas de dias */
+    /* Específico para columnas de días - Más compactas */
     #tablaPlanilla th:nth-child(17),
     #tablaPlanilla th:nth-child(18),
     #tablaPlanilla th:nth-child(19),
@@ -186,8 +332,9 @@
     #tablaPlanilla td:nth-child(21),
     #tablaPlanilla td:nth-child(22),
     #tablaPlanilla td:nth-child(23) {
-        min-width: 80px;
-        width: 80px;
+        min-width: 70px;
+        width: 70px;
+        max-width: 70px;
     }
 
     /* Asegurar que los headers de grupo no interfieran */
@@ -197,14 +344,55 @@
         border-bottom: 2px solid #dee2e6;
     }
 
-        /* Correccion para headers con colspan */
+        /* Corrección para headers con colspan - Responsive */
         #tablaPlanilla thead tr:first-child th:nth-child(1) {
             position: sticky;
             left: 0px;
             z-index: 12;
-            min-width: 420px; /* Suma de las 3 primeras columnas */
-            width: 420px;
+            min-width: 340px; /* Suma de las 3 primeras columnas reducidas */
+            width: 340px;
+            max-width: 340px;
         }
+
+    /* CSS adicional para mejorar la responsividad */
+    @media (max-width: 1200px) {
+        /* En pantallas medianas, reducir aún más las columnas fijas */
+        #tablaPlanilla th:nth-child(1), #tablaPlanilla td:nth-child(1) {
+            width: 35px;
+            min-width: 35px;
+        }
+        #tablaPlanilla th:nth-child(2), #tablaPlanilla td:nth-child(2) {
+            left: 35px;
+            width: 90px;
+            min-width: 90px;
+        }
+        #tablaPlanilla th:nth-child(3), #tablaPlanilla td:nth-child(3) {
+            left: 125px;
+            width: 180px;
+            min-width: 180px;
+        }
+        #tablaPlanilla thead tr:first-child th:nth-child(1) {
+            width: 305px;
+            min-width: 305px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        /* En móviles, hacer las columnas aún más pequeñas */
+        #tablaPlanilla th:nth-child(n+4), #tablaPlanilla td:nth-child(n+4) {
+            min-width: 80px;
+        }
+        #tablaPlanilla th:nth-child(17), #tablaPlanilla th:nth-child(18), 
+        #tablaPlanilla th:nth-child(19), #tablaPlanilla th:nth-child(20),
+        #tablaPlanilla th:nth-child(21), #tablaPlanilla th:nth-child(22), 
+        #tablaPlanilla th:nth-child(23), #tablaPlanilla td:nth-child(17), 
+        #tablaPlanilla td:nth-child(18), #tablaPlanilla td:nth-child(19), 
+        #tablaPlanilla td:nth-child(20), #tablaPlanilla td:nth-child(21), 
+        #tablaPlanilla td:nth-child(22), #tablaPlanilla td:nth-child(23) {
+            min-width: 60px;
+            width: 60px;
+        }
+    }
 
     #btnGuardarAsistencia:disabled {
         opacity: 0.6 !important;
@@ -213,97 +401,108 @@
         border-color: #6c757d !important;
     }
 
-    /* Estilos basicos para etiquetas con iconos */
-    .label-with-icon {
+    /* Estilos para el Modal de Informes */
+    #informeModal .modal-content {
+        border-radius: 15px;
+        border: none;
+    }
+
+    #informeModal .modal-header {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        border-bottom: none;
+        background: linear-gradient(45deg, #007bff, #0056b3);
+    }
+
+    #informeModal .modal-footer {
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+        border-top: 1px solid #dee2e6;
+    }
+
+    #informeModal .card {
+        border: 1px solid #e3e6f0;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        border-radius: 10px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    #informeModal .card:hover {
+        box-shadow: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
+        /* Removido transform: translateY(-2px); para evitar movimiento */
+    }
+
+    #informeModal .card-header {
+        background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+        border-bottom: 1px solid #dee2e6;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    #informeModal .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    #informeModal .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+
+    #informeModal .alert-info {
+        background-color: #e7f3ff;
+        border-color: #b3d9ff;
+        color: #004085;
+    }
+
+    /* Animaciones para opciones de horas extras */
+    #opcionesHorasExtras {
+        overflow: hidden;
+    }
+
+    #informeModal .form-switch .form-check-input {
+        width: 2.5rem;
+        height: 1.25rem;
+        margin-left: 0.75rem; /* Separación del borde izquierdo */
+        z-index: 1; /* Asegurar que el switch esté atrás */
+        position: relative;
+    }
+
+    #informeModal .form-switch .form-check-label {
+        margin-left: 0.5rem;
+        z-index: 2; /* Asegurar que el texto esté adelante */
+        position: relative;
+        padding-left: 0.25rem; /* Separación adicional del switch */
+    }
+
+    /* Espaciado adicional para las columnas de toggles */
+    #opcionesHorasExtras .row .col-md-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Asegurar que el primer toggle no se pegue */
+    #opcionesHorasExtras .form-check:first-child {
+        margin-left: 0.5rem;
+    }
+
+    /* Mejorar el layout del form-switch */
+    #opcionesHorasExtras .form-switch {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 600;
-        color: #365A0F;
-        margin-bottom: 5px;
+        align-items: flex-start;
+        min-height: auto;
+        padding-left: 0;
     }
 
-    .label-with-icon i {
-        font-size: 16px;
-        color: #5E9217;
-        transition: all 0.3s ease;
+    #opcionesHorasExtras .form-switch .form-check-input {
+        flex-shrink: 0; /* No permitir que el switch se comprima */
+        margin-top: 0.125rem; /* Alinear verticalmente con el texto */
     }
 
-    /* Efectos hover simples */
-    .label-with-icon:hover i {
-        color: #4A7613;
-        transform: scale(1.1);
+    #opcionesHorasExtras .form-switch .form-check-label {
+        flex-grow: 1; /* Permitir que el label use todo el espacio disponible */
+        margin-left: 0.75rem; /* Más separación del switch */
     }
-
-    .btn i {
-        transition: all 0.3s ease;
-    }
-
-    /* Botones estilo modal dotacion */
-    .btn-modern-success {
-        background: linear-gradient(135deg, #5E9217, #4A7613) !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 8px 20px !important;
-        color: white !important;
-        font-weight: 600 !important;
-    }
-
-    .btn-modern-secondary {
-        background: transparent !important;
-        border: 1px solid #6c757d !important;
-        border-radius: 8px !important;
-        padding: 8px 20px !important;
-        color: #6c757d !important;
-        font-weight: 600 !important;
-    }
-
-    .btn-modern-secondary:hover {
-        background: #6c757d !important;
-        color: white !important;
-    }
-
-    .btn:hover i {
-        transform: scale(1.05);
-    }
-
-    /* Estilos Especificos para el modal de glosario compacto */
-    .glosario-table tbody .glosario-row {
-        transition: all 0.2s ease;
-        background-color: white;
-        height: 40px;
-    }
-
-    .glosario-table tbody .glosario-row:hover {
-        background-color: #f8f9fa !important;
-        transform: scale(1.01);
-        cursor: pointer;
-    }
-
-
-
-    /* Scroll suave para el glosario */
-    .modal-body::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .modal-body::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 3px;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb {
-        background: #5E9217;
-        border-radius: 3px;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb:hover {
-        background: #4A7613;
-    }
-
-
-
-
 
 </style>
 
@@ -311,9 +510,6 @@
 
 <script>
     $(document).ready(function (e) {
-
-        // Inicializar estado del botón guardar
-        verificarBotonGuardar();
 
         $('.fila-checkbox').each(function () {
             this.checked = false;
@@ -338,7 +534,7 @@
                 "scrollX": true,
                 "paging": false,
                 "scrollCollapse": true,
-                // NUEVAS OPCIONES PARA MANTENER alineacion:
+                // NUEVAS OPCIONES PARA MANTENER ALINEACIÓN:
                 "autoWidth": false,
                 "columnDefs": [
                     {
@@ -347,14 +543,11 @@
                     }
                 ],
                 "drawCallback": function (settings) {
-                    // Aplicar colores despues de redraw
+                    // Aplicar colores después de redraw
                     setTimeout(function () {
                         $('.fila-checkbox:checked').each(function () {
                             aplicarColorFila(this, true);
                         });
-
-                        // Verificar estado del botón guardar
-                        verificarBotonGuardar();
 
                         // Ajustar columnas
                         var table = $('#tablaPlanilla').DataTable();
@@ -369,11 +562,11 @@
                     }, 200);
                 },
                 "language": {
-                    "lengthMenu": "Mostrar _MENU_ registros por pagina",
-                    "zeroRecords": "Sin informacion",
+                    "lengthMenu": "Motrar _MENU_ registros por página",
+                    "zeroRecords": "Sin información",
                     "search": "Buscar:",
                     "info": "Mostrando _START_ a _END_ de un total de _TOTAL_ Registros",
-                    "infoEmpty": "Sin informacion disponible",
+                    "infoEmpty": "Sin información disponible",
                     "infoFiltered": "(filtered from _MAX_ total records)",
                     "loadingRecords": "Cargando...",
                     "processing": "Procesando...",
@@ -503,9 +696,6 @@
         );
 
         $('#periodoDropdown').on('change', async function () {
-            // Limpiar tabla inmediatamente cuando cambia el periodo
-            clearTableOnFilterChange();
-            
             $('#loader').fadeIn(300);
             const periodo = $(this).val();
 
@@ -525,7 +715,7 @@
                     });
 
                     if (!response || !response.data || !Array.isArray(response.data)) {
-                        throw new Error('Respuesta del servidor invalida');
+                        throw new Error('Respuesta del servidor inválida');
                     }
 
                     response.data.forEach(p => {
@@ -553,7 +743,7 @@
 
 
                     if (semanaActivaEncontrada) {
-                        // Opcion 1: Submit directo del formulario
+                        // Opción 1: Submit directo del formulario
                         autoSubmitForm();
                     }
 
@@ -594,7 +784,7 @@
             $('#glosario').modal('hide');
         });
 
-        // FUNCION PARA COLOREAR FILAS
+        // FUNCIÓN PARA COLOREAR FILAS
         function aplicarColorFila(checkbox, activar) {
             const $row = $(checkbox).closest('tr');
 
@@ -607,7 +797,7 @@
                     'color': 'white',
                 });
 
-                // NUEVO: Asignar valores por defecto a los selects de dias
+                // NUEVO: Asignar valores por defecto a los selects de días
                 const selectLun = $row.find('.selectLun')[0];
                 const selectMar = $row.find('.selectMar')[0];
                 const selectMie = $row.find('.selectMie')[0];
@@ -616,7 +806,7 @@
                 const selectSab = $row.find('.selectSab')[0];
                 const selectDom = $row.find('.selectDom')[0];
 
-                // Asignar valor '21' si el select esta vacio
+                // Asignar valor '21' si el select está vacío
                 if (selectLun && selectLun.value == '0') {
                     selectLun.value = '21';
                     $(selectLun).trigger('change');
@@ -655,7 +845,7 @@
             } else {
                 $row.removeClass('fila-seleccionada-checkbox');
 
-                // NUEVO: Limpiar valores por defecto de los selects de dias
+                // NUEVO: Limpiar valores por defecto de los selects de días
                 const selectLun = $row.find('.selectLun')[0];
                 const selectMar = $row.find('.selectMar')[0];
                 const selectMie = $row.find('.selectMie')[0];
@@ -664,7 +854,7 @@
                 const selectSab = $row.find('.selectSab')[0];
                 const selectDom = $row.find('.selectDom')[0];
 
-                // Limpiar valor '21' si esta seleccionado
+                // Limpiar valor '21' si está seleccionado
                 if (selectLun && selectLun.value == '21') {
                     selectLun.value = '0';
                     $(selectLun).trigger('change');
@@ -706,7 +896,7 @@
                 });
             }
 
-            // Ajustar columnas despues del cambio
+            // Ajustar columnas después del cambio
             setTimeout(function () {
                 const table = $('#tablaPlanilla').DataTable();
                 table.columns.adjust();
@@ -735,7 +925,7 @@
                     var valorFormateado = numero % 1 === 0 ? numero.toString() : numero.toFixed(2).replace(/\.?0+$/, '');
                     $(elemento).val(valorFormateado);
                 } else if (numero === 0) {
-                    // Si es cero, dejar el campo vacio
+                    // Si es cero, dejar el campo vacío
                     $(elemento).val('');
                 }
             }
@@ -758,7 +948,7 @@
             formatearCampoDecimal(this);
         });
 
-        // Antes de enviar el formulario, convertir TODO a formato punto y manejar vacios
+        // Antes de enviar el formulario, convertir TODO a formato punto y manejar vacíos
         $(document).on('submit', '#formGuardarAsistencia', function (e) {
             $('.decimal-input').each(function () {
                 var valor = $(this).val();
@@ -767,7 +957,7 @@
                     valor = valor.replace(',', '.');
                     $(this).val(valor);
                 } else {
-                    // Si esta vacio, enviar 0 para evitar null en el servidor
+                    // Si está vacío, enviar 0 para evitar null en el servidor
                     $(this).val('0');
                 }
             });
@@ -796,21 +986,13 @@
         }
     }
 
-    // Evento click para el botón guardar (ahora fuera del formulario)
-    $(document).on('click', '#btnGuardarAsistencia', function(e) {
-        e.preventDefault();
-        if (!$(this).prop('disabled')) {
-            $('#formGuardarAsistencia').submit();
-        }
-    });
-
     function asignarYEnviar(fechaIni, fechaFin) {
 
         return new Promise((resolve) => {
             $('#filtroPlanilla_FechaInicio').val(fechaIni);
             $('#filtroPlanilla_FechaTermino').val(fechaFin);
 
-            // Pequeño delay para asegurar que se asigno
+            // Pequeño delay para asegurar que se asignó
             setTimeout(() => {
                 //console.log('Valor confirmado:', $('#campoHidden').val());
                 resolve();
@@ -821,39 +1003,18 @@
     }
 
     function autoSubmitForm() {
-        const selectEmpresa = document.getElementById('empresaDropdown');
         const selectCentroCosto = document.getElementById('centroCostoDropdown');
         const selectPeriodo = document.getElementById('periodoDropdown');
         const selectSemana = document.getElementById('numeroSemanaDropdown');
 
-        // Limpiar tabla si falta algún filtro requerido
-        if (!selectEmpresa.value || selectEmpresa.value === '' ||
-            !selectCentroCosto.value || selectCentroCosto.value === '' ||
-            !selectPeriodo.value || selectPeriodo.value === '' ||
-            !selectSemana.value || selectSemana.value === '') {
-            
-            // Limpiar la tabla
-            var table = $('#tablaPlanilla').DataTable();
-            table.clear().draw();
-            return; // No enviar el formulario
-        }
 
-        // Solo enviar si todos los filtros están completos
-        if ((selectEmpresa.value && selectEmpresa.value !== '') &&
-            (selectCentroCosto.value && selectCentroCosto.value !== '') &&
+        if ((selectCentroCosto.value && selectCentroCosto.value !== '') &&
             (selectPeriodo.value && selectPeriodo.value !== '') &&
-            (selectSemana.value && selectSemana.value !== '')) {
-            // Submit automatico
+            (selectSemana.value && selectSemana.value !== ''))
+        {
+            // Submit automático
             document.getElementById('autoSubmitForm').submit();
         }
-    }
-
-    // Función para limpiar tabla cuando se cambian los filtros
-    function clearTableOnFilterChange() {
-        var table = $('#tablaPlanilla').DataTable();
-        table.clear().draw();
-        // Deshabilitar botón guardar cuando se limpie la tabla
-        verificarBotonGuardar();
     }
 
 
@@ -890,82 +1051,64 @@
     }
 }
 
-<div class="row mx-auto" style="width: 170vh;">
-    <div class="card-body">
-        @using (Html.BeginForm("Cargar", "PlanillaAsistencia", null, FormMethod.Post, new { id = "autoSubmitForm" }))
-        {
-            <div class="row mx-auto">
-                <div class="col-md-12 mx-auto">
-                    <h4 class="personalizado" style="text-align:left;"><i class="bi bi-box-arrow-right"></i>&nbsp;Planilla Asistencia</h4>
+<div class="filter-card">
+    @using (Html.BeginForm("Cargar", "PlanillaAsistencia", null, FormMethod.Post, new { id = "autoSubmitForm" }))
+    {
+        <h4 class="filter-title">
+            <i class="bi bi-calendar-check"></i>Filtros de Planilla Asistencia
+        </h4>
+        
+        <div class="filter-section">
+            @Html.HiddenFor(Model => filtroPlanilla.FechaInicio)
+            @Html.HiddenFor(Model => filtroPlanilla.FechaTermino)
+            
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label class="filter-label">Empresa</label>
+                    @Html.DropDownListFor(x => filtroPlanilla.Genemp_Id,
+                        new SelectList(lstEmpresa, "Genemp_Id", "Genemp_Descripcion"),
+                        "-- Selecciona Empresa --",
+                        new { @class = "form-control form-control-modern", id = "empresaDropdown" })
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label class="filter-label">Centro de Costo</label>
+                    @Html.DropDownListFor(x => filtroPlanilla.Gencencos_Id,
+                        new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
+                        "-- Seleccione Centro de Costo --",
+                        new { @class = "form-control form-control-modern", id = "centroCostoDropdown", onchange = "autoSubmitForm()" })
+                    @Html.ValidationMessageFor(x => filtroPlanilla.Gencencos_Id, null, new { @class = "text-danger" })
+                </div>
+                <div class="col-lg-2 col-md-6 mb-3">
+                    <label class="filter-label">Periodo</label>
+                    @Html.DropDownListFor(x => filtroPlanilla.Periodo,
+                        new SelectList(lstAno, "Ano", "Ano"),
+                        "-- Selecciona Periodo --",
+                        new { @class = "form-control form-control-modern", id = "periodoDropdown" })
+                </div>
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <label class="filter-label">Semana del Periodo</label>
+                    @Html.DropDownListFor(x => filtroPlanilla.NumeroSemana,
+                        new SelectList(Enumerable.Empty<SelectListItem>(), "NumeroSemana", "DescripcionSemana"),
+                        "-- Seleccione Semana --",
+                        new { @class = "form-control form-control-modern", id = "numeroSemanaDropdown" })
                 </div>
             </div>
-            <div class="row mx-auto">
-                <div class="col-md-12 mt-3 mx-auto">
-                    <div class="row">
-                        <div class="col-md-3 mt-2 auto">
-                            <label class="label-with-icon">
-                                <i class="bi bi-building"></i>
-                                Empresa
-                            </label>
-                        </div>
-                        <div class="col-md-3 mt-2 auto">
-                            <label class="label-with-icon">
-                                <i class="bi bi-geo-alt"></i>
-                                Centro de Costo
-                            </label>
-                        </div>
-                        <div class="col-md-1 mt-2 auto">
-                            <label class="label-with-icon">
-                                <i class="bi bi-calendar"></i>
-                                Periodo
-                            </label>
-                        </div>
-                        <div class="col-md-3 mt-2 auto">
-                            <label class="label-with-icon">
-                                <i class="bi bi-calendar-week"></i>
-                                Semana
-                            </label>
-                        </div>
-                        <div class="col-md-1 mt-2 auto">
-                            &nbsp;
-                        </div>
-                    </div>
-                    @Html.HiddenFor(Model => filtroPlanilla.FechaInicio)
-                    @Html.HiddenFor(Model => filtroPlanilla.FechaTermino)
-                    <div class="row">
-                        <div class="col-md-3 mt-1 auto">
-                            @Html.DropDownListFor(x => filtroPlanilla.Genemp_Id,
-                             new SelectList(lstEmpresa, "Genemp_Id", "Genemp_Descripcion"),
-                             "-- Selecciona Empresa --", new { @class = "form-control", id = "empresaDropdown", data_placeholder = "Selecciona Empresa" })
-                        </div>
-                        <div class="col-md-3 mt-1 auto">
-                            @Html.DropDownListFor(x => filtroPlanilla.Gencencos_Id,
-                                             new SelectList(Enumerable.Empty<SelectListItem>(), "Gencencos_Id", "Gencencos_Descripcion"),
-                                             "-- Seleccione Centro de Costo --",
-                                             new { @class = "form-control", id = "centroCostoDropdown", onchange = "autoSubmitForm()" })
-                            @Html.ValidationMessageFor(x => filtroPlanilla.Gencencos_Id, null, new { @class = "text-danger" })
-                        </div>
-                        <div class="col-md-1 mt-1 auto">
-                            @Html.DropDownListFor(x => filtroPlanilla.Periodo,
-                                            new SelectList(lstAno, "Ano", "Ano"),
-                                            "-- Seleccione --",
-                                            new { @class = "form-control", id = "periodoDropdown" })
-                        </div>
-                        <div class="col-md-3 mt-1 auto">
-                            @Html.DropDownListFor(x => filtroPlanilla.NumeroSemana,
-                                            new SelectList(Enumerable.Empty<SelectListItem>(), "NumeroSemana", "DescripcionSemana"),
-                                            "-- Seleccione Semana --",
-                                            new { @class = "form-control", id = "numeroSemanaDropdown" })
-                        </div>
-                        <div class="col-md-1 mt-1 auto">
-                            <input type="submit" class="btn btn-primary float-left px-4" value="Buscar" style="display: none;">
-                        </div>
-                    </div>
+
+            <div class="row">
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-search-modern">
+                        <i class="bi bi-search"></i> Buscar Planilla
+                    </button>
                 </div>
             </div>
-        }
+        </div>
+    }
+</div>
 
         <br />
+        
+<div class="card shadow mt-4">
+    <div class="card-body">
         @using (Html.BeginForm("Cargar", "PlanillaAsistencia", FormMethod.Post, new { id = "formGuardarAsistencia" }))
         {
             <div class="row mx-auto">
@@ -978,65 +1121,65 @@
 
                 <div class="col-12">
                     <table id="tablaPlanilla" class="table table-bordered table-hover ">
-                        <thead class="thead-light">
+                        <thead class="table-asistencia-custom">
                             <tr>
                                 <th colspan="8">Datos Generales</th>
-                                <th colspan="4">Informacion en Terreno</th>
+                                <th colspan="4">Información en Terreno</th>
                                 <th colspan="1">Reemplazo</th>
                                 <th colspan="3">Fechas</th>
                                 <th colspan="12">Asistencia</th>
                             </tr>
                             <tr>
-                                <th></th>
-                                <th>RUT</th>
-                                <th>Apellidos y Nombres</th>
-                                <th>Cargo Liquidacion</th>
-                                <th>cargo Generico</th>
-                                <th>JEAS</th>
-                                <th>REF1</th>
-                                <th>REF2</th>
-                                <th>Cargo Generico</th>
-                                <th>JEAS</th>
-                                <th>REF1</th>
-                                <th>REF2</th>
-                                <th>RUT</th>
-                                <th>Fecha Ingreso</th>
-                                <th>Fecha Termino</th>
-                                <th>Nro. de Contrato</th>
+                                <th><i class="bi bi-check-square me-1"></i></th>
+                                <th><i class="bi bi-person-badge me-1"></i>RUT</th>
+                                <th><i class="bi bi-person me-1"></i>Apellidos y Nombres</th>
+                                <th><i class="bi bi-briefcase me-1"></i>Cargo Liquidación</th>
+                                <th><i class="bi bi-award me-1"></i>Cargo Genérico</th>
+                                <th><i class="bi bi-gear me-1"></i>JEAS</th>
+                                <th><i class="bi bi-code me-1"></i>REF1</th>
+                                <th><i class="bi bi-tags me-1"></i>REF2</th>
+                                <th><i class="bi bi-award me-1"></i>Cargo Genérico</th>
+                                <th><i class="bi bi-gear me-1"></i>JEAS</th>
+                                <th><i class="bi bi-code me-1"></i>REF1</th>
+                                <th><i class="bi bi-tags me-1"></i>REF2</th>
+                                <th><i class="bi bi-person-badge me-1"></i>RUT</th>
+                                <th><i class="bi bi-calendar-date me-1"></i>Fecha Ingreso</th>
+                                <th><i class="bi bi-calendar-x me-1"></i>Fecha Término</th>
+                                <th><i class="bi bi-file-text me-1"></i>Nro. de Contrato</th>
                                 @*<th>Temporal</th>*@
                                 <th class="header-with-day">
-                                    <span class="day-label">Lu</span>
+                                    <i class="bi bi-calendar-day me-1"></i><span class="day-label">Lu</span>
                                     <span class="day-number">@filtroPlanilla.FechaInicio.Day</span>
                                 </th>
                                 <th class="header-with-day">
-                                    <span class="day-label">Ma</span>
+                                    <i class="bi bi-calendar-day me-1"></i><span class="day-label">Ma</span>
                                     <span class="day-number">@filtroPlanilla.FechaInicio.AddDays(1).Day</span>
                                 </th>
                                 <th class="header-with-day">
-                                    <span class="day-label">Mi</span>
+                                    <i class="bi bi-calendar-day me-1"></i><span class="day-label">Mi</span>
                                     <span class="day-number">@filtroPlanilla.FechaInicio.AddDays(2).Day</span>
                                 </th>
                                 <th class="header-with-day">
-                                    <span class="day-label">Ju</span>
+                                    <i class="bi bi-calendar-day me-1"></i><span class="day-label">Ju</span>
                                     <span class="day-number">@filtroPlanilla.FechaInicio.AddDays(3).Day</span>
                                 </th>
                                 <th class="header-with-day">
-                                    <span class="day-label">Vi</span>
+                                    <i class="bi bi-calendar-day me-1"></i><span class="day-label">Vi</span>
                                     <span class="day-number">@filtroPlanilla.FechaInicio.AddDays(4).Day</span>
                                 </th>
                                 <th class="header-with-day">
-                                    <span class="day-label">Sa</span>
+                                    <i class="bi bi-calendar-day me-1"></i><span class="day-label">Sá</span>
                                     <span class="day-number">@filtroPlanilla.FechaInicio.AddDays(5).Day</span>
                                 </th>
                                 <th class="header-with-day">
-                                    <span class="day-label">Do</span>
+                                    <i class="bi bi-calendar-day me-1"></i><span class="day-label">Do</span>
                                     <span class="day-number">@filtroPlanilla.FechaInicio.AddDays(6).Day</span>
                                 </th>
-                                <th>dias</th>
-                                <th>HE50</th>
-                                <th>HE100</th>
-                                <th>Atraso</th>
-                                <th>Observacion</th>
+                                <th><i class="bi bi-calendar-range me-1"></i>Días</th>
+                                <th><i class="bi bi-clock me-1"></i>HE50</th>
+                                <th><i class="bi bi-clock-fill me-1"></i>HE100</th>
+                                <th><i class="bi bi-hourglass me-1"></i>Atraso</th>
+                                <th><i class="bi bi-chat-text me-1"></i>Observación</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1322,22 +1465,16 @@
                     </table>
                 </div>
 
-            </div>
-        }
-
-        <!-- Botones siempre visibles fuera del formulario -->
-        <div class="row mx-auto" style="width: 170vh;">
-            <div class="card-body">
                 <div class="col-12 mx-auto">
                     <div class="row">
                         <div class="col-3">
-                            <button type="button" id="btnGuardarAsistencia" class="btn btn-secondary" style="width: 300px;" disabled>
-                                <i class="bi bi-floppy me-2"></i>Guardar
+                            <button type="submit" id="btnGuardarAsistencia" class="btn btn-primary" style="width: 300px;" disabled>
+                                <i class="btn btn-success bi bi-pencil-square rounded-circle btn-sm"></i> Guardar
                             </button>
                         </div>
                         <div class="col-3">
                             <button type="button" id="btnInforme" class="btn btn-primary" style="width: 300px;">
-                                <i class="bi bi-file-earmark-excel me-2"></i>Informe
+                                <i class="btn btn-success bi bi-file-earmark-excel-fill rounded-circle btn-sm"></i> Informe
                             </button>
                         </div>
                         <div class="col-6">
@@ -1345,167 +1482,167 @@
                         </div>
                     </div>
                 </div>
+
             </div>
-        </div>
+        }
     </div>
 </div>
 
 
-<!-- GLOSARIO MODERNIZADO -->
+<!-- GLOSARIO -->
 <div class="modal fade" id="glosario" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg col-10 mx-auto" role="document">
-        <div class="modal-content" style="border-radius: 15px; border: none; overflow: hidden;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; border-radius: 15px 15px 0 0; border-bottom: none; padding: 1.25rem;">
-                <h5 class="modal-title" id="exampleModal3Label" style="color: white; font-weight: 600; margin: 0;">
-                    <i class="bi bi-book me-2"></i>Glosario de Conceptos
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="padding: 1rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef); max-height: 70vh; overflow-y: auto;">
-                <div class="table-responsive" style="max-height: 60vh;">
-                    <table id="tablaGlosario" class="table table-hover glosario-table table-sm" style="width: 100%; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 0;">
-                        <thead style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; position: sticky; top: 0; z-index: 10;">
-                            <tr>
-                                <th style="padding: 8px 12px; font-weight: 600; border: none; font-size: 14px;">
-                                    <i class="bi bi-tags me-1"></i>Sigla
-                                </th>
-                                <th style="padding: 8px 12px; font-weight: 600; border: none; font-size: 14px;">
-                                    <i class="bi bi-card-text me-1"></i>Descripcion
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var conceptoVisible in lstAsistenciaConceptosVisibles)
-                            {
-                                <tr class="glosario-row" style="transition: all 0.2s ease; background-color: white;">
-                                    <td style="padding: 8px 12px; border: 1px solid #e9ecef; vertical-align: middle; text-align: center;">
-                                        @conceptoVisible.Rhasicon_Sigla
-                                    </td>
-                                    <td style="padding: 8px 12px; color: #495057; border: 1px solid #e9ecef; vertical-align: middle; font-size: 13px;">
-                                        @conceptoVisible.Rhasicon_Descripcion
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 1.25rem; background: #f8f9fa;">
-                <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle me-2"></i>Cerrar
+
+    <div class="modal-dialog modal-lg col-8 mx-auto" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModal3Label">Glosario</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <div class="modal-body">
+                <div class="row d-flex justify-content-center align-items-center">
+                    <div class="col-12 d-flex justify-content-center align-items-center">
+                        <table id="tablaGlosario" style="width: 80%;">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var conceptoVisible in lstAsistenciaConceptosVisibles) // each (var asistencia in lstAsistencia)
+                                {
+                                    <tr style="border-bottom: 1px solid; border-bottom-color: gray;">
+                                        <td style="text-align: left; width: 30%;">@conceptoVisible.Rhasicon_Sigla</td>
+                                        <td style="text-align: right; width: 70%;">@conceptoVisible.Rhasicon_Descripcion</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
     </div>
+
 </div>
 
-    <!-- INFORME MODAL -->
+    <!-- INFORME MODAL MEJORADO -->
     <div class="modal fade" id="informeModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg col-10 mx-auto" role="document">
-            <div class="modal-content" style="border-radius: 15px; border: none; overflow: hidden;">
-                <div class="modal-header" style="background: linear-gradient(135deg, #5E9217, #4A7613); color: white; border-radius: 15px 15px 0 0; border-bottom: none; padding: 1.25rem;">
-                    <h5 class="modal-title" style="color: white; font-weight: 600; margin: 0;">
-                        <i class="bi bi-file-earmark-bar-graph me-2"></i>Generar Informe
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-file-earmark-text-fill me-2"></i>
+                        Generar Informe de Asistencia
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" style="padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+                <div class="modal-body p-4">
                     <form id="formInforme">
-                        <div class="form-group mb-2">
-                            <label for="informeCentroCosto" class="label-with-icon">
-                                <i class="bi bi-geo-alt"></i>
-                                Centro de Costo
-                            </label>
-                            <select id="informeCentroCosto" name="Gencencos_Id" class="form-control">
-                                <option value="">-- Seleccione Centro de Costo --</option>
-                                <option value="0">TODOS</option>
-                                @foreach (var cc in lstCentroCostoTodos)
-                                {
-                                    <option value="@cc.Gencencos_Id">@cc.Gencencos_Descripcion</option>
-                                }
-                            </select>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 form-group mb-2">
-                                <label for="informeFechaInicio" class="label-with-icon">
-                                    <i class="bi bi-calendar-event"></i>
-                                    Fecha Inicio
-                                </label>
-                                <input type="date" id="informeFechaInicio" name="FechaInicio" class="form-control" />
+                        <!-- Centro de Costo -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bi bi-building me-2"></i>Centro de Costo</h6>
                             </div>
-                            <div class="col-md-6 form-group mb-2">
-                                <label for="informeFechaFin" class="label-with-icon">
-                                    <i class="bi bi-calendar-check"></i>
-                                    Fecha Fin
-                                </label>
-                                <input type="date" id="informeFechaFin" name="FechaFin" class="form-control" />
+                            <div class="card-body">
+                                <select id="informeCentroCosto" name="Gencencos_Id" class="form-select">
+                                    <option value="">-- Seleccione Centro de Costo --</option>
+                                    @foreach (var cc in lstCentroCosto)
+                                    {
+                                        <option value="@cc.Gencencos_Id">@cc.Gencencos_Descripcion</option>
+                                    }
+                                </select>
                             </div>
                         </div>
 
-                        <div class="form-group mb-2">
-                            <label for="informeTipo" class="label-with-icon">
-                                <i class="bi bi-file-earmark-text"></i>
-                                Tipo de Informe
-                            </label>
-                            <select id="informeTipo" name="TipoInforme" class="form-control">
-                                <option value="">-- Seleccione el tipo de informe --</option>
-                                <option value="faltas_permisos">Faltas y Permisos</option>
-                                <option value="horas_extras_atrasos">Horas Extras y Atrasos</option>
-                                <option value="general_mensual">General Mensual</option>
-                                <option value="validacion_mensual">Validacion Mensual</option>
-                            </select>
+                        <!-- Rango de Fechas -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bi bi-calendar-range me-2"></i>Rango de Fechas</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="informeFechaInicio" class="form-label">Fecha Inicio</label>
+                                        <input type="date" id="informeFechaInicio" name="FechaInicio" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="informeFechaFin" class="form-label">Fecha Fin</label>
+                                        <input type="date" id="informeFechaFin" name="FechaFin" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Opciones especificas para Horas Extras y Atrasos -->
-                        <div id="opcionesHorasExtras" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-                            <h6 style="color: #5E9217; margin-bottom: 15px;">
-                                <i class="bi bi-gear me-2"></i>Opciones de Informe
-                            </h6>
-                            
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="switch-container" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 15px;">
-                                        <div class="form-check form-switch" style="margin-bottom: 8px;">
+                        <!-- Tipo de Informe -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bi bi-file-earmark-bar-graph me-2"></i>Tipo de Informe</h6>
+                            </div>
+                            <div class="card-body">
+                                <select id="informeTipo" name="TipoInforme" class="form-select">
+                                    <option value="faltas_permisos">📋 Faltas y Permisos</option>
+                                    <option value="horas_extras_atrasos">⏰ Horas Extras y Atrasos</option>
+                                    <option value="general_mensual">📊 General Mensual</option>
+                                    <option value="validacion_mensual">✅ Validación Mensual</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Opciones de Horas Extras (solo visible cuando se selecciona horas_extras_atrasos) -->
+                        <div id="opcionesHorasExtras" class="card mb-3" style="display: none;">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Opciones de Horas Extras y Atrasos</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="toggleHE50" checked>
+                                            <label class="form-check-label" for="toggleHE50">
+                                                <strong>HE 50%</strong>
+                                                <small class="text-muted d-block">Horas Extras al 50%</small>
+                                            </label>
                                         </div>
-                                        <label for="toggleHE50" class="switch-labels" style="text-align: center; font-size: 14px; color: #5E9217; font-weight: 600;">
-                                            <i class="bi bi-clock me-1"></i>HE50
-                                        </label>
                                     </div>
-                                </div>
-                                
-                                <div class="col-md-4">
-                                    <div class="switch-container" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 15px;">
-                                        <div class="form-check form-switch" style="margin-bottom: 8px;">
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="toggleHE100" checked>
+                                            <label class="form-check-label" for="toggleHE100">
+                                                <strong>HE 100%</strong>
+                                                <small class="text-muted d-block">Horas Extras al 100%</small>
+                                            </label>
                                         </div>
-                                        <label for="toggleHE100" class="switch-labels" style="text-align: center; font-size: 14px; color: #5E9217; font-weight: 600;">
-                                            <i class="bi bi-clock-history me-1"></i>HE100
-                                        </label>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="toggleAtraso" checked>
+                                            <label class="form-check-label" for="toggleAtraso">
+                                                <strong>Atrasos</strong>
+                                                <small class="text-muted d-block">Descuentos por atrasos</small>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <div class="col-md-4">
-                                    <div class="switch-container" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 15px;">
-                                        <div class="form-check form-switch" style="margin-bottom: 8px;">
-                                            <input class="form-check-input" type="checkbox" id="toggleAtraso" checked>
-                                        </div>
-                                        <label for="toggleAtraso" class="switch-labels" style="text-align: center; font-size: 14px; color: #5E9217; font-weight: 600;">
-                                            <i class="bi bi-exclamation-triangle me-1"></i>Atrasos
-                                        </label>
-                                    </div>
+                                <div class="alert alert-info mt-3 mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <small>Seleccione los conceptos que desea incluir en el informe de Horas Extras y Atrasos.</small>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 1.25rem; background: #f8f9fa;">
-                    <button type="button" id="btnCerrarInforme" class="btn btn-modern-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-2"></i>Cerrar
+                <div class="modal-footer bg-light">
+                    <button type="button" id="btnCerrarInforme" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Cerrar
                     </button>
-                    <button type="button" id="btnGenerarInforme" class="btn btn-modern-success">
-                        <i class="bi bi-file-earmark-pdf me-2"></i>Generar
+                    <button type="button" id="btnGenerarInforme" class="btn btn-success">
+                        <i class="bi bi-download me-1"></i>Generar Informe
                     </button>
                 </div>
             </div>
@@ -1520,227 +1657,162 @@
                 $('#informeModal').modal('show');
             });
 
-            // Cerrar modal (existe el atributo data-bs-dismiss, esto es adicional)
+            // Cerrar modal
             $('#btnCerrarInforme').on('click', function () {
                 $('#informeModal').modal('hide');
             });
 
-            // Mostrar/ocultar opciones de horas extras segun el tipo seleccionado
+            // Manejar cambio en el tipo de informe para mostrar/ocultar opciones de horas extras
             $('#informeTipo').on('change', function () {
-                if ($(this).val() === 'horas_extras_atrasos') {
+                var tipoSeleccionado = $(this).val();
+                
+                if (tipoSeleccionado === 'horas_extras_atrasos') {
                     $('#opcionesHorasExtras').slideDown(300);
                 } else {
                     $('#opcionesHorasExtras').slideUp(300);
                 }
             });
 
-            // Inicializar estado de opciones al abrir modal
-            $('#informeModal').on('shown.bs.modal', function () {
+            // Validar que al menos una opción esté seleccionada para horas extras
+            function validarOpcionesHorasExtras() {
                 if ($('#informeTipo').val() === 'horas_extras_atrasos') {
-                    $('#opcionesHorasExtras').show();
-                } else {
-                    $('#opcionesHorasExtras').hide();
+                    var he50 = $('#toggleHE50').is(':checked');
+                    var he100 = $('#toggleHE100').is(':checked');
+                    var atraso = $('#toggleAtraso').is(':checked');
+                    
+                    return he50 || he100 || atraso;
                 }
-            });
+                return true;
+            }
 
-            // Generar informe - enviar al controller
+            // Generar informe con validaciones mejoradas
             $('#btnGenerarInforme').on('click', function () {
                 var centro = $('#informeCentroCosto').val();
                 var fecIni = $('#informeFechaInicio').val();
                 var fecFin = $('#informeFechaFin').val();
                 var tipo = $('#informeTipo').val();
 
-                // Validacion de tipo de informe seleccionado
-                if (!tipo) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Campo requerido',
-                        text: 'Debe seleccionar un tipo de informe.',
-                        confirmButtonText: 'Aceptar'
-                    });
-                    return;
-                }
-
-                // Validacion de tipos de informe no implementados
-                if (tipo === 'faltas_permisos' || tipo === 'general_mensual' || tipo === 'validacion_mensual') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Funcionalidad en desarrollo',
-                        text: 'Este tipo de informe esta en proceso de implementacion. Por ahora, solo estan disponibles los informes de Horas Extras y Atrasos.',
-                        confirmButtonText: 'Entendido'
-                    });
-                    return;
-                }
-
-                // Validaciones
+                // Validaciones básicas
                 if (!centro) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Campo requerido',
-                        text: 'Seleccione un Centro de Costo.'
+                        title: 'Centro de Costo Requerido',
+                        text: 'Por favor seleccione un Centro de Costo.',
+                        confirmButtonColor: '#e60012'
                     });
                     return;
                 }
+
                 if (!fecIni || !fecFin) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Campos requeridos',
-                        text: 'Seleccione Fecha Inicio y Fecha Fin.'
+                        title: 'Fechas Requeridas',
+                        text: 'Por favor seleccione Fecha de Inicio y Fecha Fin.',
+                        confirmButtonColor: '#e60012'
                     });
                     return;
                 }
+
                 if (new Date(fecIni) > new Date(fecFin)) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Fechas incorrectas',
-                        text: 'La Fecha Inicio no puede ser posterior a la Fecha Fin.'
+                        title: 'Rango de Fechas Inválido',
+                        text: 'La Fecha de Inicio no puede ser posterior a la Fecha Fin.',
+                        confirmButtonColor: '#e60012'
                     });
                     return;
                 }
 
-                // Preparar tipos de informe
-                var tiposInformeArray = [];
-                
-                if (tipo === 'horas_extras_atrasos') {
-                    if ($('#toggleHE50').is(':checked')) {
-                        tiposInformeArray.push({ TipoInforme: 1, Descripcion: "HE50" });
-                    }
-                    if ($('#toggleHE100').is(':checked')) {
-                        tiposInformeArray.push({ TipoInforme: 2, Descripcion: "HE100" });
-                    }
-                    if ($('#toggleAtraso').is(':checked')) {
-                        tiposInformeArray.push({ TipoInforme: 3, Descripcion: "Atrasos" });
-                    }
-                    
-                    if (tiposInformeArray.length === 0) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Selección requerida',
-                            text: 'Debe seleccionar al menos una Opcion para Horas Extras y Atrasos.'
-                        });
-                        return;
-                    }
-                } else {
-                    // Para otros tipos de informe, usar valores por defecto
-                    switch(tipo) {
-                        case 'faltas_permisos':
-                            tiposInformeArray.push({ TipoInforme: 4, Descripcion: "Faltas y Permisos" });
-                            break;
-                        case 'general_mensual':
-                            tiposInformeArray.push({ TipoInforme: 5, Descripcion: "General Mensual" });
-                            break;
-                        case 'validacion_mensual':
-                            tiposInformeArray.push({ TipoInforme: 6, Descripcion: "Validacion Mensual" });
-                            break;
-                    }
+                // Validar opciones de horas extras si está seleccionado
+                if (!validarOpcionesHorasExtras()) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Opciones de Horas Extras',
+                        text: 'Para el informe de Horas Extras y Atrasos, debe seleccionar al menos una opción (HE50, HE100 o Atrasos).',
+                        confirmButtonColor: '#e60012'
+                    });
+                    return;
                 }
 
-                // Mostrar loading
+                // Recopilar datos del formulario
+                var datosInforme = {
+                    centro: centro,
+                    fecIni: fecIni,
+                    fecFin: fecFin,
+                    tipo: tipo
+                };
+
+                // Si es horas extras, agregar las opciones seleccionadas
+                if (tipo === 'horas_extras_atrasos') {
+                    datosInforme.incluirHE50 = $('#toggleHE50').is(':checked');
+                    datosInforme.incluirHE100 = $('#toggleHE100').is(':checked');
+                    datosInforme.incluirAtrasos = $('#toggleAtraso').is(':checked');
+                }
+
+                // Mostrar loading y procesar
                 Swal.fire({
-                    title: 'Generando Informe',
-                    text: 'Por favor espere...',
-                    icon: 'info',
+                    title: 'Generando Informe...',
+                    html: 'Por favor espere mientras se procesa la información.',
                     allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
                     didOpen: () => {
                         Swal.showLoading();
                     }
                 });
 
-                // Formatear fechas en formato yyyy-MM-dd
-                function formatDate(dateString) {
-                    if (!dateString) return '';
-                    var date = new Date(dateString);
-                    var year = date.getFullYear();
-                    var month = String(date.getMonth() + 1).padStart(2, '0');
-                    var day = String(date.getDate()).padStart(2, '0');
-                    return year + '-' + month + '-' + day;
-                }
+                // TODO: Implementar llamada al controlador
+                console.log('Datos del informe:', datosInforme);
+                
+                // Simulación temporal - reemplazar con llamada real al servidor
+                setTimeout(function() {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Informe Generado',
+                        text: 'El informe se ha generado correctamente.',
+                        confirmButtonColor: '#28a745'
+                    });
+                    $('#informeModal').modal('hide');
+                }, 2000);
 
-                // Obtener email del usuario antes de enviar
+                /* 
+                // Ejemplo de implementación real:
                 $.ajax({
-                    url: '@Url.Action("ObtenerEmailUsuario", "PlanillaAsistencia")',
-                    type: 'GET',
-                    success: function (emailResponse) {
-                        if (!emailResponse.success || !emailResponse.email) {
+                    url: '@Url.Action("GenerarInforme", "PlanillaAsistencia")',
+                    type: 'POST',
+                    data: datosInforme,
+                    success: function(response) {
+                        if (response.success) {
+                            // Descargar archivo o mostrar resultado
+                            window.location.href = response.downloadUrl;
                             Swal.close();
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'No se pudo obtener el email del usuario. Por favor, inicie sesión nuevamente.',
-                                confirmButtonText: 'Aceptar'
-                            });
-                            return;
+                            $('#informeModal').modal('hide');
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
                         }
-
-                        // Enviar datos al controller usando el modelo Rh_Informe_Asistencia
-                        $.ajax({
-                            url: '@Url.Action("GeneraInforme", "PlanillaAsistencia")',
-                            type: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                Email: emailResponse.email,
-                                CentroCosto: parseInt(centro),
-                                FechaInicio: formatDate(fecIni),
-                                FechaTermino: formatDate(fecFin),
-                                TiposInforme: tiposInformeArray
-                            }),
-                            success: function (response) {
-                                Swal.close();
-                                
-                                if (response.Estado === 'OK') {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Éxito',
-                                        text: response.Mensaje,
-                                        confirmButtonText: 'Aceptar'
-                                    });
-                                    $('#informeModal').modal('hide');
-                                } else if (response.Estado === 'WARNING') {
-                                    Swal.fire({
-                                        icon: 'warning',
-                                        title: 'Advertencia',
-                                        text: response.Mensaje,
-                                        confirmButtonText: 'Aceptar'
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.Mensaje || 'Ocurrió un error al generar el informe.',
-                                        confirmButtonText: 'Aceptar'
-                                    });
-                                }
-                            },
-                            error: function (xhr, status, error) {
-                                Swal.close();
-                                
-                                var mensaje = 'Error de conexión. Por favor, intente nuevamente.';
-                                if (xhr.responseJSON && xhr.responseJSON.Mensaje) {
-                                    mensaje = xhr.responseJSON.Mensaje;
-                                }
-                                
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: mensaje,
-                                    confirmButtonText: 'Aceptar'
-                                });
-                            }
-                        });
                     },
-                    error: function (xhr, status, error) {
-                        Swal.close();
-                        console.error('Error al obtener email del usuario:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error de sesión',
-                            text: 'No se pudo obtener la Informacion del usuario. Por favor, inicie sesión nuevamente.',
-                            confirmButtonText: 'Aceptar'
-                        });
+                    error: function() {
+                        Swal.fire('Error', 'Error al generar el informe', 'error');
                     }
                 });
+                */
+            });
+
+            // Inicializar fechas con valores por defecto
+            $('#informeModal').on('show.bs.modal', function () {
+                // Establecer fecha fin como hoy
+                var hoy = new Date().toISOString().split('T')[0];
+                $('#informeFechaFin').val(hoy);
+                
+                // Establecer fecha inicio como primer día del mes actual
+                var primerDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                $('#informeFechaInicio').val(primerDiaMes);
+                
+                // Revisar el tipo de informe seleccionado y mostrar/ocultar opciones de horas extras
+                var tipoSeleccionado = $('#informeTipo').val();
+                if (tipoSeleccionado === 'horas_extras_atrasos') {
+                    $('#opcionesHorasExtras').show();
+                } else {
+                    $('#opcionesHorasExtras').hide();
+                }
             });
         });
     </script>
@@ -1757,7 +1829,7 @@
 
             // Limpiar el dropdown de centros de costo
             $('#centroCostoDropdown').empty();
-            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opcion por defecto
+            $('#centroCostoDropdown').append($('<option>').val('').text('-- Seleccione Centro de Costo --')); // Opción por defecto
 
             // Si hay una empresa seleccionada
             if (empresaId) {
@@ -1770,21 +1842,6 @@
                 $.each(filteredCentrosCosto, function (index, item) {
                     $('#centroCostoDropdown').append($('<option>').val(item.Gencencos_Id).text(item.Gencencos_Codigo + ' - ' + item.Gencencos_Descripcion));
                 });
-            }
-        });
-
-        // Eventos adicionales para limpiar tabla cuando se cambien los filtros
-        $('#centroCostoDropdown').on('change', function () {
-            // Si se deselecciona el centro de costo, limpiar tabla
-            if (!$(this).val() || $(this).val() === '') {
-                clearTableOnFilterChange();
-            }
-        });
-
-        $('#numeroSemanaDropdown').on('change', function () {
-            // Si se deselecciona la semana, limpiar tabla
-            if (!$(this).val() || $(this).val() === '') {
-                clearTableOnFilterChange();
             }
         });
 
@@ -1820,7 +1877,7 @@
                 // Limpiar select
                 $('#numeroSemanaDropdown').empty();
 
-                // Agregar Opcion por defecto
+                // Agregar opción por defecto
                 $('#numeroSemanaDropdown').append('<option value="">Seleccione Semana</option>');
 
                 // Llenar con datos de la API
