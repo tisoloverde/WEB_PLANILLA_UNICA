@@ -1,0 +1,415 @@
+﻿
+@model IEnumerable<Object>
+@{
+    List<PlanillaUnicaWeb.Models.Gen_Empresa> lstEmpresa = Model.ToList()[0] as List<PlanillaUnicaWeb.Models.Gen_Empresa>;
+    List<PlanillaUnicaWeb.Models.Gen_Centro_Costo> lstCentroCosto = Model.ToList()[1] as List<PlanillaUnicaWeb.Models.Gen_Centro_Costo>;
+    List<PlanillaUnicaWeb.Models.Gen_Ano> lstAno = Model.ToList()[2] as List<PlanillaUnicaWeb.Models.Gen_Ano>;
+    List<PlanillaUnicaWeb.Models.Gen_Mes> lstMeses = Model.ToList()[3] as List<PlanillaUnicaWeb.Models.Gen_Mes>;
+    List<PlanillaUnicaWeb.Models.Rh_Tipo_Informe_Indicador> lstTiposInformeIndicador = Model.ToList()[4] as List<PlanillaUnicaWeb.Models.Rh_Tipo_Informe_Indicador>;
+    PlanillaUnicaWeb.Models.FiltroIndicadorGestion filtroIndicador = Model.ToList()[5] as PlanillaUnicaWeb.Models.FiltroIndicadorGestion;
+
+    ViewBag.Title = "Indicadores de Gestión";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{ Html.EnableClientValidation(true);
+    Html.EnableUnobtrusiveJavaScript(true); }
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    /* Colores corporativos Soloverde */
+    :root {
+        --soloverde-primary: #5E9217;
+        --soloverde-secondary: #4A7613;
+        --soloverde-dark: #365A0F;
+    }
+
+    /* Header personalizado */
+    .header-indicadores {
+        background: linear-gradient(135deg, var(--soloverde-primary), var(--soloverde-secondary));
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(94, 146, 23, 0.3);
+    }
+
+    .header-indicadores h2 {
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Filtros superiores */
+    .filtros-container {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .filtro-group {
+        margin-bottom: 15px;
+    }
+
+    .filtro-label {
+        font-weight: 600;
+        color: var(--soloverde-dark);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .filtro-select {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .filtro-select:focus {
+        border-color: var(--soloverde-primary);
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(94, 146, 23, 0.25);
+    }
+
+    /* Tabla principal */
+    .tabla-indicadores {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .tabla-indicadores th {
+        padding: 12px 8px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 12px;
+        border: 1px solid #dee2e6;
+    }
+
+    .tabla-indicadores td {
+        padding: 10px 8px;
+        text-align: center;
+        font-size: 13px;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Headers de sección - Estilo igual que tabla de dotación */
+    .header-no-pagado,
+    .header-pagado,
+    .header-totales,
+    .header-ratios {
+        color: white;
+        background-color: #87b633;
+        font-family: sans-serif;
+        font-weight: 200;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    /* Celdas de datos - Fondo blanco con letras negras */
+    .celda-no-pagado,
+    .celda-pagado,
+    .celda-totales,
+    .celda-ratios {
+        background-color: white;
+        color: black;
+        text-align: center;
+        padding: 8px;
+    }
+
+    /* Fila de clasificación */
+    .fila-clasificacion {
+        background: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .fila-clasificacion td:first-child {
+        background: linear-gradient(135deg, var(--soloverde-primary), var(--soloverde-secondary));
+        color: white;
+        font-weight: 700;
+    }
+
+    /* Fila de totales */
+    .fila-totales {
+        background: var(--soloverde-dark);
+        color: white;
+        font-weight: 700;
+    }
+
+    .fila-totales td {
+        border-color: var(--soloverde-dark);
+    }
+
+    /* Paginación */
+    .paginacion-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .paginacion-info {
+        font-size: 14px;
+        color: #6c757d;
+    }
+
+    .paginacion-btn {
+        background: var(--soloverde-primary);
+        border: none;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .paginacion-btn:hover {
+        background: var(--soloverde-secondary);
+    }
+
+    .paginacion-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="header-indicadores">
+        <h2>
+            <i class="bi bi-bar-chart-line"></i>
+            Indicadores de Gestión
+        </h2>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-container">
+        <form id="formFiltros" method="post">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="filtro-group">
+                        <label class="filtro-label">Centro de Costo</label>
+                        @Html.DropDownList("CentroCosto",
+                            new SelectList(lstCentroCosto, "Gencencos_Id", "Gencencos_Descripcion", 0),
+                            new { @class = "filtro-select", id = "centroCostoSelect" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filtro-group">
+                        <label class="filtro-label">Año: @DateTime.Now.Year</label>
+                        @Html.DropDownList("Ano",
+                            new SelectList(lstAno, "Ano", "Ano", DateTime.Now.Year),
+                            new { @class = "filtro-select", id = "anoSelect" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filtro-group">
+                        <label class="filtro-label">Mes: @DateTime.Now.ToString("MM") - @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(DateTime.Now.Month)</label>
+                        @Html.DropDownList("Mes",
+                            new SelectList(lstMeses, "Numero_Mes", "Descripcion_Mes", DateTime.Now.Month),
+                            new { @class = "filtro-select", id = "mesSelect" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filtro-group">
+                        <label class="filtro-label">Tipo: Mensual</label>
+                        @Html.DropDownList("TipoInforme",
+                            new SelectList(lstTiposInformeIndicador, "Id", "Descripcion", 3),
+                            new { @class = "filtro-select", id = "tipoSelect" })
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Indicadores -->
+    <div class="table-responsive">
+        <table class="tabla-indicadores">
+            <thead class="thead-light">
+                <tr>
+                    <th rowspan="2" style="vertical-align: middle; color: white; background-color: #87b633; font-family: sans-serif; font-weight: 200; font-size: 13px; text-align: center;">Clasificación</th>
+                    <th colspan="4" class="header-no-pagado">No Pagado</th>
+                    <th colspan="3" class="header-pagado">Pagado</th>
+                    <th colspan="3" class="header-totales">Totales</th>
+                    <th colspan="2" class="header-ratios">D.Pagada+ D.Ausente /</th>
+                </tr>
+                <tr>
+                    <!-- No Pagado -->
+                    <th class="header-no-pagado">Faltas<br>Equivalente</th>
+                    <th class="header-no-pagado">Permisos<br>Equivalente</th>
+                    <th class="header-no-pagado">Licencias<br>Equivalente</th>
+                    <th class="header-no-pagado">Descansos<br>Equivalente</th>
+                    <!-- Pagado -->
+                    <th class="header-pagado">Permisos<br>Equivalente</th>
+                    <th class="header-pagado">Terreno<br>Equivalente</th>
+                    <th class="header-pagado">Vacaciones<br>Equivalente</th>
+                    <!-- Totales -->
+                    <th class="header-totales">Dotación<br>Activa</th>
+                    <th class="header-totales">Dotación<br>Pagada</th>
+                    <th class="header-totales">Dotación<br>Ausente</th>
+                    <!-- Ratios -->
+                    <th class="header-ratios">Dotación<br>Contratada</th>
+                    <th class="header-ratios">Ausentismo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Jardinero -->
+                <tr class="fila-clasificacion">
+                    <td>Jardinero</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-ratios">0</td>
+                    <td class="celda-ratios">0</td>
+                </tr>
+                
+                <!-- Especializado -->
+                <tr class="fila-clasificacion">
+                    <td>Especializado</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-ratios">0</td>
+                    <td class="celda-ratios">0</td>
+                </tr>
+                
+                <!-- Administrativo -->
+                <tr class="fila-clasificacion">
+                    <td>Administrativo</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-ratios">0</td>
+                    <td class="celda-ratios">0</td>
+                </tr>
+                
+                <!-- Supervisor -->
+                <tr class="fila-clasificacion">
+                    <td>Supervisor</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-ratios">0</td>
+                    <td class="celda-ratios">0</td>
+                </tr>
+                
+                <!-- Guardia -->
+                <tr class="fila-clasificacion">
+                    <td>Guardia</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-no-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-pagado">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-totales">0</td>
+                    <td class="celda-ratios">0</td>
+                    <td class="celda-ratios">0</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="fila-totales">
+                    <td>Total</td>
+                    <td>129,41</td>
+                    <td>31,50</td>
+                    <td>1.336,37</td>
+                    <td>25,91</td>
+                    <td>39,620</td>
+                    <td>19.727,528</td>
+                    <td>791,81</td>
+                    <td>19.793,06</td>
+                    <td>20.584,86</td>
+                    <td>1.497,27</td>
+                    <td>22.082,13</td>
+                    <td>0,07</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="paginacion-container">
+        <span class="paginacion-info">1 - 5 / 5</span>
+        <button class="paginacion-btn" disabled>
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="paginacion-btn" disabled>
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Funcionalidad de filtros
+    $('.filtro-select').on('change', function() {
+        // Aquí se puede agregar la lógica para filtrar los datos
+        console.log('Filtro cambiado:', this.id, this.value);
+    });
+    
+    // Actualizar labels con los valores seleccionados
+    $('#centroCostoSelect').on('change', function() {
+        var texto = $(this).find('option:selected').text();
+        $(this).closest('.filtro-group').find('.filtro-label').text('Centro de Costo: ' + texto);
+    });
+    
+    $('#anoSelect').on('change', function() {
+        var texto = $(this).find('option:selected').text();
+        $(this).closest('.filtro-group').find('.filtro-label').text('Año: ' + texto);
+    });
+    
+    $('#mesSelect').on('change', function() {
+        var texto = $(this).find('option:selected').text();
+        $(this).closest('.filtro-group').find('.filtro-label').text('Mes: ' + $(this).val() + ' - ' + texto);
+    });
+    
+    $('#tipoSelect').on('change', function() {
+        var texto = $(this).find('option:selected').text();
+        $(this).closest('.filtro-group').find('.filtro-label').text('Tipo: ' + texto);
+    });
+});
+</script>

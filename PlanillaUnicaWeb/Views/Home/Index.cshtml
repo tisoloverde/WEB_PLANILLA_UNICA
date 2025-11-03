@@ -16,6 +16,56 @@
         width: 100%;
         margin-bottom: 30px;
     }
+    
+    /* Estilos para las cards del dashboard */
+    .card {
+        border-width: 2px !important;
+    }
+    
+    /* Solo las cards pequeñas del menú tendrán efectos hover */
+    .card.border-success,
+    .card.border-warning,
+    .card.border-info,
+    .card.border-primary {
+        transition: all 0.3s ease;
+    }
+    
+    .card.border-success:hover,
+    .card.border-warning:hover,
+    .card.border-info:hover,
+    .card.border-primary:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    .card-body {
+        padding: 2rem 1.5rem;
+    }
+    
+    .card .btn {
+        transition: all 0.3s ease;
+        font-weight: 600;
+        border-radius: 25px;
+        padding: 8px 20px;
+    }
+    
+    .card .btn:hover {
+        transform: scale(1.05);
+    }
+    
+    .card-title {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    /* Iconos con animaci&oacute;n */
+    .card i[class*="bi-"] {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover i[class*="bi-"] {
+        transform: scale(1.1);
+    }
 </style>
 
 <div class="container-fluid px-0">
@@ -32,10 +82,10 @@
                         </h4>
                         <p class="text-muted">
                             <i class="bi bi-calendar-event me-1"></i>
-                            Sistema de Planilla Unica - @DateTime.Now.ToString("dd/MM/yyyy")
+                            Sistema de Planilla &Uacute;nica - @DateTime.Now.ToString("dd/MM/yyyy")
                         </p>
                         <hr />
-                        <p>Use el menu de navegacion para acceder a las diferentes opciones del sistema.</p>
+                        <p>Use el menu de navegaci&oacute;n para acceder a las diferentes opciones del sistema.</p>
                     </div>
                     <div class="col-md-4 text-end">
                         <img src="~/img/planilla-unica-soloverde-new.png" alt="Planilla Unica SoloVerde" style="max-height: 80px;" class="img-fluid" />
@@ -49,23 +99,24 @@
                         menuList = Session["user_Menus"] as List<PlanillaUnicaWeb.Models.Account_Menu_Opcion>;
                     }
                     
-                    // Verificar acceso a cada módulo
+                    // Verificar acceso a cada m&oacute;dulo
                     bool tieneDotacion = menuList.Any(m => m.Accmenopc_Controller == "Dotacion");
                     bool tienePlanillaAsistencia = menuList.Any(m => m.Accmenopc_Controller == "PlanillaAsistencia");
                     bool tieneListaPersonal = menuList.Any(m => m.Accmenopc_Controller == "ListaPersonal" || m.Accmenopc_Titulo.Contains("Lista Personal"));
+                    bool tieneIndicadorGestion = menuList.Any(m => m.Accmenopc_Controller == "IndicadorGestion" || m.Accmenopc_Titulo.Contains("Indicador"));
                 }
 
                 <div class="row mt-4 justify-content-center">
                     @if (tieneDotacion)
                     {
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-success">
-                                <div class="card-body text-center">
-                                    <i class="bi bi-people-fill text-success" style="font-size: 2rem;"></i>
-                                    <h6 class="card-title mt-2">Dotacion</h6>
-                                    <p class="card-text small">Gestion de empleados y personal</p>
-                                    <a href="@Url.Action("Index", "Dotacion")" class="btn btn-success btn-sm">
-                                        <i class="bi bi-arrow-right-circle mr-1"></i>Acceder
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-success h-100 shadow-sm">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <i class="bi bi-people-fill text-success" style="font-size: 3rem;"></i>
+                                    <h6 class="card-title mt-3 mb-2">Dotaci&oacute;n</h6>
+                                    <p class="card-text small text-muted flex-grow-1">Gesti&oacute;n de empleados y personal de la empresa</p>
+                                    <a href="@Url.Action("Index", "Dotacion")" class="btn btn-success btn-sm mt-auto">
+                                        <i class="bi bi-arrow-right-circle me-1"></i>Acceder
                                     </a>
                                 </div>
                             </div>
@@ -74,14 +125,14 @@
                     
                     @if (tieneListaPersonal)
                     {
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-warning">
-                                <div class="card-body text-center">
-                                    <i class="bi bi-person-lines-fill text-warning" style="font-size: 2rem;"></i>
-                                    <h6 class="card-title mt-2">Lista Personal</h6>
-                                    <p class="card-text small">Consulta y gestion de personal</p>
-                                    <a href="@Url.Action("Index", "ListaPersonal")" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-arrow-right-circle mr-1"></i>Acceder
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-warning h-100 shadow-sm">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <i class="bi bi-person-lines-fill text-warning" style="font-size: 3rem;"></i>
+                                    <h6 class="card-title mt-3 mb-2">Lista Personal</h6>
+                                    <p class="card-text small text-muted flex-grow-1">Consulta y gesti&oacute;n detallada del personal</p>
+                                    <a href="@Url.Action("Index", "ListaPersonal")" class="btn btn-warning btn-sm mt-auto">
+                                        <i class="bi bi-arrow-right-circle me-1"></i>Acceder
                                     </a>
                                 </div>
                             </div>
@@ -90,14 +141,30 @@
                     
                     @if (tienePlanillaAsistencia)
                     {
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-info">
-                                <div class="card-body text-center">
-                                    <i class="bi bi-calendar-check text-info" style="font-size: 2rem;"></i>
-                                    <h6 class="card-title mt-2">Planilla de Asistencia</h6>
-                                    <p class="card-text small">Control de horarios y asistencia</p>
-                                    <a href="@Url.Action("Index", "PlanillaAsistencia")" class="btn btn-info btn-sm">
-                                        <i class="bi bi-arrow-right-circle mr-1"></i>Acceder
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-info h-100 shadow-sm">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <i class="bi bi-calendar-check text-info" style="font-size: 3rem;"></i>
+                                    <h6 class="card-title mt-3 mb-2">Planilla Asistencia</h6>
+                                    <p class="card-text small text-muted flex-grow-1">Control de horarios y registro de asistencia</p>
+                                    <a href="@Url.Action("Index", "PlanillaAsistencia")" class="btn btn-info btn-sm mt-auto">
+                                        <i class="bi bi-arrow-right-circle me-1"></i>Acceder
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (tieneIndicadorGestion)
+                    {
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-primary h-100 shadow-sm">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <i class="bi bi-bar-chart-line text-primary" style="font-size: 3rem;"></i>
+                                    <h6 class="card-title mt-3 mb-2">Indicadores Gesti&oacute;n</h6>
+                                    <p class="card-text small text-muted flex-grow-1">Dashboard de indicadores y m&eacute;tricas empresariales</p>
+                                    <a href="@Url.Action("Index", "IndicadorGestion")" class="btn btn-primary btn-sm mt-auto">
+                                        <i class="bi bi-arrow-right-circle me-1"></i>Acceder
                                     </a>
                                 </div>
                             </div>

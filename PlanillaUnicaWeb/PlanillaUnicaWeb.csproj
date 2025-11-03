@@ -350,6 +350,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ActionFilter\PreventDuplicateRequestController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\Gestion\IndicadorGestionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\Personal\DotacionController.cs" />
     <Compile Include="Controllers\Personal\ListaPersonalController.cs" />
@@ -371,6 +372,7 @@
     <Compile Include="Models\ColaboradorLista.cs" />
     <Compile Include="Models\DotacionLista.cs" />
     <Compile Include="Models\FiltroDotacion.cs" />
+    <Compile Include="Models\FiltroIndicadorGestion.cs" />
     <Compile Include="Models\FiltroPlanilla.cs" />
     <Compile Include="Models\Genero.cs" />
     <Compile Include="Models\Gen_Ano.cs" />
@@ -379,6 +381,7 @@
     <Compile Include="Models\Gen_Comuna.cs" />
     <Compile Include="Models\Gen_Empresa.cs" />
     <Compile Include="Models\Gen_Area.cs" />
+    <Compile Include="Models\Gen_Mes.cs" />
     <Compile Include="Models\Gen_Pais.cs" />
     <Compile Include="Models\Gen_Provincia.cs" />
     <Compile Include="Models\Gen_Region.cs" />
@@ -397,6 +400,7 @@
     <Compile Include="Models\Rh_Referencia_1.cs" />
     <Compile Include="Models\Rh_Referencia_2.cs" />
     <Compile Include="Models\Rh_Tipo_Informe.cs" />
+    <Compile Include="Models\Rh_Tipo_Informe_Indicador.cs" />
     <Compile Include="Models\Rh_Tipo_Personal_Ofertado.cs" />
     <Compile Include="Models\Rh_Vinculo_Contacto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -574,6 +578,7 @@
     <Content Include="Views\PlanillaAsistencia\Index.cshtml" />
     <Content Include="Views\Dotacion\Cargar.cshtml" />
     <Content Include="Views\PlanillaAsistencia\Cargar.cshtml" />
+    <Content Include="Views\IndicadorGestion\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

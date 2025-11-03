@@ -7,6 +7,11 @@ namespace PlanillaUnicaWeb.Models
 {
     public class Rh_Informe_Asistencia
     {
+        public Rh_Informe_Asistencia()
+        {
+            TiposInforme = new List<Rh_Tipo_Informe>();
+        }
+
         public string Email { get; set; } = string.Empty;
         public int CentroCosto { get; set; }
         public string FechaInicio { get; set; } = string.Empty;
