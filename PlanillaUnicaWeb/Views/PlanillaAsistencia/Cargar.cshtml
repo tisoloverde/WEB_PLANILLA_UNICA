@@ -1562,11 +1562,11 @@
                 }
 
                 // Validacion de tipos de informe no implementados
-                if (tipo === 'faltas_permisos' || tipo === 'general_mensual' || tipo === 'validacion_mensual') {
+                if (tipo === 'general_mensual' || tipo === 'validacion_mensual') {
                     Swal.fire({
                         icon: 'info',
                         title: 'Funcionalidad en desarrollo',
-                        text: 'Este tipo de informe esta en proceso de implementacion. Por ahora, solo estan disponibles los informes de Horas Extras y Atrasos.',
+                        text: 'Este tipo de informe esta en proceso de implementacion.',
                         confirmButtonText: 'Entendido'
                     });
                     return;
