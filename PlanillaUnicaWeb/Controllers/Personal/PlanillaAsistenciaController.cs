@@ -482,5 +482,33 @@ namespace PlanillaUnicaWeb.Controllers.Personal
             }
         }
 
+        public JsonResult ObtenerDatosUsuario()
+        {
+            try
+            {
+                string email = Session["user_Email"]?.ToString();
+                string nombre = Session["user_Name"]?.ToString();
+                string apellidoPaterno = Session["user_ApellidoPaterno"]?.ToString();
+                string apellidoMaterno = Session["user_ApellidoMaterno"]?.ToString();
+                
+                string nombreCompleto = $"{nombre} {apellidoPaterno} {apellidoMaterno}".Trim();
+                
+                return Json(new { 
+                    success = true, 
+                    email = email ?? "",
+                    usuario = nombreCompleto
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { 
+                    success = false, 
+                    email = "",
+                    usuario = "",
+                    error = ex.Message 
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
     }
 }

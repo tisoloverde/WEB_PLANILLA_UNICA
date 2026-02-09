@@ -347,19 +347,20 @@
                     }
                 ],
                 "drawCallback": function (settings) {
-                    // Aplicar colores despues de redraw
-                    setTimeout(function () {
-                        $('.fila-checkbox:checked').each(function () {
-                            aplicarColorFila(this, true);
+                    // Optimizado: Solo verificar botón, no reaplicar colores en cada scroll
+                    // Los colores ya están aplicados en el DOM, no necesitan reaplcarse
+                    verificarBotonGuardar();
+                    
+                    // Ajustar columnas solo si es necesario (no en cada scroll)
+                    // Usar requestAnimationFrame para suavizar el rendering
+                    if (!window.adjustingColumns) {
+                        window.adjustingColumns = true;
+                        requestAnimationFrame(function() {
+                            var table = $('#tablaPlanilla').DataTable();
+                            table.columns.adjust();
+                            window.adjustingColumns = false;
                         });
-
-                        // Verificar estado del botón guardar
-                        verificarBotonGuardar();
-
-                        // Ajustar columnas
-                        var table = $('#tablaPlanilla').DataTable();
-                        table.columns.adjust();
-                    }, 50);
+                    }
                 },
                 "initComplete": function (settings, json) {
                     // Ajuste inicial
@@ -391,102 +392,102 @@
                                 text: 'Seleccionar todo',
                                 className: 'btn btn-info',
                                 action: function (e, dt, button, config) {
-                                    // MEJORADO: Usar API de DataTable en lugar de DOM directo
-                                    dt.rows().every(function () {
-                                        const row = this.node();
-                                        const checkbox = $(row).find('.fila-checkbox')[0];
+                                    // Deshabilitar el botón temporalmente
+                                    $(button).prop('disabled', true);
+                                    
+                                    // Usar setTimeout para dar tiempo al navegador
+                                    setTimeout(function() {
+                                        // Suspender el redibujado de DataTables
+                                        dt.draw(false);
+                                        
+                                        // Procesar todas las filas SIN triggers para evitar redibujados
+                                        dt.rows().every(function () {
+                                            const row = this.node();
+                                            const checkbox = $(row).find('.fila-checkbox')[0];
+                                            const selectLun = $(row).find('.selectLun')[0];
+                                            const selectMar = $(row).find('.selectMar')[0];
+                                            const selectMie = $(row).find('.selectMie')[0];
+                                            const selectJue = $(row).find('.selectJue')[0];
+                                            const selectVie = $(row).find('.selectVie')[0];
+                                            const selectSab = $(row).find('.selectSab')[0];
+                                            const selectDom = $(row).find('.selectDom')[0];
 
-                                        const selectLun = $(row).find('.selectLun')[0];
-                                        const selectMar = $(row).find('.selectMar')[0];
-                                        const selectMie = $(row).find('.selectMie')[0];
-                                        const selectJue = $(row).find('.selectJue')[0];
-                                        const selectVie = $(row).find('.selectVie')[0];
-                                        const selectSab = $(row).find('.selectSab')[0];
-                                        const selectDom = $(row).find('.selectDom')[0];
+                                            if (checkbox) {
+                                                checkbox.checked = true;
+                                            }
 
-                                        if (checkbox) {
-                                            checkbox.checked = true;
-                                            aplicarColorFila(checkbox, true);
-                                        }
+                                            // Asignar valores SIN trigger para evitar múltiples redibujados
+                                            if (selectLun && selectLun.value == '0') { selectLun.value = '21'; }
+                                            if (selectMar && selectMar.value == '0') { selectMar.value = '21'; }
+                                            if (selectMie && selectMie.value == '0') { selectMie.value = '21'; }
+                                            if (selectJue && selectJue.value == '0') { selectJue.value = '21'; }
+                                            if (selectVie && selectVie.value == '0') { selectVie.value = '21'; }
+                                            if (selectSab && selectSab.value == '0') { selectSab.value = '21'; }
+                                            if (selectDom && selectDom.value == '0') { selectDom.value = '21'; }
 
-                                        if (selectLun) {
-                                            if (selectLun.value == '0') { selectLun.value = '21'; $(selectLun).trigger('change'); }
-                                        }
-                                        if (selectMar) {
-                                            if (selectMar.value == '0') { selectMar.value = '21'; $(selectMar).trigger('change'); }
-                                        }
-                                        if (selectMie) {
-                                            if (selectMie.value == '0') { selectMie.value = '21'; $(selectMie).trigger('change'); }
-                                        }
-                                        if (selectJue) {
-                                            if (selectJue.value == '0') { selectJue.value = '21'; $(selectJue).trigger('change'); }
-                                        }
-                                        if (selectVie) {
-                                            if (selectVie.value == '0') { selectVie.value = '21'; $(selectVie).trigger('change'); }
-                                        }
-                                        if (selectSab) {
-                                            if (selectSab.value == '0') { selectSab.value = '21'; $(selectSab).trigger('change'); }
-                                        }
-                                        if (selectDom) {
-                                            if (selectDom.value == '0') { selectDom.value = '21'; $(selectDom).trigger('change'); }
-                                        }
+                                            // Aplicar estilos directamente
+                                            $(row).children('td, th').css({
+                                                'background-color': '#36ACC4',
+                                                'color': 'white'
+                                            });
+                                        });
 
-                                        $(row).children('td, th').css('background-color', '#36ACC4');
-                                        $(row).children('td, th').css('color', 'white');
-                                    });
-
-                                    setTimeout(verificarBotonGuardar, 100);
+                                        // Un solo redraw al final
+                                        dt.draw(false);
+                                        
+                                        // Verificar y habilitar botón
+                                        verificarBotonGuardar();
+                                        $(button).prop('disabled', false);
+                                    }, 10);
                                 }
                             },
                             {
                                 text: 'Deseleccionar todo',
                                 className: 'btn btn-info',
                                 action: function (e, dt, button, config) {
-                                    // MEJORADO: Usar API de DataTable en lugar de DOM directo
-                                    dt.rows().every(function () {
-                                        const row = this.node();
-                                        const checkbox = $(row).find('.fila-checkbox')[0];
-                                        const selectLun = $(row).find('.selectLun')[0];
-                                        const selectMar = $(row).find('.selectMar')[0];
-                                        const selectMie = $(row).find('.selectMie')[0];
-                                        const selectJue = $(row).find('.selectJue')[0];
-                                        const selectVie = $(row).find('.selectVie')[0];
-                                        const selectSab = $(row).find('.selectSab')[0];
-                                        const selectDom = $(row).find('.selectDom')[0];
+                                    // Deshabilitar el botón temporalmente
+                                    $(button).prop('disabled', true);
+                                    
+                                    setTimeout(function() {
+                                        // Suspender el redibujado de DataTables
+                                        dt.draw(false);
+                                        
+                                        dt.rows().every(function () {
+                                            const row = this.node();
+                                            const checkbox = $(row).find('.fila-checkbox')[0];
+                                            const selectLun = $(row).find('.selectLun')[0];
+                                            const selectMar = $(row).find('.selectMar')[0];
+                                            const selectMie = $(row).find('.selectMie')[0];
+                                            const selectJue = $(row).find('.selectJue')[0];
+                                            const selectVie = $(row).find('.selectVie')[0];
+                                            const selectSab = $(row).find('.selectSab')[0];
+                                            const selectDom = $(row).find('.selectDom')[0];
 
-                                        if (checkbox) {
-                                            checkbox.checked = false;
-                                            aplicarColorFila(checkbox, false);
-                                        }
+                                            if (checkbox) {
+                                                checkbox.checked = false;
+                                            }
 
-                                        if (selectLun) {
-                                            if (selectLun.value == '21') { selectLun.value = '0'; $(selectLun).trigger('change'); }
-                                        }
-                                        if (selectMar) {
-                                            if (selectMar.value == '21') { selectMar.value = '0'; $(selectMar).trigger('change'); }
-                                        }
-                                        if (selectMie) {
-                                            if (selectMie.value == '21') { selectMie.value = '0'; $(selectMie).trigger('change'); }
-                                        }
-                                        if (selectJue) {
-                                            if (selectJue.value == '21') { selectJue.value = '0'; $(selectJue).trigger('change'); }
-                                        }
-                                        if (selectVie) {
-                                            if (selectVie.value == '21') { selectVie.value = '0'; $(selectVie).trigger('change'); }
-                                        }
-                                        if (selectSab) {
-                                            if (selectSab.value == '21') { selectSab.value = '0'; $(selectSab).trigger('change'); }
-                                        }
-                                        if (selectDom) {
-                                            if (selectDom.value == '21') { selectDom.value = '0'; $(selectDom).trigger('change'); }
-                                        }
+                                            // Asignar valores SIN trigger
+                                            if (selectLun && selectLun.value == '21') { selectLun.value = '0'; }
+                                            if (selectMar && selectMar.value == '21') { selectMar.value = '0'; }
+                                            if (selectMie && selectMie.value == '21') { selectMie.value = '0'; }
+                                            if (selectJue && selectJue.value == '21') { selectJue.value = '0'; }
+                                            if (selectVie && selectVie.value == '21') { selectVie.value = '0'; }
+                                            if (selectSab && selectSab.value == '21') { selectSab.value = '0'; }
+                                            if (selectDom && selectDom.value == '21') { selectDom.value = '0'; }
 
-                                        $(row).children('td, th').css('background-color', 'white');
-                                        $(row).children('td, th').css('color', 'black');
-                                    });
+                                            $(row).children('td, th').css({
+                                                'background-color': 'white',
+                                                'color': 'black'
+                                            });
+                                        });
 
-                                    setTimeout(verificarBotonGuardar, 100);
-
+                                        // Un solo redraw al final
+                                        dt.draw(false);
+                                        
+                                        verificarBotonGuardar();
+                                        $(button).prop('disabled', false);
+                                    }, 10);
                                 }
                             },
                             {
@@ -1421,12 +1422,12 @@
                                 <option value="0">TODOS</option>
                                 @foreach (var cc in lstCentroCostoTodos)
                                 {
-                                    <option value="@cc.Gencencos_Id">@cc.Gencencos_Descripcion</option>
+                            <option value="@cc.Gencencos_Id">@cc.Gencencos_Codigo - @cc.Gencencos_Descripcion</option>
                                 }
                             </select>
                         </div>
 
-                        <div class="row">
+                        <div class="row" id="campoFechas">
                             <div class="col-md-6 form-group mb-2">
                                 <label for="informeFechaInicio" class="label-with-icon">
                                     <i class="bi bi-calendar-event"></i>
@@ -1441,6 +1442,15 @@
                                 </label>
                                 <input type="date" id="informeFechaFin" name="FechaFin" class="form-control" />
                             </div>
+                        </div>
+
+                        <!-- Campo de periodo para informes mensuales -->
+                        <div class="form-group mb-2" id="campoPeriodo" style="display: none;">
+                            <label for="informePeriodo" class="label-with-icon">
+                                <i class="bi bi-calendar3"></i>
+                                Periodo (YYYY-MM)
+                            </label>
+                            <input type="month" id="informePeriodo" name="Periodo" class="form-control" />
                         </div>
 
                         <div class="form-group mb-2">
@@ -1527,10 +1537,19 @@
 
             // Mostrar/ocultar opciones de horas extras segun el tipo seleccionado
             $('#informeTipo').on('change', function () {
-                if ($(this).val() === 'horas_extras_atrasos') {
+                var tipo = $(this).val();
+                if (tipo === 'horas_extras_atrasos') {
                     $('#opcionesHorasExtras').slideDown(300);
+                    $('#campoFechas').slideDown(300);
+                    $('#campoPeriodo').slideUp(300);
+                } else if (tipo === 'general_mensual' || tipo === 'validacion_mensual') {
+                    $('#opcionesHorasExtras').slideUp(300);
+                    $('#campoFechas').slideUp(300);
+                    $('#campoPeriodo').slideDown(300);
                 } else {
                     $('#opcionesHorasExtras').slideUp(300);
+                    $('#campoFechas').slideDown(300);
+                    $('#campoPeriodo').slideUp(300);
                 }
             });
 
@@ -1561,17 +1580,6 @@
                     return;
                 }
 
-                // Validacion de tipos de informe no implementados
-                if (tipo === 'general_mensual' || tipo === 'validacion_mensual') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Funcionalidad en desarrollo',
-                        text: 'Este tipo de informe esta en proceso de implementacion.',
-                        confirmButtonText: 'Entendido'
-                    });
-                    return;
-                }
-
                 // Validaciones
                 if (!centro) {
                     Swal.fire({
@@ -1581,7 +1589,34 @@
                     });
                     return;
                 }
-                if (!fecIni || !fecFin) {
+
+                // Validar fechas o periodo segun el tipo de informe
+                var periodo = null;
+                if (tipo === 'general_mensual' || tipo === 'validacion_mensual') {
+                    periodo = $('#informePeriodo').val();
+                    if (!periodo) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Campo requerido',
+                            text: 'Seleccione un periodo (YYYY-MM).'
+                        });
+                        return;
+                    }
+                    // Validar formato del periodo
+                    var [year, month] = periodo.split('-');
+                    var yearNum = parseInt(year);
+                    var monthNum = parseInt(month);
+                    if (isNaN(yearNum) || isNaN(monthNum) || yearNum < 1900 || yearNum > 2100 || monthNum < 1 || monthNum > 12) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Periodo inválido',
+                            text: 'El periodo debe ser un año y mes válido (YYYY-MM).'
+                        });
+                        return;
+                    }
+                    // Para informes mensuales, el periodo se envia como string
+                    // No se necesitan fechas de inicio y fin
+                } else if (!fecIni || !fecFin) {
                     Swal.fire({
                         icon: 'warning',
                         title: 'Campos requeridos',
@@ -1589,7 +1624,7 @@
                     });
                     return;
                 }
-                if (new Date(fecIni) > new Date(fecFin)) {
+                if (fecIni && fecFin && new Date(fecIni) > new Date(fecFin)) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Fechas incorrectas',
@@ -1660,7 +1695,7 @@
 
                 // Obtener email del usuario antes de enviar
                 $.ajax({
-                    url: '@Url.Action("ObtenerEmailUsuario", "PlanillaAsistencia")',
+                    url: '@Url.Action("ObtenerDatosUsuario", "PlanillaAsistencia")',
                     type: 'GET',
                     success: function (emailResponse) {
                         if (!emailResponse.success || !emailResponse.email) {
@@ -1674,18 +1709,33 @@
                             return;
                         }
 
+                        // Obtener descripción del centro de costo seleccionado
+                        var centroCostoDescripcion = $('#informeCentroCosto option:selected').text();
+
+                        // Construir objeto de datos segun el tipo de informe
+                        var datosInforme = {
+                            Email: emailResponse.email,
+                            CentroCosto: parseInt(centro),
+                            CentroCostoDescripcion: centroCostoDescripcion,
+                            UsuarioGenera: emailResponse.usuario,
+                            TiposInforme: tiposInformeArray
+                        };
+
+                        // Para informes mensuales (5 y 6), enviar solo Periodo
+                        if (periodo) {
+                            datosInforme.Periodo = periodo;
+                        } else {
+                            // Para otros informes, enviar fechas
+                            datosInforme.FechaInicio = formatDate(fecIni);
+                            datosInforme.FechaTermino = formatDate(fecFin);
+                        }
+
                         // Enviar datos al controller usando el modelo Rh_Informe_Asistencia
                         $.ajax({
                             url: '@Url.Action("GeneraInforme", "PlanillaAsistencia")',
                             type: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({
-                                Email: emailResponse.email,
-                                CentroCosto: parseInt(centro),
-                                FechaInicio: formatDate(fecIni),
-                                FechaTermino: formatDate(fecFin),
-                                TiposInforme: tiposInformeArray
-                            }),
+                            data: JSON.stringify(datosInforme),
                             success: function (response) {
                                 Swal.close();
                                 

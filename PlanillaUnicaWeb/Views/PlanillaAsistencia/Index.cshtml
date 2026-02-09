@@ -475,7 +475,7 @@
                         </select>
                     </div>
 
-                    <div class="row">
+                    <div class="row" id="campoFechas">
                         <div class="col-md-6 form-group mb-2">
                             <label for="informeFechaInicio" class="label-with-icon">
                                 <i class="bi bi-calendar-event"></i>
@@ -491,7 +491,14 @@
                             <input type="date" id="informeFechaFin" name="FechaFin" class="form-control" />
                         </div>
                     </div>
-
+                    <!-- Campo de periodo para informes mensuales -->
+                    <div class="form-group mb-2" id="campoPeriodo" style="display: none;">
+                        <label for="informePeriodo" class="label-with-icon">
+                            <i class="bi bi-calendar3"></i>
+                            Periodo (YYYY-MM)
+                        </label>
+                        <input type="month" id="informePeriodo" name="Periodo" class="form-control" />
+                    </div>
                     <div class="form-group mb-2">
                         <label for="informeTipo" class="label-with-icon">
                             <i class="bi bi-file-earmark-text"></i>
@@ -563,7 +570,7 @@
 
 <script>
 
-    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCostoTodos));
+    var centrosCostoList = @Html.Raw(Json.Encode(lstCentroCosto));
 
     $(document).ready(function () {
         // Cuando se seleccione una empresa para cargar los centros de costo asociados
@@ -620,10 +627,19 @@
 
         // Mostrar/ocultar opciones de horas extras segun el tipo seleccionado
         $('#informeTipo').on('change', function () {
-            if ($(this).val() === 'horas_extras_atrasos') {
+            var tipo = $(this).val();
+            if (tipo === 'horas_extras_atrasos') {
                 $('#opcionesHorasExtras').slideDown(300);
+                $('#campoFechas').slideDown(300);
+                $('#campoPeriodo').slideUp(300);
+            } else if (tipo === 'general_mensual' || tipo === 'validacion_mensual') {
+                $('#opcionesHorasExtras').slideUp(300);
+                $('#campoFechas').slideUp(300);
+                $('#campoPeriodo').slideDown(300);
             } else {
                 $('#opcionesHorasExtras').slideUp(300);
+                $('#campoFechas').slideDown(300);
+                $('#campoPeriodo').slideUp(300);
             }
         });
 
@@ -654,17 +670,6 @@
                 return;
             }
 
-            // Validacion de tipos de informe no implementados
-            if (tipo === 'general_mensual' || tipo === 'validacion_mensual') {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Funcionalidad en desarrollo',
-                    text: 'Este tipo de informe esta en proceso de implementacion.',
-                    confirmButtonText: 'Entendido'
-                });
-                return;
-            }
-
             // Validaciones
             if (!centro) {
                 Swal.fire({
@@ -674,7 +679,34 @@
                 });
                 return;
             }
-            if (!fecIni || !fecFin) {
+
+            // Validar fechas o periodo segun el tipo de informe
+            var periodo = null;
+            if (tipo === 'general_mensual' || tipo === 'validacion_mensual') {
+                periodo = $('#informePeriodo').val();
+                if (!periodo) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Campo requerido',
+                        text: 'Seleccione un periodo (YYYY-MM).'
+                    });
+                    return;
+                }
+                // Validar formato del periodo
+                var [year, month] = periodo.split('-');
+                var yearNum = parseInt(year);
+                var monthNum = parseInt(month);
+                if (isNaN(yearNum) || isNaN(monthNum) || yearNum < 1900 || yearNum > 2100 || monthNum < 1 || monthNum > 12) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Periodo inválido',
+                        text: 'El periodo debe ser un año y mes válido (YYYY-MM).'
+                    });
+                    return;
+                }
+                // Para informes mensuales, el periodo se envia como string
+                // No se necesitan fechas de inicio y fin
+            } else if (!fecIni || !fecFin) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Campos requeridos',
@@ -753,7 +785,7 @@
 
             // Obtener email del usuario antes de enviar
             $.ajax({
-                url: '@Url.Action("ObtenerEmailUsuario", "PlanillaAsistencia")',
+                url: '@Url.Action("ObtenerDatosUsuario", "PlanillaAsistencia")',
                 type: 'GET',
                 success: function (emailResponse) {
                     if (!emailResponse.success || !emailResponse.email) {
@@ -767,18 +799,33 @@
                         return;
                     }
 
+                    // Obtener descripción del centro de costo seleccionado
+                    var centroCostoDescripcion = $('#informeCentroCosto option:selected').text();
+
+                    // Construir objeto de datos segun el tipo de informe
+                    var datosInforme = {
+                        Email: emailResponse.email,
+                        CentroCosto: parseInt(centro),
+                        CentroCostoDescripcion: centroCostoDescripcion,
+                        UsuarioGenera: emailResponse.usuario,
+                        TiposInforme: tiposInformeArray
+                    };
+
+                    // Para informes mensuales (5 y 6), enviar solo Periodo
+                    if (periodo) {
+                        datosInforme.Periodo = periodo;
+                    } else {
+                        // Para otros informes, enviar fechas
+                        datosInforme.FechaInicio = formatDate(fecIni);
+                        datosInforme.FechaTermino = formatDate(fecFin);
+                    }
+
                     // Enviar datos al controller usando el modelo Rh_Informe_Asistencia
                     $.ajax({
                         url: '@Url.Action("GeneraInforme", "PlanillaAsistencia")',
                         type: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({
-                            Email: emailResponse.email,
-                            CentroCosto: parseInt(centro),
-                            FechaInicio: formatDate(fecIni),
-                            FechaTermino: formatDate(fecFin),
-                            TiposInforme: tiposInformeArray
-                        }),
+                        data: JSON.stringify(datosInforme),
                         success: function (response) {
                             Swal.close();
                             
